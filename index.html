@@ -1634,9 +1634,21 @@ function highlightCode(code, lang) {
 // 内容在 inlineMd 内 escape,XSS 安全。
 function renderMarkdown(md) {
   if (!md) return "";
+  // 0) KaTeX: $$...$$ (block) 和 $...$ (inline) → 占位符,原文输入给
+  //    katexRender,产物存数组;最后一步还原。占位符格式同 \x00CB<n>\x00,
+  //    inlineMd 不会破坏(全是控制字符+数字,不是 HTML/markdown 特殊字符)。
+  const katexOut = [];
+  let s = md.replace(/\$\$([\s\S]+?)\$\$/g, (_, tex) => {
+    katexOut.push(katexRender(tex, true));
+    return `\x00KTX${katexOut.length - 1}\x00`;
+  });
+  s = s.replace(/(?<!\$)\$(?!\$)([^\$\n]+?)(?<!\$)\$(?!\$)/g, (_, tex) => {
+    katexOut.push(katexRender(tex, false));
+    return `\x00KTX${katexOut.length - 1}\x00`;
+  });
   // 1) 围栏代码块先摘出占位,raw 内容稍后在 inlineMd 之外直接 escape
   const codeBlocks = [];
-  let s = md.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (_, lang, code) => {
+  s = s.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (_, lang, code) => {
     codeBlocks.push({ lang, code });
     return `\x00CB${codeBlocks.length - 1}\x00`;
   });
@@ -1701,6 +1713,8 @@ function renderMarkdown(md) {
     const langAttr = cb.lang ? ` data-lang="${cb.lang}"` : "";
     return `<pre${langAttr}><code>${highlightCode(cb.code, cb.lang)}</code></pre>`;
   });
+  // 4) KaTeX 占位换回(直接拼产物,已含 escape 后的安全 HTML)
+  html = html.replace(/\x00KTX(\d+)\x00/g, (_, idx) => katexOut[+idx]);
   return html;
 
   function inlineMd(s) {
@@ -2920,28 +2934,26 @@ const QUOTES = [
   { text: "纸上得来终觉浅，绝知此事要躬行。", author: "陆游 · 冬夜读书" },
 ];
 
-// 初始 index = 日期种子(同一天打开是同一句);手动切换后被 stepQuote 改写
-let QUOTE_INDEX = (() => {
-  const d = new Date();
-  const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-  return seed % QUOTES.length;
-})();
+// 两个金句独立随机,保证不等 — 每次刷新都是新搭配,跨天也随机。
+let QUOTE_INDEX_H = Math.floor(Math.random() * QUOTES.length);
+let QUOTE_INDEX_N = (QUOTE_INDEX_H + 1 + Math.floor(Math.random() * (QUOTES.length - 1))) % QUOTES.length;
 
 function stepQuote(delta) {
-  QUOTE_INDEX = (QUOTE_INDEX + delta + QUOTES.length) % QUOTES.length;
+  QUOTE_INDEX_N = (QUOTE_INDEX_N + delta + QUOTES.length) % QUOTES.length;
   renderQuotes();
 }
 
 function renderQuotes() {
-  const q = QUOTES[QUOTE_INDEX];
-  const safe = { t: escHtml(q.text), a: escHtml(q.author) };
+  const h = QUOTES[QUOTE_INDEX_H], n = QUOTES[QUOTE_INDEX_N];
+  const safeH = { t: escHtml(h.text), a: escHtml(h.author) };
+  const safeN = { t: escHtml(n.text), a: escHtml(n.author) };
   const hq = $("#header-quote");
-  if (hq) hq.innerHTML = `<span class="hq-text">"${safe.t}"</span><span class="hq-author">— ${safe.a}</span>`;
-  // nav 那一行多两个 18px 小方块按钮
+  if (hq) hq.innerHTML = `<span class="hq-text">"${safeH.t}"</span><span class="hq-author">— ${safeH.a}</span>`;
+  // nav 那一行多两个 18px 小方块按钮,只切 nav 不动 header
   const nq = $("#nav-quote");
   if (nq) nq.innerHTML =
-    `<span class="nq-text">"${safe.t}"</span>` +
-    `<span class="nq-author">— ${safe.a}</span>` +
+    `<span class="nq-text">"${safeN.t}"</span>` +
+    `<span class="nq-author">— ${safeN.a}</span>` +
     `<span class="nq-switches">` +
       `<button class="nq-btn" type="button" aria-label="上一句" onclick="stepQuote(-1)">‹</button>` +
       `<button class="nq-btn" type="button" aria-label="下一句" onclick="stepQuote(1)">›</button>` +
