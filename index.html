@@ -9,43 +9,43 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <style>
 :root {
-  --bg: #efe7d2;
-  --bg-deep: #e8dfc6;
-  --panel: #f7f1de;
+  --bg: #f0e8d4;
+  --bg-deep: #e6dcc3;
+  --panel: #fbf5e6;
   --paper: var(--panel);
-  --panel-2: #f1ead2;
-  --border: rgba(21, 20, 15, 0.12);
-  --border-strong: rgba(21, 20, 15, 0.28);
+  --panel-2: #f4ecd8;
+  --border: rgba(21, 20, 15, 0.10);
+  --border-strong: rgba(21, 20, 15, 0.20);
   --text: #15140f;
   --text-2: rgba(21, 20, 15, 0.7);
   --muted: rgba(21, 20, 15, 0.5);
-  --primary: #ed6f5c;
+  --primary: #df6a58;
   --accent: var(--ink);
-  --primary-hover: #d85a47;
+  --primary-hover: #c95745;
   --primary-ink: #f7f1de;
-  --primary-tint: rgba(237, 111, 92, 0.13);
+  --primary-tint: rgba(223, 106, 88, 0.12);
   --ink: #15140f;
-  --ink-tint: rgba(21, 20, 15, 0.07);
-  --ink-soft: rgba(21, 20, 15, 0.13);
+  --ink-tint: rgba(21, 20, 15, 0.045);
+  --ink-soft: rgba(21, 20, 15, 0.10);
   --success: #6e7448;
-  --success-light: #e4e7d2;
+  --success-light: #e9ead8;
   --success-ink: #2f3318;
   --error: #a8473a;
-  --error-light: #ecd6cd;
+  --error-light: #f0ddd5;
   --error-ink: #5a251d;
   --warning: #c98a2b;
-  --warning-light: #f1e0b7;
-  --shell-dark: #1d1c17;
-  --shell-dark-2: #2a2924;
-  --shell-dark-3: #34332d;
+  --warning-light: #f2e4c2;
+  --shell-dark: #211f1a;
+  --shell-dark-2: #2b2923;
+  --shell-dark-3: #36332c;
   --on-shell: #efe7d2;
   --on-shell-muted: rgba(239, 231, 210, 0.55);
   --on-shell-border: rgba(239, 231, 210, 0.15);
   --font-display: "Playfair Display", "Source Serif Pro", "Iowan Old Style", "Charter", Georgia, "Songti SC", "STSong", serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Code", ui-monospace, Menlo, monospace;
-  --shadow: 0 1px 0 rgba(21, 20, 15, 0.04);
-  --shadow-md: 0 2px 10px -4px rgba(21, 20, 15, 0.18);
-  --radius: 4px;
+  --shadow: 0 1px 0 rgba(21, 20, 15, 0.035), 0 14px 34px -30px rgba(21, 20, 15, 0.28);
+  --shadow-md: 0 12px 28px -22px rgba(21, 20, 15, 0.28);
+  --radius: 8px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -148,7 +148,7 @@ body::before {
 /* === Panel (bone card) === */
 .panel {
   background: var(--panel);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 20px 22px;
@@ -200,7 +200,7 @@ body::before {
   display: inline-flex; align-items: center; gap: 6px;
   padding: 4px 10px;
   background: transparent;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   border-radius: 999px;
   color: var(--text-2);
   font-family: 'JetBrains Mono', monospace;
@@ -208,7 +208,7 @@ body::before {
   cursor: pointer;
   transition: all 0.15s ease;
 }
-.panel-toggle:hover { color: var(--ink); border-color: var(--ink); }
+.panel-toggle:hover { color: var(--ink); border-color: var(--border-strong); background: var(--ink-tint); }
 .panel-toggle svg { width: 11px; height: 11px; transition: transform 0.2s ease; }
 .panel-toggle.is-collapsed svg { transform: rotate(180deg); }
 
@@ -236,7 +236,7 @@ body::before {
 .sidebar .panel-head-en { display: none; }
 .sidebar .panel-toggle { padding: 3px 8px; font-size: 10px; }
 .sidebar::-webkit-scrollbar { width: 4px; }
-.sidebar::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; }
 .main {
   flex: 1;
   min-width: 0;
@@ -244,7 +244,6 @@ body::before {
   flex-direction: column;
   gap: 16px;
 }
-
 /* === Sidebar group sections === */
 .side-group {
   border-top: 1px dashed var(--border);
@@ -307,9 +306,8 @@ body::before {
   justify-content: space-between;
   gap: 8px;
   padding: 9px 12px 9px 18px;
-  border: none;
-  border-bottom: 1px solid var(--border);
-  border-radius: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
   background: transparent;
   color: var(--text-2);
   cursor: pointer;
@@ -333,14 +331,15 @@ body::before {
   background: var(--ink);
   transition: height 0.15s;
 }
-.book-entry:last-child { border-bottom: none; }
 .book-entry:hover {
   background: var(--ink-tint);
+  border-color: var(--border);
   color: var(--text);
 }
 .book-entry:hover::before { height: 55%; }
 .book-entry.active {
   background: var(--ink-tint);
+  border-color: var(--border);
   color: var(--text);
   font-weight: 600;
 }
@@ -381,9 +380,8 @@ body::before {
 .controls-row select, .controls-row .mode-btn {
   width: 100%;
   text-align: left;
-  border-radius: 0;
-  border: none;
-  border-bottom: 1px solid var(--border);
+  border-radius: 6px;
+  border: 1px solid transparent;
   padding: 9px 30px 9px 14px;
   font-size: 13px;
   font-weight: 500;
@@ -399,6 +397,7 @@ body::before {
 }
 .controls-row select:hover, .controls-row .mode-btn:hover {
   background-color: var(--ink-tint);
+  border-color: var(--border);
   color: var(--text);
 }
 .controls-row select:focus { outline: none; color: var(--text); }
@@ -426,9 +425,8 @@ body::before {
   justify-content: space-between;
   width: 100%;
   padding: 9px 14px;
-  border: none;
-  border-bottom: 1px solid var(--border);
-  border-radius: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
   background: transparent;
   color: var(--text-2);
   font-size: 13px;
@@ -438,10 +436,10 @@ body::before {
   transition: background 0.12s, color 0.12s;
   text-align: left;
 }
-.mode-btn:last-child { border-bottom: none; }
-.mode-btn:hover { background: var(--ink-tint); color: var(--text); }
+.mode-btn:hover { background: var(--ink-tint); border-color: var(--border); color: var(--text); }
 .mode-btn.active {
   background: var(--ink-tint);
+  border-color: var(--border);
   color: var(--text);
   font-weight: 600;
 }
@@ -490,72 +488,6 @@ body::before {
     border: 1px solid var(--border);
     border-radius: 999px;
   }
-}
-
-/* === Question progress (sits above q-meta) === */
-.q-progress {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0;
-  padding: 0 2px;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-2);
-}
-.q-progress .qp-label { color: var(--muted); white-space: nowrap; }
-.q-progress .qp-track {
-  flex: 1 1 auto;
-  height: 3px;
-  background: var(--ink-soft);
-  border-radius: 999px;
-  position: relative;
-  overflow: visible;
-}
-.q-progress .qp-fill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  background: var(--primary);
-  border-radius: inherit;
-  width: 0;
-  transition: width 0.45s cubic-bezier(.22,.61,.36,1);
-}
-.q-progress .qp-fill::after {
-  /* 端点珊瑚圆点 — 纸面游标感 */
-  content: "";
-  position: absolute;
-  top: 50%; right: -3.5px;
-  width: 8px; height: 8px;
-  margin-top: -4px;
-  background: var(--primary);
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--panel);
-  transition: opacity 0.2s;
-}
-.q-progress[data-empty="1"] .qp-fill { background: var(--border-strong); }
-.q-progress[data-empty="1"] .qp-fill::after { background: var(--border-strong); }
-.q-progress .qp-count {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 14px;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--text);
-  white-space: nowrap;
-}
-.q-progress .qp-count em {
-  color: var(--primary);
-  font-style: normal;
-  font-weight: 500;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  margin-right: 1px;
-}
-.q-progress .qp-pct { color: var(--text); white-space: nowrap; min-width: 3ch; text-align: right; }
-@media (prefers-reduced-motion: reduce) {
-  .q-progress .qp-fill { transition: none; }
 }
 
 /* === Question area === */
@@ -673,7 +605,7 @@ body::before {
 /* 题面 / 解析 / 选项里的围栏代码块(纸面装订框) */
 .q-stem pre.q-code, .opt-text pre.q-code, .fb-expl pre.q-code {
   background: var(--paper);
-  border: 1px dashed var(--border-strong);
+  border: 1px dashed var(--border);
   border-radius: 6px;
   padding: 10px 12px 10px 14px;
   margin: 10px 0;
@@ -726,7 +658,7 @@ body::before {
 .option {
   display: flex; align-items: flex-start; gap: 14px;
   padding: 12px 16px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   cursor: pointer;
   transition: all 0.15s;
@@ -735,29 +667,29 @@ body::before {
   position: relative;
 }
 .option:hover:not(.disabled) {
-  border-color: var(--ink);
+  border-color: var(--border-strong);
   background: var(--ink-tint);
 }
 .option.selected {
-  border-color: var(--ink);
-  background: var(--ink-tint);
-  border-width: 1.5px;
+  border-color: var(--primary);
+  background: var(--primary-tint);
+  border-width: 1px;
 }
 .option.correct {
   border-color: var(--success);
   background: var(--success-light);
-  border-width: 1.5px;
+  border-width: 1px;
 }
 .option.wrong {
   border-color: var(--error);
   background: var(--error-light);
-  border-width: 1.5px;
+  border-width: 1px;
 }
 .option.disabled { cursor: not-allowed; opacity: 0.95; }
 .option .opt-letter {
   width: 26px; height: 26px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  border: 1.5px solid var(--text);
+  border: 1px solid var(--border-strong);
   border-radius: 50%;
   font-weight: 700;
   font-size: 13px;
@@ -769,8 +701,8 @@ body::before {
   line-height: 1;
 }
 .option.selected .opt-letter {
-  background: var(--ink);
-  border-color: var(--ink);
+  background: var(--primary);
+  border-color: var(--primary);
   color: var(--primary-ink);
 }
 .option.correct .opt-letter {
@@ -791,7 +723,7 @@ body::before {
   max-width: 100%;
   height: auto;
   margin: 10px 0;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background: #fff;
   cursor: zoom-in;
@@ -856,7 +788,7 @@ body::before {
   gap: 6px;
   padding: 4px 9px;
   border-radius: 999px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.08em;
@@ -885,7 +817,7 @@ body::before {
 .btn {
   padding: 8px 18px;
   border-radius: var(--radius);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   background: var(--panel);
   color: var(--text);
   cursor: pointer;
@@ -897,7 +829,8 @@ body::before {
   letter-spacing: 0.02em;
 }
 .btn:hover:not(:disabled) {
-  border-color: var(--ink);
+  border-color: var(--border-strong);
+  background: var(--ink-tint);
   color: var(--ink);
 }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -988,7 +921,7 @@ body::before {
 }
 .backup-btn {
   padding: 6px 10px;
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   border-radius: 999px;
   background: transparent;
   color: var(--text-2);
@@ -999,15 +932,14 @@ body::before {
   transition: all 0.15s ease;
 }
 .backup-btn:hover {
-  border-color: var(--ink);
+  border-color: var(--border-strong);
   color: var(--ink);
   background: var(--ink-tint);
 }
-
 /* === AI helper (dark console panel) === */
 .ai-shell {
   margin-top: 18px;
-  border: 1px solid var(--shell-dark-2);
+  border: 1px solid rgba(239, 231, 210, 0.10);
   background: var(--shell-dark);
   color: var(--on-shell);
   border-radius: var(--radius);
@@ -1036,7 +968,7 @@ body::before {
   height: 9px;
   border-radius: 50%;
   background: var(--primary);
-  box-shadow: 0 0 8px var(--primary);
+  box-shadow: none;
 }
 .ai-title small {
   font-family: var(--font-mono);
@@ -1264,7 +1196,7 @@ body::before {
   margin: 10px 0;
   padding: 14px 14px 12px 16px;
   background: var(--paper);
-  border: 1px dashed var(--border-strong);
+  border: 1px dashed var(--border);
   border-radius: 8px;
   overflow-x: auto;
   font: 12.5px/1.7 var(--font-mono);
@@ -1599,7 +1531,6 @@ body::before {
     </aside>
 
     <div class="main">
-      <div class="q-progress" id="q-progress" data-empty="0"></div>
       <div class="panel" id="quiz-area">
         <div class="loading">加载题库中...</div>
       </div>
@@ -2035,7 +1966,7 @@ function renderMarkdown(md) {
 }
 
 // 把含 LaTeX($...$ / $$...$$)、Markdown 围栏代码块(```lang ... ```)、
-// 图片引用(![..](images/X.jpg))、预渲染 HTML 块(<table>/<details>)
+// 图片引用(![..](images/X.jpg))、预渲染 HTML 表格(<table>)
 // 和白名单内联标签的题面/解析文本转为安全 HTML。
 //
 // 关键: KaTeX 和代码块的高亮器内部都会对文本做 HTML escape(把 > 变 &gt;),
@@ -2046,13 +1977,16 @@ function renderMarkdown(md) {
 //         → KaTeX 渲染(原文输入,产物存占位)
 //         → escape 剩余内容
 //         → 还占位: 块级(递归) → 内联 → 围栏代码块 → KaTeX → 图片
-const BLOCK_TAGS = /<table[\s\S]*?<\/table>|<details[\s\S]*?<\/details>/gi;
-const SAFE_INLINE = /<\/?(?:tr|td|th|tbody|thead|tfoot|caption|summary|br|p|b|i|u|strong|em|sub|sup)\b[^>]*>/gi;
+const BLOCK_TAGS = /<table[\s\S]*?<\/table>/gi;
+const SAFE_INLINE = /<\/?(?:tr|td|th|tbody|thead|tfoot|caption|br|p|b|i|u|strong|em|sub|sup)\b[^>]*>/gi;
 // 围栏代码块: ```lang(可选)\n...\n```。容许尾随空白。
 const FENCE_RE = /```([a-zA-Z0-9_+-]*)[ \t]*\n([\s\S]*?)\n[ \t]*```/g;
 function formatContent(s) {
   if (s == null) return "";
   s = String(s);
+  // 0. 静默剥除 <details>...</details>: 题源里的图注、mermaid 源码、
+  //    text_image 辅助块都不作为题卡内容展示。
+  s = s.replace(/<details\b[\s\S]*?<\/details>/gi, "");
   // 1. 图片引用 → 占位符
   const imgs = [];
   s = s.replace(/!\[[^\]]*\]\(([^)]+)\)/g, (_, src) => {
@@ -2400,7 +2334,7 @@ function renderQuiz() {
     else if (CURRENT.mode === "favorite") emptyMsg = "还没有收藏的题";
     else if (CURRENT.mode === "unattempted") emptyMsg = "本章节的题都已经做过,切到「顺序/随机」巩固一下吧";
     area.innerHTML = `<div class="empty">${emptyMsg}</div>`;
-    renderProgress();
+    syncSession();
     return;
   }
   // 全部模式做完一组
@@ -2414,7 +2348,7 @@ function renderQuiz() {
     `;
     $("#btn-next-batch").onclick = () => nextBatch();
     $("#btn-review").onclick = () => { CURRENT.idx = 0; CURRENT.answers = {}; resetAiPanel(); render(); };
-    renderProgress();
+    syncSession();
     return;
   }
   if (CURRENT.idx < 0) CURRENT.idx = 0;
@@ -2604,11 +2538,12 @@ function renderQuiz() {
     localStorage.setItem(IMG_VIS_KEY, imgVisible ? "1" : "0");
     applyImgVis();
   };
-  $("#panelToggle").onclick = () => {
+  const panelToggle = $("#panelToggle");
+  if (panelToggle) panelToggle.onclick = () => {
     // 收起按钮已移除,handler 保留为 noop
   };
 
-  renderProgress();
+  syncSession();
   applyImgVis();
   applyPanel();
 }
@@ -2635,38 +2570,8 @@ function autoGrade(q, sel) {
   flashCard(q.id, correct ? "correct" : "wrong");
 }
 
-function renderProgress() {
-  const wrap = $("#q-progress");
-  if (!wrap) return;
-  const qs = CURRENT.questions || [];
-  const total = qs.length;
-  // 写之前先保存(保留旧行为,saveSession 仍然跑)
+function syncSession() {
   saveSession();
-  if (total === 0) {
-    // 题库为空 / 当前模式没有题目:进度条退到中性灰,不显示百分比
-    wrap.dataset.empty = "1";
-    wrap.innerHTML = `
-      <span class="qp-label">进度</span>
-      <div class="qp-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-        <div class="qp-fill" style="width: 0%"></div>
-      </div>
-      <span class="qp-count">—</span>
-      <span class="qp-pct">—</span>
-    `;
-    return;
-  }
-  // 已答 = 当前题库范围 ∩ STATE.attempted(去重后的题 ID)
-  const done = qs.reduce((n, q) => n + (STATE.attempted[q.id] ? 1 : 0), 0);
-  const pct = Math.round(done / total * 100);
-  wrap.dataset.empty = "0";
-  wrap.innerHTML = `
-    <span class="qp-label">进度</span>
-    <div class="qp-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}">
-      <div class="qp-fill" style="width: ${pct}%"></div>
-    </div>
-    <span class="qp-count"><em>${done}</em> / ${total}</span>
-    <span class="qp-pct">${pct}%</span>
-  `;
 }
 
 // 答题反馈闪光:答对 bloom(纸面轻拍),答错 shake(纸面轻震),查看答案 bloom(中性轻拍)
