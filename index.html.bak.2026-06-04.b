@@ -12,7 +12,6 @@
   --bg: #efe7d2;
   --bg-deep: #e8dfc6;
   --panel: #f7f1de;
-  --paper: var(--panel);
   --panel-2: #f1ead2;
   --border: rgba(21, 20, 15, 0.12);
   --border-strong: rgba(21, 20, 15, 0.28);
@@ -20,13 +19,10 @@
   --text-2: rgba(21, 20, 15, 0.7);
   --muted: rgba(21, 20, 15, 0.5);
   --primary: #ed6f5c;
-  --accent: var(--ink);
+  --accent: var(--primary);
   --primary-hover: #d85a47;
-  --primary-ink: #f7f1de;
+  --primary-ink: #15140f;
   --primary-tint: rgba(237, 111, 92, 0.13);
-  --ink: #15140f;
-  --ink-tint: rgba(21, 20, 15, 0.07);
-  --ink-soft: rgba(21, 20, 15, 0.13);
   --success: #6e7448;
   --success-light: #e4e7d2;
   --success-ink: #2f3318;
@@ -35,12 +31,6 @@
   --error-ink: #5a251d;
   --warning: #c98a2b;
   --warning-light: #f1e0b7;
-  --shell-dark: #1d1c17;
-  --shell-dark-2: #2a2924;
-  --shell-dark-3: #34332d;
-  --on-shell: #efe7d2;
-  --on-shell-muted: rgba(239, 231, 210, 0.55);
-  --on-shell-border: rgba(239, 231, 210, 0.15);
   --font-display: "Playfair Display", "Source Serif Pro", "Iowan Old Style", "Charter", Georgia, "Songti SC", "STSong", serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Code", ui-monospace, Menlo, monospace;
   --shadow: 0 1px 0 rgba(21, 20, 15, 0.04);
@@ -191,7 +181,7 @@ body::before {
 }
 .panel-head-label::before {
   content: ""; display: inline-block;
-  width: 24px; height: 2px; background: var(--primary);
+  width: 24px; height: 2px; background: var(--accent);
   align-self: center; flex: 0 0 auto;
   transform: translateY(-2px);
   margin-right: 2px;
@@ -208,7 +198,7 @@ body::before {
   cursor: pointer;
   transition: all 0.15s ease;
 }
-.panel-toggle:hover { color: var(--ink); border-color: var(--ink); }
+.panel-toggle:hover { color: var(--accent); border-color: var(--accent); }
 .panel-toggle svg { width: 11px; height: 11px; transition: transform 0.2s ease; }
 .panel-toggle.is-collapsed svg { transform: rotate(180deg); }
 
@@ -267,7 +257,7 @@ body::before {
   content: "";
   width: 14px;
   height: 1.5px;
-  background: var(--ink);
+  background: var(--primary);
   flex-shrink: 0;
 }
 .side-chapter {
@@ -276,23 +266,9 @@ body::before {
 .side-chapter select {
   width: 100%;
   min-width: 0;
-  padding: 7px 26px 7px 10px;
+  padding: 7px 10px;
   font-size: 13px;
-  font-family: 'Inter Tight', 'PingFang SC', system-ui, sans-serif;
-  font-weight: 500;
-  color: var(--text);
-  background-color: var(--panel);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'><path d='M0 0 L4 5 L8 0' fill='none' stroke='%23ed6f5c' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  appearance: none;
-  -webkit-appearance: none;
-  cursor: pointer;
 }
-.side-chapter select:hover { border-color: var(--primary); }
-.side-chapter select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(237, 111, 92, 0.15); }
 
 /* === Book entries (vertical light rows) === */
 .book-tabs {
@@ -330,21 +306,21 @@ body::before {
   transform: translateY(-50%);
   width: 3px;
   height: 0;
-  background: var(--ink);
+  background: var(--primary);
   transition: height 0.15s;
 }
 .book-entry:last-child { border-bottom: none; }
 .book-entry:hover {
-  background: var(--ink-tint);
+  background: var(--primary-tint);
   color: var(--text);
 }
 .book-entry:hover::before { height: 55%; }
 .book-entry.active {
-  background: var(--ink-tint);
+  background: var(--primary-tint);
   color: var(--text);
   font-weight: 600;
 }
-.book-entry.active::before { height: 65%; background: var(--ink); }
+.book-entry.active::before { height: 65%; background: var(--primary); }
 .book-entry .be-name {
   flex: 1;
   min-width: 0;
@@ -384,32 +360,19 @@ body::before {
   border-radius: 0;
   border: none;
   border-bottom: 1px solid var(--border);
-  padding: 9px 30px 9px 14px;
+  padding: 9px 14px;
   font-size: 13px;
   font-weight: 500;
   font-family: 'Inter Tight', 'PingFang SC', system-ui, sans-serif;
-  background-color: transparent;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'><path d='M0 0 L4 5 L8 0' fill='none' stroke='%23ed6f5c' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
+  background: transparent;
   color: var(--text-2);
-  appearance: none;
-  -webkit-appearance: none;
-  cursor: pointer;
 }
 .controls-row select:hover, .controls-row .mode-btn:hover {
-  background-color: var(--ink-tint);
-  color: var(--text);
-}
-.controls-row select:focus { outline: none; color: var(--text); }
-
-/* option 列表也用纸面色(浏览器原生是白底) */
-.side-chapter option, .controls-row option {
-  background: var(--panel);
+  background: var(--primary-tint);
   color: var(--text);
 }
 .controls-row .mode-btn.active {
-  background: var(--ink-tint);
+  background: var(--primary-tint);
   color: var(--text);
   font-weight: 600;
 }
@@ -439,9 +402,9 @@ body::before {
   text-align: left;
 }
 .mode-btn:last-child { border-bottom: none; }
-.mode-btn:hover { background: var(--ink-tint); color: var(--text); }
+.mode-btn:hover { background: var(--primary-tint); color: var(--text); }
 .mode-btn.active {
-  background: var(--ink-tint);
+  background: var(--primary-tint);
   color: var(--text);
   font-weight: 600;
 }
@@ -492,72 +455,6 @@ body::before {
   }
 }
 
-/* === Question progress (sits above q-meta) === */
-.q-progress {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0;
-  padding: 0 2px;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-2);
-}
-.q-progress .qp-label { color: var(--muted); white-space: nowrap; }
-.q-progress .qp-track {
-  flex: 1 1 auto;
-  height: 3px;
-  background: var(--ink-soft);
-  border-radius: 999px;
-  position: relative;
-  overflow: visible;
-}
-.q-progress .qp-fill {
-  position: absolute;
-  inset: 0 auto 0 0;
-  background: var(--primary);
-  border-radius: inherit;
-  width: 0;
-  transition: width 0.45s cubic-bezier(.22,.61,.36,1);
-}
-.q-progress .qp-fill::after {
-  /* 端点珊瑚圆点 — 纸面游标感 */
-  content: "";
-  position: absolute;
-  top: 50%; right: -3.5px;
-  width: 8px; height: 8px;
-  margin-top: -4px;
-  background: var(--primary);
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px var(--panel);
-  transition: opacity 0.2s;
-}
-.q-progress[data-empty="1"] .qp-fill { background: var(--border-strong); }
-.q-progress[data-empty="1"] .qp-fill::after { background: var(--border-strong); }
-.q-progress .qp-count {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-size: 14px;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--text);
-  white-space: nowrap;
-}
-.q-progress .qp-count em {
-  color: var(--primary);
-  font-style: normal;
-  font-weight: 500;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  margin-right: 1px;
-}
-.q-progress .qp-pct { color: var(--text); white-space: nowrap; min-width: 3ch; text-align: right; }
-@media (prefers-reduced-motion: reduce) {
-  .q-progress .qp-fill { transition: none; }
-}
-
 /* === Question area === */
 .q-meta {
   display: flex; justify-content: space-between; align-items: center;
@@ -583,7 +480,7 @@ body::before {
   content: "";
   display: inline-block;
   width: 20px; height: 1.5px;
-  background: var(--ink);
+  background: var(--primary);
 }
 .q-meta .q-source {
   color: var(--text-2);
@@ -615,8 +512,8 @@ body::before {
   font-weight: 500;
 }
 .q-meta .img-toggle:hover {
-  border-color: var(--ink);
-  color: var(--ink);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 .q-meta .img-toggle.is-off {
   color: var(--muted);
@@ -624,8 +521,8 @@ body::before {
   background: rgba(21, 20, 15, 0.03);
 }
 .q-meta .img-toggle.is-off:hover {
-  border-color: var(--ink);
-  color: var(--ink);
+  border-color: var(--primary);
+  color: var(--primary);
   background: transparent;
 }
 .q-meta .img-toggle svg {
@@ -641,7 +538,7 @@ body::before {
   max-width: 78ch;
   margin: 0 0 22px;
   padding: 8px 0 8px 18px;
-  border-left: 2px solid var(--ink);
+  border-left: 2px solid var(--primary);
   white-space: pre-wrap;
   line-height: 1.78;
   color: var(--text);
@@ -657,8 +554,8 @@ body::before {
   background: linear-gradient(90deg, var(--error-light) 0%, transparent 65%);
 }
 .q-stem.flash-info {
-  border-left-color: var(--ink);
-  background: linear-gradient(90deg, var(--ink-tint) 0%, transparent 65%);
+  border-left-color: var(--primary);
+  background: linear-gradient(90deg, var(--primary-tint) 0%, transparent 65%);
 }
 #quiz-area { transition: box-shadow 0.18s ease-out; }
 #quiz-area.bloom { animation: qcard-bloom 0.55s ease-out; }
@@ -690,12 +587,12 @@ body::before {
   position: absolute;
   top: 8px; left: 8px;
   width: 6px; height: 6px;
-  background: var(--ink);
+  background: var(--primary);
   box-shadow:
     0 0 0 1px var(--paper),
-    10px 0 0 var(--ink),
+    10px 0 0 var(--primary),
     10px 0 0 1px var(--paper),
-    20px 0 0 var(--ink),
+    20px 0 0 var(--primary),
     20px 0 0 1px var(--paper);
   opacity: 0.7;
 }
@@ -735,12 +632,12 @@ body::before {
   position: relative;
 }
 .option:hover:not(.disabled) {
-  border-color: var(--ink);
-  background: var(--ink-tint);
+  border-color: var(--primary);
+  background: var(--primary-tint);
 }
 .option.selected {
-  border-color: var(--ink);
-  background: var(--ink-tint);
+  border-color: var(--primary);
+  background: var(--primary-tint);
   border-width: 1.5px;
 }
 .option.correct {
@@ -769,8 +666,8 @@ body::before {
   line-height: 1;
 }
 .option.selected .opt-letter {
-  background: var(--ink);
-  border-color: var(--ink);
+  background: var(--primary);
+  border-color: var(--primary);
   color: var(--primary-ink);
 }
 .option.correct .opt-letter {
@@ -868,7 +765,7 @@ body::before {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--ink);
+  background: var(--primary);
 }
 .status-pill.correct {
   border-color: var(--success);
@@ -897,8 +794,8 @@ body::before {
   letter-spacing: 0.02em;
 }
 .btn:hover:not(:disabled) {
-  border-color: var(--ink);
-  color: var(--ink);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn-primary {
@@ -948,9 +845,9 @@ body::before {
   border-left-width: 3px;
 }
 .feedback.info {
-  background: var(--ink-tint);
+  background: var(--primary-tint);
   color: var(--text);
-  border-color: var(--ink);
+  border-color: var(--primary);
   border-left-width: 3px;
 }
 .feedback .fb-head {
@@ -999,17 +896,16 @@ body::before {
   transition: all 0.15s ease;
 }
 .backup-btn:hover {
-  border-color: var(--ink);
-  color: var(--ink);
-  background: var(--ink-tint);
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-tint);
 }
 
-/* === AI helper (dark console panel) === */
+/* === AI helper === */
 .ai-shell {
   margin-top: 18px;
-  border: 1px solid var(--shell-dark-2);
-  background: var(--shell-dark);
-  color: var(--on-shell);
+  border: 1px solid var(--border-strong);
+  background: color-mix(in oklch, var(--paper) 72%, var(--panel) 28%);
   border-radius: var(--radius);
   overflow: hidden;
 }
@@ -1020,7 +916,7 @@ body::before {
   justify-content: space-between;
   gap: 12px;
   padding: 12px 14px;
-  border-bottom: 1px dashed var(--on-shell-border);
+  border-bottom: 1px dashed var(--border);
 }
 .ai-title {
   display: flex;
@@ -1028,7 +924,7 @@ body::before {
   gap: 8px;
   font-family: var(--font-display);
   font-size: 17px;
-  color: var(--on-shell);
+  color: var(--text);
 }
 .ai-title::before {
   content: "";
@@ -1036,12 +932,11 @@ body::before {
   height: 9px;
   border-radius: 50%;
   background: var(--primary);
-  box-shadow: 0 0 8px var(--primary);
 }
 .ai-title small {
   font-family: var(--font-mono);
   font-size: 10px;
-  color: var(--on-shell-muted);
+  color: var(--muted);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -1049,9 +944,9 @@ body::before {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 1px solid var(--on-shell-border);
+  border: 1px solid var(--border);
   background: transparent;
-  color: var(--on-shell-muted);
+  color: var(--text-2);
   cursor: pointer;
 }
 .ai-head-tools {
@@ -1063,22 +958,22 @@ body::before {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 1px solid var(--on-shell-border);
+  border: 1px solid var(--border);
   background: transparent;
-  color: var(--on-shell-muted);
+  color: var(--text-2);
   font-size: 15px;
   line-height: 1;
   cursor: pointer;
 }
 .ai-gear.active {
   background: var(--primary);
-  color: var(--primary-ink);
+  color: var(--paper);
   border-color: var(--primary);
 }
 .ai-cfg {
   padding: 12px 14px;
-  border-bottom: 1px dashed var(--on-shell-border);
-  background: var(--shell-dark-2);
+  border-bottom: 1px dashed var(--border);
+  background: color-mix(in oklch, var(--paper) 60%, var(--panel) 40%);
 }
 .ai-cfg[hidden] { display: none; }
 .ai-cfg-row {
@@ -1097,13 +992,13 @@ body::before {
   font: 10px/1 var(--font-mono);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--on-shell-muted);
+  color: var(--muted);
 }
 .ai-cfg-row input,
 .ai-cfg-row select {
-  border: 1px solid var(--on-shell-border);
+  border: 1px solid var(--border-strong);
   border-radius: 8px;
-  background: var(--paper);
+  background: var(--panel);
   color: var(--text);
   padding: 7px 10px;
   font: 12px/1.3 var(--font-mono);
@@ -1111,11 +1006,11 @@ body::before {
   min-width: 0;
 }
 .ai-cfg-row input:focus,
-.ai-cfg-row select:focus { outline: 2px solid var(--primary-tint); outline-offset: 1px; border-color: var(--primary); }
+.ai-cfg-row select:focus { outline: 2px solid var(--primary-tint); outline-offset: 1px; }
 .ai-cfg-actions { align-items: center; }
 .ai-cfg-hint {
   font: 11px/1.55 var(--font-mono);
-  color: var(--on-shell-muted);
+  color: var(--muted);
   letter-spacing: 0.04em;
 }
 .ai-body {
@@ -1128,8 +1023,8 @@ body::before {
   gap: 12px;
   padding: 9px 12px;
   margin-bottom: 12px;
-  background: var(--shell-dark-2);
-  border: 1px dashed var(--on-shell-border);
+  background: color-mix(in oklch, var(--paper) 50%, transparent 50%);
+  border: 1px dashed var(--border-strong);
   border-radius: 8px;
 }
 .ai-context-meta {
@@ -1150,12 +1045,12 @@ body::before {
 .ai-context-icon {
   width: 14px;
   height: 14px;
-  color: var(--on-shell-muted);
+  color: var(--muted);
   flex-shrink: 0;
 }
 .ai-context-source {
   font: 11px/1.3 var(--font-mono);
-  color: var(--on-shell);
+  color: var(--text);
   letter-spacing: 0.04em;
   min-width: 0;
   overflow: hidden;
@@ -1163,13 +1058,13 @@ body::before {
   white-space: nowrap;
 }
 .ai-context-dot {
-  color: var(--on-shell-muted);
+  color: var(--border-strong);
   flex-shrink: 0;
   font: 11px/1 var(--font-mono);
 }
 .ai-context-state {
   font: 10px/1 var(--font-mono);
-  color: var(--on-shell-muted);
+  color: var(--muted);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -1180,10 +1075,10 @@ body::before {
   align-items: center;
   gap: 5px;
   padding: 5px 10px 5px 8px;
-  border: 1px solid var(--on-shell-border);
+  border: 1px solid var(--border-strong);
   border-radius: 999px;
-  background: transparent;
-  color: var(--on-shell);
+  background: var(--panel);
+  color: var(--text-2);
   font: 10px/1 var(--font-mono);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1198,7 +1093,7 @@ body::before {
 }
 .ai-copy-inline:hover {
   background: var(--primary);
-  color: var(--primary-ink);
+  color: var(--paper);
   border-color: var(--primary);
 }
 .ai-actions {
@@ -1209,28 +1104,16 @@ body::before {
 }
 .ai-output {
   min-height: 92px;
-  padding: 14px 16px;
-  border: 1px dashed var(--on-shell-border);
+  padding: 12px 14px;
+  border: 1px dashed var(--border-strong);
   border-radius: calc(var(--radius) - 4px);
-  background: var(--shell-dark-2);
-  color: var(--on-shell);
+  background: rgba(255,255,255,0.2);
+  color: var(--text);
   font-size: 13px;
   line-height: 1.72;
 }
-.ai-output:empty { display: none; }
 .ai-output > :first-child { margin-top: 0; }
 .ai-output > :last-child  { margin-bottom: 0; }
-.ai-output.is-streaming > :last-child::after {
-  content: "";
-  display: inline-block;
-  width: 7px;
-  height: 1em;
-  margin-left: 2px;
-  vertical-align: text-bottom;
-  background: rgba(239, 231, 210, 0.5);
-  animation: aiCursor 1s steps(2, end) infinite;
-}
-@keyframes aiCursor { 50% { opacity: 0; } }
 .ai-output p  { margin: 6px 0; }
 .ai-output h1,
 .ai-output h2,
@@ -1241,12 +1124,11 @@ body::before {
   letter-spacing: -0.01em;
   margin: 12px 0 6px;
   line-height: 1.3;
-  color: var(--on-shell);
 }
 .ai-output h1 { font-size: 17px; }
 .ai-output h2 { font-size: 15px; }
 .ai-output h3 { font-size: 14px; }
-.ai-output h4 { font-size: 13px; color: var(--on-shell-muted); }
+.ai-output h4 { font-size: 13px; color: var(--muted); }
 .ai-output ul,
 .ai-output ol { margin: 6px 0; padding-left: 22px; }
 .ai-output li { margin: 2px 0; }
@@ -1254,16 +1136,16 @@ body::before {
 .ai-output code {
   font: 12px/1.5 var(--font-mono);
   padding: 1px 6px;
-  background: var(--shell-dark-3);
-  border: 1px solid var(--on-shell-border);
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
   border-radius: 3px;
-  color: var(--on-shell);
+  color: var(--text);
 }
 .ai-output pre {
   position: relative;
   margin: 10px 0;
   padding: 14px 14px 12px 16px;
-  background: var(--paper);
+  background: var(--panel);
   border: 1px dashed var(--border-strong);
   border-radius: 8px;
   overflow-x: auto;
@@ -1279,9 +1161,9 @@ body::before {
   left: 10px;
   width: 6px;
   height: 6px;
-  background: var(--ink);
+  background: var(--primary);
   border-radius: 1px;
-  box-shadow: 10px 0 0 var(--ink), 0 8px 0 0 var(--ink), 10px 8px 0 0 var(--ink);
+  box-shadow: 10px 0 0 var(--primary), 0 8px 0 0 var(--primary), 10px 8px 0 0 var(--primary);
   opacity: 0.85;
 }
 .ai-output pre code { background: none; padding: 0; color: inherit; font: inherit; }
@@ -1301,10 +1183,10 @@ body::before {
 }
 .ai-output pre[data-lang] { padding-right: 12px; }
 /* 语法高亮 token — 沿用 Atelier Zero 配色: 珊瑚(关键字) / 橄榄(字符串) / 墨黑(常规) / 灰(注释/运算符) */
-.tok-kw  { color: var(--ink); font-weight: 600; }
+.tok-kw  { color: var(--primary); font-weight: 600; }
 .tok-str { color: #6e7448; }                    /* 橄榄,沿用 --success 同色 */
 .tok-num { color: var(--text); font-weight: 600; }
-.tok-bool{ color: var(--ink); font-weight: 600; }
+.tok-bool{ color: var(--primary); font-weight: 600; }
 .tok-com { color: var(--muted); font-style: italic; }
 .tok-fn  { color: var(--text); }
 .tok-op  { color: var(--muted); }
@@ -1313,12 +1195,12 @@ body::before {
   margin: 8px 0;
   padding: 4px 0 4px 12px;
   border-left: 3px solid var(--primary);
-  color: var(--on-shell-muted);
+  color: var(--muted);
   font-style: italic;
 }
 .ai-output hr {
   border: 0;
-  border-top: 1px dashed var(--on-shell-border);
+  border-top: 1px dashed var(--border-strong);
   margin: 12px 0;
 }
 .ai-output a {
@@ -1326,7 +1208,7 @@ body::before {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-.ai-output strong { color: var(--on-shell); font-weight: 600; }
+.ai-output strong { color: var(--text); font-weight: 600; }
 .ai-output em { font-style: italic; }
 /* 流式光标:行末珊瑚竖线 1s 步进闪烁,沿用题卡题干左线同色 */
 .ai-output .ai-cursor {
@@ -1348,17 +1230,15 @@ body::before {
 .ai-input-row input {
   flex: 1;
   min-width: 0;
-  border: 1px solid var(--on-shell-border);
+  border: 1px solid var(--border-strong);
   border-radius: 999px;
-  background: var(--shell-dark-2);
-  color: var(--on-shell);
+  background: var(--panel);
+  color: var(--text);
   padding: 10px 13px;
   font: 13px var(--font-body);
 }
-.ai-input-row input::placeholder { color: var(--on-shell-muted); }
 .ai-input-row input:focus {
-  outline: 2px solid var(--primary);
-  outline-offset: 1px;
+  outline: 2px solid var(--primary-tint);
   border-color: var(--primary);
 }
 
@@ -1465,8 +1345,8 @@ body::before {
   margin-right: 22px;
   max-width: 540px;
   padding: 0 16px;
-  border-left: 1.5px solid var(--ink);
-  border-right: 1.5px solid var(--ink);
+  border-left: 1.5px solid var(--primary);
+  border-right: 1.5px solid var(--primary);
   overflow: hidden;
 }
 .nav-quote .nq-text {
@@ -1500,9 +1380,9 @@ body::before {
   align-items: center;
   justify-content: center;
   background: transparent;
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid var(--primary);
   border-radius: 4px;
-  color: var(--ink);
+  color: var(--primary);
   font-family: var(--font-mono);
   font-size: 11px;
   font-style: normal;
@@ -1513,14 +1393,14 @@ body::before {
   transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
 .nav-quote .nq-btn:hover {
-  background: var(--ink);
+  background: var(--primary);
   color: #fff;
 }
 .nav-quote .nq-btn:active {
   transform: scale(0.9);
 }
 .nav-quote .nq-btn:focus-visible {
-  outline: 1.5px solid var(--ink);
+  outline: 1.5px solid var(--primary);
   outline-offset: 2px;
 }
 @media (max-width: 820px) {
@@ -1599,7 +1479,6 @@ body::before {
     </aside>
 
     <div class="main">
-      <div class="q-progress" id="q-progress" data-empty="0"></div>
       <div class="panel" id="quiz-area">
         <div class="loading">加载题库中...</div>
       </div>
@@ -1764,25 +1643,17 @@ function applyPanel() {
 }
 function persist() { saveState(STATE); }
 
-// 刷新题库 = 全部进度归零(错题 + 已答 + 正确率),收藏保留
-function resetProgress() {
-  const wrongN = Object.keys(STATE.wrong).length;
-  const answeredN = Object.keys(STATE.attempted).length;
-  if (wrongN === 0 && answeredN === 0) { toast("还没有答题记录,无需刷新"); return; }
-  if (!confirm(`确定要刷新题库(进度归零)吗?\n\n· 错题集:将清空 ${wrongN} 题\n· 已答记录:将清空 ${answeredN} 题(已答过的不再出现于「未做」模式)\n· 正确率:将归零为 —\n· 当前题面会回到第 1 题,已勾选的选项清空\n· 收藏不受影响`)) return;
+// 刷新题库 = 清空错题集(收藏 / 答题统计 / 已答记录均不受影响)
+function resetWrong() {
+  const n = Object.keys(STATE.wrong).length;
+  if (n === 0) { toast("没有错题,无需重置"); return; }
+  if (!confirm(`确定要清空 ${n} 道错题吗?\n\n· 收藏不受影响\n· 答题统计(已答数/正确率)不受影响\n· 已答记录不受影响(已答过的不再出现于「未做」模式)`)) return;
   STATE.wrong = {};
-  STATE.attempted = {};
-  STATE.stats = { answered: 0, correct: 0 };
   persist();
-  // 本轮题面与已选项也一起回到第 1 题
-  CURRENT.idx = 0;
-  CURRENT.answers = {};
-  resetAiPanel();
-  // 如果当前在"错题 / 未做"模式,题单语义会变(错题被清,未做变成全部),→ 切到"顺序"模式避免空屏/误判
-  if (CURRENT.mode === "wrong" || CURRENT.mode === "unattempted") setMode("sequential");
+  // 如果当前在"错题"模式,题单会变空 → 切到"顺序"模式避免空屏
+  if (CURRENT.mode === "wrong") setMode("sequential");
   else render();
-  saveSession();
-  toast(`已刷新题库 · 错题 ${wrongN} / 已答 ${answeredN} 已清空`);
+  toast(`已清空 ${n} 道错题`);
 }
 
 function markAttempted(qid) {
@@ -2250,22 +2121,14 @@ function render() {
 
 function renderHeader() {
   const totalQs = ALL_QUESTIONS.length;
+  const totalDone = Object.keys(STATE.wrong).length + STATE.stats.answered;
   const favCount = Object.keys(STATE.favorite).length;
-  // 从权威源派生:已答(去重过的题目 ID 数)、错题、正确率 = (已答 - 当前错题) / 已答
-  // 避免 STATE.stats.answered 累加计数器因重复作答而漂移
-  const answeredCount = Object.keys(STATE.attempted).length;
   const wrongCount = Object.keys(STATE.wrong).length;
-  const correctCount = Math.max(0, answeredCount - wrongCount);
-  const correctRate = answeredCount > 0 ? Math.round(correctCount / answeredCount * 100) : 0;
-  // 同步回计数器(防止后续代码读到漂移值)并持久化
-  if (STATE.stats.answered !== answeredCount || STATE.stats.correct !== correctCount) {
-    STATE.stats.answered = answeredCount;
-    STATE.stats.correct = correctCount;
-    persist();
-  }
+  const correctRate = STATE.stats.answered > 0
+    ? Math.round(STATE.stats.correct / STATE.stats.answered * 100) : 0;
   $("#header-stats").innerHTML = `
     <span>题库 <strong>${totalQs}</strong></span>
-    <span>已答 <strong>${answeredCount}</strong></span>
+    <span>已答 <strong>${STATE.stats.answered}</strong></span>
     <span>正确率 <strong>${correctRate}%</strong></span>
     <span>错题 <strong>${wrongCount}</strong></span>
     <span>收藏 <strong>${favCount}</strong></span>
@@ -2363,8 +2226,8 @@ function renderModeTabs() {
   }
   // 即时判分开关
   const instantCtrl = `<button id="instant-toggle" class="mode-btn ${CURRENT.instantGrade ? "active" : ""}" title="点击选项立即判分">即时判分</button>`;
-  // 刷新题库(进度归零:错题 + 已答 + 正确率)按钮 — 收藏保留
-  const resetCtrl = `<button id="reset-wrong" class="mode-btn mode-btn-danger" title="刷新题库:清空错题 + 已答 + 正确率(收藏保留)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M21 12a9 9 0 0 0-15-6.7L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"/><path d="M21 21v-5h-5"/></svg>刷新题库</button>`;
+  // 刷新题库(重置错题集)按钮
+  const resetCtrl = `<button id="reset-wrong" class="mode-btn mode-btn-danger" title="清空所有错题记录(收藏和答题统计不受影响)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px"><path d="M21 12a9 9 0 0 0-15-6.7L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"/><path d="M21 21v-5h-5"/></svg>刷新题库</button>`;
   $("#mode-tabs").innerHTML = modes.map(m =>
     `<button class="mode-btn ${m.id === CURRENT.mode ? "active" : ""}" data-mode="${m.id}">${m.label}${m.badge != null && m.badge > 0 ? `<span class="badge">${m.badge}</span>` : ""}</button>`
   ).join("");
@@ -2388,7 +2251,7 @@ function renderModeTabs() {
   const instantBtn = document.querySelector("#instant-toggle");
   if (instantBtn) instantBtn.onclick = () => toggleInstantGrade();
   const resetBtn = document.querySelector("#reset-wrong");
-  if (resetBtn) resetBtn.onclick = () => resetProgress();
+  if (resetBtn) resetBtn.onclick = () => resetWrong();
 }
 
 function renderQuiz() {
@@ -2514,7 +2377,7 @@ function renderQuiz() {
             <span>复制上下文</span>
           </button>
         </div>
-        <div class="ai-output" id="ai-output">${renderMarkdown(CURRENT.aiOutput || "")}</div>
+        <div class="ai-output" id="ai-output">${renderMarkdown(CURRENT.aiOutput || "已自动加载当前题目上下文。可以先复制上下文发给 Claudian / Obsidian,或在下方追问 AI。")}</div>
         <div class="ai-input-row">
           <input id="ai-question" type="text" placeholder="追问：按回车发送,Shift+Enter 换行">
           <button class="btn btn-primary" type="button" id="ai-ask">询问 AI</button>
@@ -2595,6 +2458,7 @@ function renderQuiz() {
   $("#btn-next2").onclick = () => goNext();
   $("#btn-ai").onclick = () => {
     CURRENT.aiOpen = !CURRENT.aiOpen;
+    if (CURRENT.aiOpen && !CURRENT.aiOutput) CURRENT.aiOutput = buildAiIntro(q, state);
     renderQuiz();
   };
   $("#btn-fav").onclick = () => { toggleFav(q.id); render(); };
@@ -2636,37 +2500,7 @@ function autoGrade(q, sel) {
 }
 
 function renderProgress() {
-  const wrap = $("#q-progress");
-  if (!wrap) return;
-  const qs = CURRENT.questions || [];
-  const total = qs.length;
-  // 写之前先保存(保留旧行为,saveSession 仍然跑)
   saveSession();
-  if (total === 0) {
-    // 题库为空 / 当前模式没有题目:进度条退到中性灰,不显示百分比
-    wrap.dataset.empty = "1";
-    wrap.innerHTML = `
-      <span class="qp-label">进度</span>
-      <div class="qp-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-        <div class="qp-fill" style="width: 0%"></div>
-      </div>
-      <span class="qp-count">—</span>
-      <span class="qp-pct">—</span>
-    `;
-    return;
-  }
-  // 已答 = 当前题库范围 ∩ STATE.attempted(去重后的题 ID)
-  const done = qs.reduce((n, q) => n + (STATE.attempted[q.id] ? 1 : 0), 0);
-  const pct = Math.round(done / total * 100);
-  wrap.dataset.empty = "0";
-  wrap.innerHTML = `
-    <span class="qp-label">进度</span>
-    <div class="qp-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}">
-      <div class="qp-fill" style="width: ${pct}%"></div>
-    </div>
-    <span class="qp-count"><em>${done}</em> / ${total}</span>
-    <span class="qp-pct">${pct}%</span>
-  `;
 }
 
 // 答题反馈闪光:答对 bloom(纸面轻拍),答错 shake(纸面轻震),查看答案 bloom(中性轻拍)
