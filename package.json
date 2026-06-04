@@ -1,0 +1,16 @@
+{
+  "name": "408-quiz",
+  "version": "1.0.0",
+  "description": "轻量级网页刷题应用,基于王道 2026/2027 四本 408 教材的精选题库。",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  }
+}
