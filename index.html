@@ -1165,66 +1165,81 @@ select:focus, .mode-btn:focus { outline: 1.5px solid var(--primary); outline-off
   background: var(--primary);
 }
 
-/* === Pull quote (right viewport margin, wide screens only) === */
-.pull-quote {
-  display: none;
-  position: fixed;
-  right: 36px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 220px;
-  z-index: 0;
-  pointer-events: none;
-  text-align: right;
-  user-select: none;
-}
-.pull-quote .pq-mark {
-  display: block;
-  font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 700;
-  font-size: 80px;
-  line-height: 0.55;
-  color: var(--primary);
-  margin-bottom: -6px;
-  margin-right: -2px;
-  letter-spacing: -0.04em;
-}
-.pull-quote .pq-text {
-  display: block;
+/* === Nav-bar inline quote (sits in the "题库导航" row, between label and toggle) === */
+.nav-quote {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--font-display);
   font-style: italic;
   font-weight: 500;
-  font-size: 19px;
-  line-height: 1.5;
-  color: var(--text);
-  letter-spacing: -0.005em;
-  margin-bottom: 14px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--text-2);
+  margin-left: auto;
+  margin-right: 22px;
+  max-width: 540px;
+  padding: 0 16px;
+  border-left: 1.5px solid var(--primary);
+  border-right: 1.5px solid var(--primary);
+  overflow: hidden;
 }
-.pull-quote .pq-author {
-  display: block;
+.nav-quote .nq-text {
+  color: var(--text);
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+.nav-quote .nq-author {
   font-family: var(--font-mono);
   font-style: normal;
   font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--text-2);
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
-.pull-quote .pq-author::before {
-  content: "— ";
+.nav-quote .nq-switches {
+  display: flex;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+.nav-quote .nq-btn {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1.5px solid var(--primary);
+  border-radius: 4px;
   color: var(--primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
 }
-.pull-quote::before {
-  /* 装饰小虚线 + 珊瑚圆点,跟 header 结尾呼应 */
-  content: "";
-  display: block;
-  height: 1px;
-  background-image: linear-gradient(to left, var(--primary) 0, var(--primary) 32px, transparent 32px, transparent 100%);
-  margin-bottom: 14px;
-  opacity: 0.7;
+.nav-quote .nq-btn:hover {
+  background: var(--primary);
+  color: #fff;
 }
-@media (min-width: 1500px) {
-  .pull-quote { display: block; }
+.nav-quote .nq-btn:active {
+  transform: scale(0.9);
+}
+.nav-quote .nq-btn:focus-visible {
+  outline: 1.5px solid var(--primary);
+  outline-offset: 2px;
+}
+@media (max-width: 820px) {
+  .nav-quote { display: none; }
 }
 
 /* === Header inline quote (between brand and stats) === */
@@ -1275,6 +1290,7 @@ select:focus, .mode-btn:focus { outline: 1.5px solid var(--primary); outline-off
   <div class="panel" id="control-panel">
     <div class="panel-head">
       <span class="panel-head-label"><span class="panel-head-zh">题库导航</span><span class="panel-head-en">/ NAVIGATE</span></span>
+      <span class="nav-quote" id="nav-quote" aria-hidden="true"></span>
       <button class="panel-toggle" type="button" id="panelToggle" aria-pressed="true" title="收起 / 展开题库导航">
         <span class="panel-toggle-label">收起</span>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
@@ -1300,8 +1316,6 @@ select:focus, .mode-btn:focus { outline: 1.5px solid var(--primary); outline-off
     </div>
   </div>
 </div>
-
-<aside class="pull-quote" id="pull-quote" aria-hidden="true"></aside>
 
 <div class="toast" id="toast"></div>
 
@@ -2890,35 +2904,48 @@ document.addEventListener("keydown", (e) => {
 bindBackupControls();
 
 // ============== 金句批注 ==============
-// 每天固定一句(日期种子),刷新不换、跨天换。CS 先驱 / 中文古训 / 408 口号的混合,
-// 跟 Atelier Zero 纸面编辑感对齐,不会喧宾夺主。
+// 每天固定一句(日期种子)起手,但题库导航那一行允许 ‹/› 手动切换;
+// 手动切过的 index 不写 localStorage — 跨天会重置回"今天那句",避免装饰物污染状态。
+// CS 先驱 / 西方思想 / 中文古典 5:5 混合,跟 Atelier Zero 纸面编辑感对齐。
 const QUOTES = [
   { text: "Stay hungry, stay foolish.", author: "Steve Jobs" },
   { text: "Talk is cheap. Show me the code.", author: "Linus Torvalds" },
-  { text: "纸上得来终觉浅，绝知此事要躬行。", author: "陆游" },
-  { text: "不积跬步，无以至千里。", author: "荀子 · 劝学" },
-  { text: "理解比记忆更重要。", author: "王道论坛" },
-  { text: "First, solve the problem. Then, write the code.", author: "John Johnson" },
-  { text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" },
-  { text: "The best way to predict the future is to invent it.", author: "Alan Kay" },
-  { text: "今日不肯埋头，明日何以出头。", author: "考研箴言" },
-  { text: "凡事预则立，不预则废。", author: "《礼记 · 中庸》" },
+  { text: "Premature optimization is the root of all evil.", author: "Donald Knuth" },
+  { text: "In the midst of winter, I found there was, within me, an invincible summer.", author: "Albert Camus" },
+  { text: "Simplicity is a great virtue but it requires hard work to achieve it.", author: "Edsger Dijkstra" },
+  { text: "采菊东篱下，悠然见南山。", author: "陶渊明 · 饮酒" },
+  { text: "回首向来萧瑟处，归去，也无风雨也无晴。", author: "苏轼 · 定风波" },
+  { text: "大方无隅，大器晚成。", author: "老子 · 道德经" },
+  { text: "为天地立心，为生民立命，为往圣继绝学，为万世开太平。", author: "张载 · 横渠四句" },
+  { text: "纸上得来终觉浅，绝知此事要躬行。", author: "陆游 · 冬夜读书" },
 ];
 
-function pickDailyQuote() {
+// 初始 index = 日期种子(同一天打开是同一句);手动切换后被 stepQuote 改写
+let QUOTE_INDEX = (() => {
   const d = new Date();
-  // 用 yyyymmdd 算 hash,同一天拿同一句
   const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
-  return QUOTES[seed % QUOTES.length];
+  return seed % QUOTES.length;
+})();
+
+function stepQuote(delta) {
+  QUOTE_INDEX = (QUOTE_INDEX + delta + QUOTES.length) % QUOTES.length;
+  renderQuotes();
 }
 
 function renderQuotes() {
-  const q = pickDailyQuote();
+  const q = QUOTES[QUOTE_INDEX];
   const safe = { t: escHtml(q.text), a: escHtml(q.author) };
   const hq = $("#header-quote");
   if (hq) hq.innerHTML = `<span class="hq-text">"${safe.t}"</span><span class="hq-author">— ${safe.a}</span>`;
-  const pq = $("#pull-quote");
-  if (pq) pq.innerHTML = `<span class="pq-mark" aria-hidden="true">"</span><span class="pq-text">${safe.t}</span><span class="pq-author">${safe.a}</span>`;
+  // nav 那一行多两个 18px 小方块按钮
+  const nq = $("#nav-quote");
+  if (nq) nq.innerHTML =
+    `<span class="nq-text">"${safe.t}"</span>` +
+    `<span class="nq-author">— ${safe.a}</span>` +
+    `<span class="nq-switches">` +
+      `<button class="nq-btn" type="button" aria-label="上一句" onclick="stepQuote(-1)">‹</button>` +
+      `<button class="nq-btn" type="button" aria-label="下一句" onclick="stepQuote(1)">›</button>` +
+    `</span>`;
 }
 
 renderQuotes();
