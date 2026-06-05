@@ -200,7 +200,16 @@ open ~/408-quiz/index.html
 
 ## AI 讲题
 
-右侧 AI 栏会随当前题自动更新上下文，包含：
+右侧 AI 栏会随当前题自动更新上下文。它可以当作两种工具使用：
+
+- **复制上下文**：不配置 API 也能用，把当前题完整上下文复制出来，粘贴到任意 AI 工具。
+- **内置讲题**：配置 API 后，直接在页面右侧追问并获得 Markdown + 公式渲染后的讲解。
+
+![AI 配置面板](docs/screenshots/ai-config.png)
+
+### AI 上下文包含什么
+
+每次切题时，AI 栏都会自动整理当前题信息，包括：
 
 - 题源
 - 章节
@@ -211,12 +220,78 @@ open ~/408-quiz/index.html
 - 选项
 - 解析
 
-你可以：
+所以你追问时不用再手动复制题干，直接问“为什么选 A”“B 为什么不对”“这题考点是什么”即可。
 
-- 点击“复制上下文”，粘贴到任意 AI 工具。
-- 点击“询问 AI”，让内置 AI 栏生成讲解。
-- 在输入框追问具体问题。
-- 配置自己的 API，让输出走外部模型。
+### 如何配置 AI API
+
+点击 AI 栏右上角的齿轮按钮，可以打开配置面板。
+
+| 字段 | 说明 |
+|---|---|
+| Base URL | API 服务地址，例如 OpenAI 兼容接口、Ollama、本地中转服务 |
+| Model | 模型名称，例如 `qwen2.5:7b`、`deepseek-chat`、`gpt-4o-mini` |
+| 协议 | 可选自动推断、OpenAI 兼容、Anthropic 兼容 |
+| Key | API Key；Ollama 或本地服务通常可以留空 |
+
+配置完成后点击“保存配置”。保存后右上角会从 `LOCAL` 变成 `API · 模型名`。
+
+#### Ollama / 本地模型示例
+
+如果你本地启动了 Ollama，并开启 OpenAI 兼容接口，可以这样填：
+
+| 字段 | 示例 |
+|---|---|
+| Base URL | `http://127.0.0.1:11434/v1` |
+| Model | `qwen2.5:7b` |
+| 协议 | OpenAI 兼容 |
+| Key | 留空 |
+
+#### OpenAI 兼容接口示例
+
+如果你使用 DeepSeek、OpenAI 或其他兼容 `/chat/completions` 的服务：
+
+| 字段 | 示例 |
+|---|---|
+| Base URL | `https://api.deepseek.com` |
+| Model | `deepseek-chat` |
+| 协议 | OpenAI 兼容 |
+| Key | 填自己的 API Key |
+
+#### Anthropic 兼容接口示例
+
+如果使用 Anthropic 兼容接口：
+
+| 字段 | 示例 |
+|---|---|
+| Base URL | `https://api.anthropic.com` |
+| Model | `claude-3-5-sonnet-latest` |
+| 协议 | Anthropic 兼容 |
+| Key | 填自己的 API Key |
+
+API Key 只保存在当前浏览器的 `localStorage`，不会写入导出的学习记录 JSON。
+
+### 如何使用 AI 讲题
+
+常见流程：
+
+1. 先正常答题或点击“显示答案”。
+2. 在右侧输入框输入追问，例如“讲一下这题为什么选 A”。
+3. 点击“询问 AI”。
+4. 查看右侧输出，继续追问细节。
+
+你也可以点击“复制上下文”，把当前题目、选项、答案、解析一次性复制出去。
+
+![AI 讲题输出](docs/screenshots/ai-explain.png)
+
+### 未配置 API 时会怎样
+
+如果没有配置 API：
+
+- “复制上下文”正常可用。
+- 在输入框追问并点击“询问 AI”时，会把追问上下文复制到剪贴板。
+- 页面不会把题目发送到任何外部服务。
+
+如果配置了 API 但请求失败，AI 栏会显示错误提示，并回退展示本地整理的题目上下文，方便你继续复制到其他工具。
 
 ### 支持的 API 类型
 
@@ -226,17 +301,6 @@ open ~/408-quiz/index.html
 - Anthropic 兼容接口：`/v1/messages`
 - Ollama 或本地 OpenAI 兼容服务
 - 其他兼容 Chat Completions 的中转服务
-
-示例配置：
-
-| 字段 | 示例 |
-|---|---|
-| Base URL | `http://127.0.0.1:11434/v1` |
-| Model | `qwen2.5:7b` |
-| Protocol | OpenAI 兼容 |
-| API Key | 本地服务可留空 |
-
-没有配置 API 时，AI 栏会回退为本地整理，不会影响正常刷题。
 
 ## 公式、代码和题图
 
