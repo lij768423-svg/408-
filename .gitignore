@@ -5,7 +5,12 @@ node_modules/
 .npm-cache/
 .agents/
 .od-skills/
+.claude/
+.codex_work/
 .DS_Store
+
+# 协作交接草稿
+CODEX_HANDOFF.md
 
 # Open Design 工具临时产物
 index.html.artifact.json
@@ -13,6 +18,7 @@ index.html.artifact.json
 # 备份文件
 *.bak*
 
-# 临时截图（mmxcli / 调试用）
+# 临时截图 / 调试产物
 mp*-image.png
 mp*.jpg
+*.tmp
