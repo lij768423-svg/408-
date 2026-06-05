@@ -2325,7 +2325,7 @@ function highlightCode(code, lang) {
   s = s.replace(/\b([a-z_][A-Za-z0-9_]*)\s*(?=\()/g, m => {
     const name = m.replace(/\s*\($/, "");
     if (new RegExp("\\b(" + kws + ")\\b").test(name)) return m;
-    return "\x01F" + name + "\x02(";
+    return "\x01F" + name + "\x02";
   });
   // 6) escape 剩余代码(占位符 \x01X 不含 <>&,不会被破坏)
   s = escHtml(s);
@@ -2340,87 +2340,100 @@ function highlightCode(code, lang) {
   return s;
 }
 
-// 智能 C 风格格式化: 单行代码块(数据里整段写一行)统一走这 4 步 —
-//   1. for 循环: for (a; b; c) → for (a;\n     b;\n     c) 三条件各一行
-//   2. 分号后插硬换行
-//   3. 运算符 (= + - * /) 两边加空格
-//   4. 逗号后加空格
-// 占位符机制先抽字符串(避开字符串内的 = ; , 等),所有 regex 跑完再换回。
-// 任何 fenced code 块都跑 — 不再按 lang 白名单过滤(matlab/txt/pseudocode 等也算)。
+// 智能 C 风格格式化: 只修正数据里被压成一行的代码块。
+// 目标是“题面材料可读”,不是把代码重排成另一种风格:
+//   - 函数签名 / if / else 与开大括号保持 K&R 同行
+//   - 顶层分号后换行,但不拆 for(i=0;i<n;i++) 的分号
+//   - 保留 if (...) return ...; else return ...; 这类短句结构
+// 占位符机制先抽字符串,避免字符串内的 = ; , {} 等被误改。
 function formatCode(code, lang) {
   if (!code || code.indexOf("\n") >= 0) return code;  // 已多行不处理
 
-  // 1) 抽字符串为占位符(避免字符串内的符号被误改)
   let s = code
     .replace(/"(?:\\.|[^"\\])*"/g, m => "\x01S" + m + "\x02")
     .replace(/'(?:\\.|[^'\\])*'/g, m => "\x01S" + m + "\x02")
     .replace(/`(?:\\.|[^`\\])*`/g, m => "\x01S" + m + "\x02");
 
-  // 2) 嵌套 for 拆行: `) for (` → `)\nfor (` — 防止 `for (a;b;c) for (d;e;f)` 挤一行
-  //    for 条件保持完整一行(用户偏好:不拆 init/cond/update 到三行)
-  s = s.replace(/\)\s*for\s*\(/g, ')\nfor (');
+  s = s
+    .replace(/\b(if|for|while|switch)\s*\(/g, "$1 (")
+    .replace(/\belse\s*\{/g, "else {")
+    .replace(/\s*(<=|>=|==|!=|&&|\|\|)\s*/g, " $1 ")
+    .replace(/([A-Za-z0-9_\]\)])\s*([<>])\s*([A-Za-z0-9_\[\(])/g, "$1 $2 $3")
+    .replace(/([A-Za-z0-9_\]\)])\s*([+\-*/%])\s*([A-Za-z0-9_\[\(])/g, "$1 $2 $3")
+    .replace(/([A-Za-z0-9_\]\)])\s*=\s*([A-Za-z0-9_\[\(])/g, "$1 = $2")
+    .replace(/;\s*/g, "; ")
+    .replace(/,\s*/g, ", ")
+    .replace(/\s+/g, " ")
+    .replace(/\)\s+(?=(?:for|if|while)\s*\()/g, ")\n")
+    .trim();
 
-  // 3) 分号后换行 — 但只对**顶层** `;` 生效,跳过 paren 内的(避 for(i=0;i<n;i++) 里那 3 个 ;)
-  {
-    let out3 = "";
-    let depth = 0;
-    for (let i = 0; i < s.length; i++) {
-      const c = s[i];
-      if (c === "(" || c === "[" || c === "{") depth++;
-      else if (c === ")" || c === "]" || c === "}") depth--;
-      if (c === ";" && depth === 0) out3 += ";\n";
-      else out3 += c;
+  // 拆成语义行。只在括号深度为 0 时把分号视作语句结束。
+  let out = "";
+  let parenDepth = 0;
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    if (c === "(" || c === "[") parenDepth++;
+    else if (c === ")" || c === "]") parenDepth = Math.max(0, parenDepth - 1);
+
+    if (c === "{") {
+      out = out.replace(/[ \t]+$/g, "");
+      out += " {\n";
+      while (s[i + 1] === " ") i++;
+      continue;
     }
-    s = out3;
+
+    if (c === "}") {
+      out = out.replace(/[ \t]+$/g, "");
+      if (out && !out.endsWith("\n")) out += "\n";
+      out += "}";
+      while (s[i + 1] === " ") i++;
+
+      const rest = s.slice(i + 1);
+      const elseMatch = /^else\b/.exec(rest);
+      if (elseMatch) {
+        out += " else";
+        i += elseMatch[0].length;
+        while (s[i + 1] === " ") i++;
+        if (s[i + 1] === "{") {
+          out += " {\n";
+          i++;
+          while (s[i + 1] === " ") i++;
+        } else {
+          out += " ";
+        }
+      } else {
+        out += "\n";
+      }
+      continue;
+    }
+
+    if (c === ";" && parenDepth === 0) {
+      out += ";\n";
+      while (s[i + 1] === " ") i++;
+      continue;
+    }
+
+    out += c;
   }
 
-  // 3.5) 开大括号 { 换行: ){ / else { / try { / catch { / finally { / do {
-  s = s.replace(/\)\s*\{/g, ')\n{');
-  s = s.replace(/(else|try|catch|finally|do)\s*\{/g, '$1\n{');
-  // 3.5.5) { 后换行: `if (n>=0) { for ...` → `if (n>=0) {\n  for ...` — body 独立成行
-  s = s.replace(/\{\s*(?=\w)/g, '{\n');
-  // 3.6) } else 拆行: `} else {` 三段各一行
-  s = s.replace(/\}\s*else\b/g, '}\nelse');
+  out = out.replace(/\x01S([\s\S]*?)\x02/g, '$1');
 
-  // 3.7) body 独立行: `) printf(...)` → `)\n  printf(...)` (for 循环体另起一行,缩进 2 空格)
-  s = s.replace(/\)(\s*)(?=[a-zA-Z(])/g, ')$1\n');
-  // 3.8) 闭合 } 独立行: `) }` / `printf(...) }` → `\n}` (for/if 块结束另起一行,缩进 pass 会按深度 dedent)
-  s = s.replace(/(\S)\}/g, '$1\n}');
+  const lines = out.split("\n");
+  let braceDepth = 0;
+  const formatted = [];
+  for (const line of lines) {
+    const t = line.trim();
+    if (!t) continue;
 
-  // 4) 运算符两边加空格(避开 < > = == 之类的复合运算符 — 简单 word 边界保护)
-  s = s.replace(/(\w)\s*([+\-*/])\s*(\w)/g, '$1 $2 $3');
-  s = s.replace(/(\w)\s*=\s*(\w)/g, '$1 = $2');
+    const lineDepth = t.startsWith("}") ? Math.max(0, braceDepth - 1) : braceDepth;
+    formatted.push("  ".repeat(lineDepth) + t);
 
-  // 5) 逗号后加空格
-  s = s.replace(/,\s*/g, ', ');
-
-  // 6) 还原字符串
-  s = s.replace(/\x01S([\s\S]*?)\x02/g, '$1');
-
-  // 7) 状态化缩进: 按 `{` `}` 深度给每行前补 2 空格(此时字符串已还原,无占位符冲突风险)
-  {
-    const lines = s.split("\n");
-    let depth = 0;
-    const out = [];
-    for (const line of lines) {
-      const t = line.trim();
-      if (!t) { out.push(""); continue; }
-      // 当前行需要 dedent 的场景: 以 } 开头 / 以 else 开头
-      let lineDepth = depth;
-      if (t.startsWith("}") || /^else\b/.test(t)) {
-        lineDepth = Math.max(0, depth - 1);
-      }
-      out.push("  ".repeat(lineDepth) + t);
-      // 累计深度: 同一行内 { 增 +1, } 减 -1
-      for (const c of t) {
-        if (c === "{") depth++;
-        else if (c === "}") depth = Math.max(0, depth - 1);
-      }
-    }
-    s = out.join("\n");
+    const opens = (t.match(/\{/g) || []).length;
+    const closes = (t.match(/\}/g) || []).length;
+    braceDepth = Math.max(0, braceDepth + opens - closes);
   }
 
-  return s;
+  return formatted.join("\n");
 }
 
 // 轻量 Markdown 渲染: 块级结构在 escape 前检测(否则 '>' '#' 会被吃掉),
