@@ -4198,7 +4198,7 @@ try {
 fetch("data.json")
   .then(r => r.json())
   .then(data => {
-    ALL_QUESTIONS = data.questions || [];
+    ALL_QUESTIONS = (data.questions || []).filter(q => q.hidden !== true);
     if (ALL_QUESTIONS.length === 0) {
       $("#quiz-area").innerHTML = `<div class="empty">题库为空。请先运行提取脚本:<br><code>python3 wiki/tools/_extract_questions.py</code></div>`;
       return;
