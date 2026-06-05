@@ -16,6 +16,24 @@
 - 支持公式和代码：KaTeX 公式渲染，题面/解析/AI 输出支持 Markdown 和代码块。
 - 可导入导出记录：用 JSON 文件迁移学习记录。
 
+## 界面预览
+
+主界面采用三栏布局：左侧是书目、章节和模式导航；中间是题卡；右侧是 AI 讲题栏和本组学习概览。
+
+![主界面](docs/screenshots/main.png)
+
+答题后会显示选项状态、正确答案和解析。答错会自动加入错题本，答对错题会自动移出错题本。
+
+![答题反馈](docs/screenshots/feedback.png)
+
+章节和题量选择都使用自定义纸面下拉，不依赖系统原生菜单，视觉上和刷题界面保持一致。
+
+![章节选择](docs/screenshots/chapter-menu.png)
+
+全部模式下可以跨书随机刷题，并选择每组 20 / 50 / 100 / 200 题。
+
+![全部随机题量选择](docs/screenshots/batch-menu.png)
+
 ## 题库规模
 
 当前 `data.json` 共包含 **1777** 道选择题：
@@ -111,6 +129,8 @@ open ~/408-quiz/index.html
 
 章节切换后，题目列表会重新生成，当前进度回到本组第 1 题。
 
+![章节选择演示](docs/screenshots/chapter-menu.png)
+
 ### 3. 选择刷题模式
 
 单本书模式下支持：
@@ -130,6 +150,8 @@ open ~/408-quiz/index.html
 - 每刷 100 题
 - 每刷 200 题
 
+![全部随机题量演示](docs/screenshots/batch-menu.png)
+
 ### 4. 答题和判分
 
 默认流程：
@@ -145,6 +167,8 @@ open ~/408-quiz/index.html
 - 多选题：选错会立即判错；选全正确答案后判对。
 
 答错的题会自动进入错题本；错题再次答对后，会自动从错题本移除。
+
+![答题反馈演示](docs/screenshots/feedback.png)
 
 ### 5. 收藏和复盘
 
@@ -297,6 +321,8 @@ wiki/sources/计算机网络/chapters/ch*.md
 408-quiz/
 ├── index.html          # 单页应用，内嵌 CSS 和 JS
 ├── data.json           # 题库数据
+├── docs/
+│   └── screenshots/    # README 演示截图
 ├── images/             # 题图资源
 ├── README.md           # 项目说明
 ├── package.json        # 开发辅助依赖
