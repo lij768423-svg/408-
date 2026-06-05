@@ -823,8 +823,15 @@ body::after {
   line-height: 1.7;
   color: var(--text);
   overflow-x: auto;
-  white-space: pre;
+  /* 配合 <wbr>: 长代码在容器宽度内自然折行,短代码保持一行 */
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   position: relative;
+}
+/* 有 data-lang 时给语言标签让出顶部 26px,避免跟代码挤一起 */
+.q-stem pre.q-code[data-lang], .opt-text pre.q-code[data-lang], .fb-expl pre.q-code[data-lang] {
+  padding-top: 30px;
 }
 .q-stem pre.q-code::before, .opt-text pre.q-code::before, .fb-expl pre.q-code::before {
   content: "";
@@ -1602,7 +1609,7 @@ body::after {
 /* 语法高亮 token — 沿用 Atelier Zero 配色: 珊瑚(关键字) / 橄榄(字符串) / 墨黑(常规) / 灰(注释/运算符) */
 .tok-kw  { color: var(--ink); font-weight: 600; }
 .tok-str { color: #6e7448; }                    /* 橄榄,沿用 --success 同色 */
-.tok-num { color: var(--text); font-weight: 600; }
+.tok-num { color: #b37d3d; font-weight: 600; }  /* 暖棕数字 — 跟纸面协调,跟正文拉开 */
 .tok-bool{ color: var(--ink); font-weight: 600; }
 .tok-com { color: var(--muted); font-style: italic; }
 .tok-fn  { color: var(--text); }
@@ -2286,7 +2293,9 @@ function escHtml(s) {
 }
 
 // 轻量语法着色:不追求完整 parser,够 408 题面看(JS/C/Python/Go/Java/类 C 系)
-// 顺序很关键: 先抽字符串/注释(吞掉里头的关键字), 再做关键字/数字/函数名
+// 顺序很关键: 先抽字符串/注释(吞掉里头的关键字), 再做关键字/数字/函数名 —
+// 所有替换都先打占位符 \x01X...\x02,等 escape 之后再统一换回 <span>。
+// 这样后续 regex 不会把"刚加的 <span class=...>" 里的 class 等当 keyword 误命中。
 function highlightCode(code, lang) {
   if (!code) return "";
   let s = code.replace(/\r\n?/g, "\n");
@@ -2302,29 +2311,115 @@ function highlightCode(code, lang) {
   if (/^(py|python)$/i.test(lang || "")) {
     s = s.replace(/(^|[^\\])#[^\n]*/g, (m, p) => p + "\x01C" + m.slice(p.length + 1) + "\x02");
   }
-  // 5) escape 剩余
-  s = escHtml(s);
-  // 6) 数字
-  s = s.replace(/\b(\d[\d_]*(?:\.[\d_]+)?|0x[0-9a-fA-F]+)\b/g, '<span class="tok-num">$1</span>');
-  // 7) 布尔 / null
-  s = s.replace(/\b(true|false|null|nil|None|True|False)\b/g, '<span class="tok-bool">$1</span>');
-  // 8) 关键字
+  // 5) 数字 / 布尔 / 关键字 / 函数名 — 全部先打占位符,避免后插 <span> 里的 class 被关键字再中招
+  s = s.replace(/\b(\d[\d_]*(?:\.[\d_]+)?|0x[0-9a-fA-F]+)\b/g, "\x01N$1\x02");
+  s = s.replace(/\b(true|false|null|nil|None|True|False)\b/g, "\x01B$1\x02");
   const kws = "auto|break|case|catch|class|const|continue|default|delete|do|else|enum|export|extern|finally|"
     + "for|from|function|goto|if|import|in|inline|instanceof|interface|let|namespace|new|operator|package|"
     + "private|protected|public|register|return|sizeof|static|struct|switch|template|this|throw|try|typedef|"
     + "typeof|union|using|virtual|void|volatile|while|async|await|yield|var|with|extend|fn|impl|match|"
     + "as|def|elif|except|global|lambda|nonlocal|pass|raise";
-  s = s.replace(new RegExp("\\b(" + kws + ")\\b", "g"), '<span class="tok-kw">$1</span>');
+  s = s.replace(new RegExp("\\b(" + kws + ")\\b", "g"), "\x01K$1\x02");
   // 9) 函数调用 名( — 排除关键字
-  s = s.replace(/\b([A-Z][A-Za-z0-9_]*)\s*\(/g, '<span class="tok-type">$1</span>(');
+  s = s.replace(/\b([A-Z][A-Za-z0-9_]*)\s*\(/g, "\x01T$1\x02(");
   s = s.replace(/\b([a-z_][A-Za-z0-9_]*)\s*(?=\()/g, m => {
     const name = m.replace(/\s*\($/, "");
     if (new RegExp("\\b(" + kws + ")\\b").test(name)) return m;
-    return '<span class="tok-fn">' + name + "</span>(";
+    return "\x01F" + name + "\x02(";
   });
-  // 10) 还原字符串/注释占位
+  // 6) escape 剩余代码(占位符 \x01X 不含 <>&,不会被破坏)
+  s = escHtml(s);
+  // 7) 统一换回 <span> 标签
   s = s.replace(/\x01C([\s\S]*?)\x02/g, '<span class="tok-com">$1</span>');
   s = s.replace(/\x01S([\s\S]*?)\x02/g, '<span class="tok-str">$1</span>');
+  s = s.replace(/\x01N([\s\S]*?)\x02/g, '<span class="tok-num">$1</span>');
+  s = s.replace(/\x01B([\s\S]*?)\x02/g, '<span class="tok-bool">$1</span>');
+  s = s.replace(/\x01K([\s\S]*?)\x02/g, '<span class="tok-kw">$1</span>');
+  s = s.replace(/\x01T([\s\S]*?)\x02/g, '<span class="tok-type">$1</span>');
+  s = s.replace(/\x01F([\s\S]*?)\x02/g, '<span class="tok-fn">$1</span>');
+  return s;
+}
+
+// 智能 C 风格格式化: 单行代码块(数据里整段写一行)统一走这 4 步 —
+//   1. for 循环: for (a; b; c) → for (a;\n     b;\n     c) 三条件各一行
+//   2. 分号后插硬换行
+//   3. 运算符 (= + - * /) 两边加空格
+//   4. 逗号后加空格
+// 占位符机制先抽字符串(避开字符串内的 = ; , 等),所有 regex 跑完再换回。
+// 任何 fenced code 块都跑 — 不再按 lang 白名单过滤(matlab/txt/pseudocode 等也算)。
+function formatCode(code, lang) {
+  if (!code || code.indexOf("\n") >= 0) return code;  // 已多行不处理
+
+  // 1) 抽字符串为占位符(避免字符串内的符号被误改)
+  let s = code
+    .replace(/"(?:\\.|[^"\\])*"/g, m => "\x01S" + m + "\x02")
+    .replace(/'(?:\\.|[^'\\])*'/g, m => "\x01S" + m + "\x02")
+    .replace(/`(?:\\.|[^`\\])*`/g, m => "\x01S" + m + "\x02");
+
+  // 2) 嵌套 for 拆行: `) for (` → `)\nfor (` — 防止 `for (a;b;c) for (d;e;f)` 挤一行
+  //    for 条件保持完整一行(用户偏好:不拆 init/cond/update 到三行)
+  s = s.replace(/\)\s*for\s*\(/g, ')\nfor (');
+
+  // 3) 分号后换行 — 但只对**顶层** `;` 生效,跳过 paren 内的(避 for(i=0;i<n;i++) 里那 3 个 ;)
+  {
+    let out3 = "";
+    let depth = 0;
+    for (let i = 0; i < s.length; i++) {
+      const c = s[i];
+      if (c === "(" || c === "[" || c === "{") depth++;
+      else if (c === ")" || c === "]" || c === "}") depth--;
+      if (c === ";" && depth === 0) out3 += ";\n";
+      else out3 += c;
+    }
+    s = out3;
+  }
+
+  // 3.5) 开大括号 { 换行: ){ / else { / try { / catch { / finally { / do {
+  s = s.replace(/\)\s*\{/g, ')\n{');
+  s = s.replace(/(else|try|catch|finally|do)\s*\{/g, '$1\n{');
+  // 3.5.5) { 后换行: `if (n>=0) { for ...` → `if (n>=0) {\n  for ...` — body 独立成行
+  s = s.replace(/\{\s*(?=\w)/g, '{\n');
+  // 3.6) } else 拆行: `} else {` 三段各一行
+  s = s.replace(/\}\s*else\b/g, '}\nelse');
+
+  // 3.7) body 独立行: `) printf(...)` → `)\n  printf(...)` (for 循环体另起一行,缩进 2 空格)
+  s = s.replace(/\)(\s*)(?=[a-zA-Z(])/g, ')$1\n');
+  // 3.8) 闭合 } 独立行: `) }` / `printf(...) }` → `\n}` (for/if 块结束另起一行,缩进 pass 会按深度 dedent)
+  s = s.replace(/(\S)\}/g, '$1\n}');
+
+  // 4) 运算符两边加空格(避开 < > = == 之类的复合运算符 — 简单 word 边界保护)
+  s = s.replace(/(\w)\s*([+\-*/])\s*(\w)/g, '$1 $2 $3');
+  s = s.replace(/(\w)\s*=\s*(\w)/g, '$1 = $2');
+
+  // 5) 逗号后加空格
+  s = s.replace(/,\s*/g, ', ');
+
+  // 6) 还原字符串
+  s = s.replace(/\x01S([\s\S]*?)\x02/g, '$1');
+
+  // 7) 状态化缩进: 按 `{` `}` 深度给每行前补 2 空格(此时字符串已还原,无占位符冲突风险)
+  {
+    const lines = s.split("\n");
+    let depth = 0;
+    const out = [];
+    for (const line of lines) {
+      const t = line.trim();
+      if (!t) { out.push(""); continue; }
+      // 当前行需要 dedent 的场景: 以 } 开头 / 以 else 开头
+      let lineDepth = depth;
+      if (t.startsWith("}") || /^else\b/.test(t)) {
+        lineDepth = Math.max(0, depth - 1);
+      }
+      out.push("  ".repeat(lineDepth) + t);
+      // 累计深度: 同一行内 { 增 +1, } 减 -1
+      for (const c of t) {
+        if (c === "{") depth++;
+        else if (c === "}") depth = Math.max(0, depth - 1);
+      }
+    }
+    s = out.join("\n");
+  }
+
   return s;
 }
 
@@ -2353,6 +2448,11 @@ function renderMarkdown(md) {
   // 1) 围栏代码块先摘出占位,raw 内容稍后在 inlineMd 之外直接 escape
   const codeBlocks = [];
   s = s.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (_, lang, code) => {
+    codeBlocks.push({ lang, code });
+    return `\x00CB${codeBlocks.length - 1}\x00`;
+  });
+  // 单行代码块: ```lang code...```(同在一行)
+  s = s.replace(/```([a-zA-Z0-9_-]*)[ \t]+([^\n`]*?)```/g, (_, lang, code) => {
     codeBlocks.push({ lang, code });
     return `\x00CB${codeBlocks.length - 1}\x00`;
   });
@@ -2415,7 +2515,8 @@ function renderMarkdown(md) {
   html = html.replace(/\x00CB(\d+)\x00/g, (_, idx) => {
     const cb = codeBlocks[+idx];
     const langAttr = cb.lang ? ` data-lang="${cb.lang}"` : "";
-    return `<pre${langAttr}><code>${highlightCode(cb.code, cb.lang)}</code></pre>`;
+    const withFmt = formatCode(cb.code, cb.lang);
+    return `<pre${langAttr}><code>${highlightCode(withFmt, cb.lang)}</code></pre>`;
   });
   // 4) KaTeX 占位换回(直接拼产物,已含 escape 后的安全 HTML)
   html = html.replace(/\x00KTX(\d+)\x00/g, (_, idx) => katexOut[+idx]);
@@ -2456,8 +2557,11 @@ function renderMarkdown(md) {
 //         → 还占位: 块级(递归) → 内联 → 围栏代码块 → KaTeX → 图片
 const BLOCK_TAGS = /<table[\s\S]*?<\/table>/gi;
 const SAFE_INLINE = /<\/?(?:tr|td|th|tbody|thead|tfoot|caption|br|p|b|i|u|strong|em|sub|sup)\b[^>]*>/gi;
-// 围栏代码块: ```lang(可选)\n...\n```。容许尾随空白。
+// 围栏代码块: 同时认多行 (```lang\ncode\n```) 和单行 (```lang code```) 两种格式
 const FENCE_RE = /```([a-zA-Z0-9_+-]*)[ \t]*\n([\s\S]*?)\n[ \t]*```/g;
+const FENCE_SINGLELINE = /```([a-zA-Z0-9_+-]*)[ \t]+([^\n`]*?)```/g;
+// 普通文本/伪代码标签:这些"语言"不亮词法,只走 escHtml
+const PLAIN_LANGS = /^(txt|text|plain|none|console|output|伪代码|无)$/i;
 function formatContent(s) {
   if (s == null) return "";
   s = String(s);
@@ -2485,6 +2589,10 @@ function formatContent(s) {
   // 4. 围栏代码块 → 占位符(在 escape 之前)
   const fences = [];
   s = s.replace(FENCE_RE, (_, lang, code) => {
+    fences.push({ lang: lang || "", code: code.replace(/\n$/, "") });
+    return `\x00FENCE${fences.length - 1}\x00`;
+  });
+  s = s.replace(FENCE_SINGLELINE, (_, lang, code) => {
     fences.push({ lang: lang || "", code: code.replace(/\n$/, "") });
     return `\x00FENCE${fences.length - 1}\x00`;
   });
@@ -2525,11 +2633,15 @@ function formatContent(s) {
   });
   // 8. 白名单内联占位符换回
   s = s.replace(/\x00TAG(\d+)\x00/g, (_, i) => inlines[+i]);
-  // 9. 围栏代码块占位换回: 用 highlightCode 做语法着色(它内部已 escHtml,安全)
+  // 9. 围栏代码块占位换回:txt/text/plain 等伪代码标签不走词法高亮,只走 escHtml
   s = s.replace(/\x00FENCE(\d+)\x00/g, (_, i) => {
     const f = fences[+i];
     const langAttr = f.lang ? ` data-lang="${escHtml(f.lang)}"` : "";
-    return `<pre class="q-code"${langAttr}><code>${highlightCode(f.code, f.lang)}</code></pre>`;
+    // 顺序很重要: 先 formatCode 在原始代码里插 <wbr> 软换行点,
+    // 再 highlightCode 词法高亮(此时 <span> 完整,<wbr> 已经在源码里,不进 tag 属性)
+    const withWbr = formatCode(f.code, f.lang);
+    const inner = PLAIN_LANGS.test(f.lang) ? escHtml(withWbr) : highlightCode(withWbr, f.lang);
+    return `<pre class="q-code"${langAttr}><code>${inner}</code></pre>`;
   });
   // 10. KaTeX 占位换回(直接拼产物,已含 escape 后的安全 HTML)
   s = s.replace(/\x00KTX(\d+)\x00/g, (_, i) => katexOut[+i]);
