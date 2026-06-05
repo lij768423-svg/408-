@@ -13,9 +13,6 @@ index.html.artifact.json
 # 备份文件
 *.bak*
 
-# 二进制资产（34MB / 1874 张，留本地不入仓库）
-images/
-
 # 临时截图（mmxcli / 调试用）
 mp*-image.png
 mp*.jpg
