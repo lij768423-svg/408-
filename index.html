@@ -9,50 +9,51 @@
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
 <style>
 :root {
-  --bg: #f0e8d4;
-  --bg-deep: #e6dcc3;
-  --panel: #fbf5e6;
+  --bg: #eee4cd;
+  --bg-deep: #dfd3b7;
+  --panel: #fbf4e4;
   --paper: var(--panel);
-  --panel-2: #f4ecd8;
-  --panel-toolbar: #f5edd9;
-  --border: rgba(21, 20, 15, 0.10);
-  --border-strong: rgba(21, 20, 15, 0.20);
+  --panel-2: #f3ead5;
+  --panel-toolbar: #f6edd8;
+  --border: rgba(23, 20, 15, 0.11);
+  --border-strong: rgba(23, 20, 15, 0.22);
   --border-soft: rgba(21, 20, 15, 0.06);
-  --text: #15140f;
-  --text-2: rgba(21, 20, 15, 0.7);
-  --muted: rgba(21, 20, 15, 0.5);
-  --primary: #df6a58;
+  --text: #17140f;
+  --text-2: rgba(23, 20, 15, 0.70);
+  --muted: rgba(23, 20, 15, 0.50);
+  --primary: #d95f4d;
   --accent: var(--ink);
-  --primary-hover: #c95745;
+  --primary-hover: #bf4f40;
   --primary-ink: #f7f1de;
-  --primary-tint: rgba(223, 106, 88, 0.12);
-  --primary-tint-soft: rgba(223, 106, 88, 0.06);
-  --ink: #15140f;
-  --ink-tint: rgba(21, 20, 15, 0.045);
-  --ink-tint-strong: rgba(21, 20, 15, 0.085);
-  --ink-soft: rgba(21, 20, 15, 0.10);
-  --success: #6e7448;
-  --success-light: #e9ead8;
-  --success-ink: #2f3318;
-  --success-tint: rgba(110, 116, 72, 0.18);
-  --error: #a8473a;
-  --error-light: #f0ddd5;
-  --error-ink: #5a251d;
-  --error-tint: rgba(168, 71, 58, 0.18);
+  --primary-tint: rgba(217, 95, 77, 0.14);
+  --primary-tint-soft: rgba(217, 95, 77, 0.07);
+  --ink: #17140f;
+  --ink-tint: rgba(23, 20, 15, 0.045);
+  --ink-tint-strong: rgba(23, 20, 15, 0.085);
+  --ink-soft: rgba(23, 20, 15, 0.11);
+  --success: #70754b;
+  --success-light: #e7e9d5;
+  --success-ink: #30351c;
+  --success-tint: rgba(112, 117, 75, 0.18);
+  --error: #a64b3f;
+  --error-light: #efdcd3;
+  --error-ink: #54231d;
+  --error-tint: rgba(166, 75, 63, 0.18);
+  --accent-blue: #526f86;
   --warning: #c98a2b;
   --warning-light: #f2e4c2;
-  --shell-dark: #211f1a;
-  --shell-dark-2: #2b2923;
-  --shell-dark-3: #36332c;
-  --on-shell: #efe7d2;
-  --on-shell-muted: rgba(239, 231, 210, 0.55);
-  --on-shell-border: rgba(239, 231, 210, 0.15);
+  --shell-dark: #1f1d18;
+  --shell-dark-2: #29261f;
+  --shell-dark-3: #343027;
+  --on-shell: #f0e7d2;
+  --on-shell-muted: rgba(240, 231, 210, 0.58);
+  --on-shell-border: rgba(240, 231, 210, 0.16);
   --font-display: "Playfair Display", "Source Serif Pro", "Iowan Old Style", "Charter", Georgia, "Songti SC", "STSong", serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Code", ui-monospace, Menlo, monospace;
   /* 纸面卡:减糊影,加 1px 内描边和柔光,贴纸感 */
-  --shadow: 0 1px 0 rgba(21, 20, 15, 0.025), 0 2px 6px -3px rgba(21, 20, 15, 0.08), 0 18px 36px -32px rgba(21, 20, 15, 0.22);
-  --shadow-md: 0 12px 28px -22px rgba(21, 20, 15, 0.28);
-  --shadow-toolbar: 0 1px 0 rgba(21, 20, 15, 0.025), 0 6px 14px -10px rgba(21, 20, 15, 0.16);
+  --shadow: 0 1px 0 rgba(23, 20, 15, 0.025), 0 2px 6px -3px rgba(23, 20, 15, 0.08), 0 18px 36px -32px rgba(23, 20, 15, 0.24);
+  --shadow-md: 0 12px 28px -22px rgba(23, 20, 15, 0.30);
+  --shadow-toolbar: 0 1px 0 rgba(23, 20, 15, 0.025), 0 6px 14px -10px rgba(23, 20, 15, 0.16);
   --radius: 8px;
 }
 
@@ -172,7 +173,7 @@ body::after {
   display: block;
   color: var(--text);
   font-family: var(--font-display);
-  font-size: 20px; font-weight: 500;
+  font-size: 19px; font-weight: 500;
   letter-spacing: -0.02em;
   margin-bottom: 3px;
   text-transform: none;
@@ -182,7 +183,9 @@ body::after {
 
 /* === Panel (bone card) === */
 .panel {
-  background: var(--panel);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0) 40%),
+    var(--panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.55);
@@ -350,27 +353,137 @@ body::after {
 }
 .side-chapter {
   padding: 4px 12px 8px;
+  position: relative;
 }
-.side-chapter select {
+.chapter-picker {
+  position: relative;
+}
+.chapter-trigger {
   width: 100%;
   min-width: 0;
-  padding: 7px 26px 7px 10px;
+  min-height: 42px;
+  padding: 8px 34px 8px 12px;
   font-size: 13px;
   font-family: 'Inter Tight', 'PingFang SC', system-ui, sans-serif;
-  font-weight: 500;
+  font-weight: 650;
   color: var(--text);
-  background-color: var(--panel);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'><path d='M0 0 L4 5 L8 0' fill='none' stroke='%23ed6f5c' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  appearance: none;
-  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(23, 20, 15, 0.14);
+  border-radius: 7px;
   cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  transition: border-color 0.14s ease, background-color 0.14s ease, box-shadow 0.14s ease;
+  position: relative;
 }
-.side-chapter select:hover { border-color: var(--primary); }
-.side-chapter select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(237, 111, 92, 0.15); }
+.chapter-trigger span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 8px;
+}
+.chapter-trigger::after {
+  content: "";
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--primary);
+  border-bottom: 2px solid var(--primary);
+  transform: translateY(-65%) rotate(45deg);
+  transition: transform 0.14s ease;
+}
+.chapter-picker.is-open .chapter-trigger::after {
+  transform: translateY(-35%) rotate(225deg);
+}
+.chapter-trigger:hover,
+.chapter-trigger:focus {
+  outline: none;
+  border-color: rgba(217, 95, 77, 0.48);
+  background: rgba(255, 255, 255, 0.20);
+  box-shadow: 0 0 0 3px rgba(217, 95, 77, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+.chapter-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 30;
+  padding: 6px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0)),
+    #f8efdc;
+  border: 1px solid rgba(23, 20, 15, 0.18);
+  border-radius: 8px;
+  box-shadow: 0 18px 34px -26px rgba(23, 20, 15, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.38);
+}
+.chapter-menu[hidden] { display: none; }
+.chapter-item {
+  width: 100%;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-2);
+  padding: 9px 10px;
+  font: 600 13px/1.25 'Inter Tight', 'PingFang SC', system-ui, sans-serif;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+.chapter-item span:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chapter-item:hover {
+  background: rgba(23, 20, 15, 0.055);
+  color: var(--text);
+}
+.chapter-item.active {
+  background: rgba(217, 95, 77, 0.10);
+  color: var(--text);
+}
+.chapter-item.active::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+  flex: 0 0 auto;
+  transform: translateY(-1px);
+}
+.chapter-item-count {
+  margin-left: auto;
+  color: var(--muted);
+  font: 500 10.5px/1 var(--font-mono);
+  flex: 0 0 auto;
+}
+.chapter-picker.is-disabled .chapter-trigger {
+  opacity: 0.55;
+  cursor: default;
+}
+.limit-picker {
+  position: relative;
+}
+.limit-trigger {
+  min-height: 38px;
+}
+.limit-menu {
+  position: static;
+  margin-top: 6px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
 
 /* === Book entries (vertical light rows / bookmark feel) === */
 .book-tabs {
@@ -412,31 +525,21 @@ body::after {
   transition: height 0.18s ease, background 0.18s ease;
 }
 .book-entry:hover {
-  background: var(--ink-tint);
+  background: var(--primary-tint-soft);
   border-color: var(--border);
   color: var(--text);
   transform: translateX(2px);
 }
 .book-entry:hover::before { height: 55%; }
 .book-entry.active {
-  background: var(--ink-tint-strong);
-  border-color: var(--border);
+  background: rgba(217, 95, 77, 0.075);
+  border-color: rgba(217, 95, 77, 0.22);
   color: var(--text);
   font-weight: 600;
-  /* 极淡的折角/纸签感,右上小三角 */
   overflow: hidden;
 }
-.book-entry.active::before { height: 70%; background: var(--ink); width: 3px; }
-.book-entry.active::after {
-  content: "";
-  position: absolute;
-  top: 0; right: 0;
-  width: 0; height: 0;
-  border-style: solid;
-  border-width: 0 8px 8px 0;
-  border-color: transparent var(--primary) transparent transparent;
-  opacity: 0.85;
-}
+.book-entry.active::before { height: 70%; background: var(--primary); width: 3px; }
+.book-entry.active::after { display: none; }
 .book-entry .be-name {
   flex: 1;
   min-width: 0;
@@ -472,7 +575,7 @@ body::after {
   padding: 0;
   border-top: 1px dashed var(--border);
 }
-.controls-row select, .controls-row .mode-btn {
+.controls-row .mode-btn {
   width: 100%;
   text-align: left;
   border-radius: 6px;
@@ -486,33 +589,32 @@ body::after {
   -webkit-appearance: none;
   cursor: pointer;
 }
-/* 真下拉(select)才保留右侧箭头 + 30px padding 给箭头让位 */
-.controls-row select {
-  padding: 9px 30px 9px 14px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'><path d='M0 0 L4 5 L8 0' fill='none' stroke='%23ed6f5c' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-}
-/* 即时判分 / 刷新题库 按钮(不是下拉)不需要箭头 */
 .controls-row .mode-btn {
   padding: 9px 14px;
 }
-.controls-row select:hover, .controls-row .mode-btn:hover {
-  background-color: var(--ink-tint);
+.controls-row .mode-btn:hover {
+  background-color: var(--primary-tint-soft);
   border-color: var(--border);
   color: var(--text);
 }
-.controls-row select:focus { outline: none; color: var(--text); }
 
-/* option 列表也用纸面色(浏览器原生是白底) */
-.side-chapter option, .controls-row option {
-  background: var(--panel);
-  color: var(--text);
-}
 .controls-row .mode-btn.active {
-  background: var(--ink-tint);
+  background: var(--primary-tint-soft);
   color: var(--text);
   font-weight: 600;
+}
+.controls-row .limit-trigger {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(23, 20, 15, 0.14);
+  color: var(--text);
+  font-weight: 650;
+  padding: 8px 34px 8px 12px;
+}
+.controls-row .limit-trigger:hover,
+.controls-row .limit-trigger:focus {
+  background: rgba(255, 255, 255, 0.20);
+  border-color: rgba(217, 95, 77, 0.48);
+  box-shadow: 0 0 0 3px rgba(217, 95, 77, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 /* === Mode tabs (vertical rows in sidebar) === */
@@ -543,20 +645,20 @@ body::after {
   text-align: left;
 }
 .mode-btn:hover {
-  background: var(--ink-tint);
+  background: var(--primary-tint-soft);
   border-color: var(--border);
   color: var(--text);
-  box-shadow: inset 2px 0 0 var(--ink-soft);
+  box-shadow: inset 2px 0 0 rgba(217, 95, 77, 0.22);
 }
 .mode-btn.active {
-  background: linear-gradient(90deg, rgba(21, 20, 15, 0.075) 0%, rgba(21, 20, 15, 0.025) 70%);
-  border-color: var(--border);
+  background: rgba(217, 95, 77, 0.075);
+  border-color: rgba(217, 95, 77, 0.24);
   color: var(--text);
   font-weight: 600;
-  box-shadow: inset 3px 0 0 var(--ink);
+  box-shadow: inset 3px 0 0 var(--primary);
 }
 .mode-btn.active:hover {
-  background: linear-gradient(90deg, rgba(21, 20, 15, 0.10) 0%, rgba(21, 20, 15, 0.04) 70%);
+  background: rgba(217, 95, 77, 0.10);
 }
 /* 视觉分组:顺序/随机是刷题顺序,错题/收藏/未做是筛选
    在错题按钮上方加一条细分隔线,做视觉切分 */
@@ -591,7 +693,7 @@ body::after {
 }
 .mode-btn:hover .badge { background: rgba(21, 20, 15, 0.10); }
 .mode-btn.active .badge {
-  background: var(--ink);
+  background: var(--primary);
   color: var(--primary-ink);
   font-weight: 600;
 }
@@ -781,8 +883,8 @@ body::after {
   font-weight: 400;
   max-width: 78ch;
   margin: 0 0 24px;
-  padding: 6px 0 6px 20px;
-  border-left: 2px solid var(--ink);
+  padding: 8px 0 8px 18px;
+  border-left: 1.5px solid var(--ink);
   white-space: pre-wrap;
   line-height: 1.8;
   color: var(--text);
@@ -813,8 +915,10 @@ body::after {
 }
 /* 题面 / 解析 / 选项里的围栏代码块(纸面装订框) */
 .q-stem pre.q-code, .opt-text pre.q-code, .fb-expl pre.q-code {
-  background: var(--paper);
-  border: 1px dashed var(--border);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0)),
+    var(--paper);
+  border: 1px dashed rgba(23, 20, 15, 0.18);
   border-radius: 6px;
   padding: 10px 12px 10px 14px;
   margin: 10px 0;
@@ -822,12 +926,13 @@ body::after {
   font-size: 12.5px;
   line-height: 1.7;
   color: var(--text);
-  overflow-x: auto;
-  /* 配合 <wbr>: 长代码在容器宽度内自然折行,短代码保持一行 */
+  overflow-x: visible;
+  /* 长代码在容器宽度内自然折行,短代码保持一行 */
   white-space: pre-wrap;
   word-break: break-word;
   overflow-wrap: anywhere;
   position: relative;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 /* 有 data-lang 时给语言标签让出顶部 26px,避免跟代码挤一起 */
 .q-stem pre.q-code[data-lang], .opt-text pre.q-code[data-lang], .fb-expl pre.q-code[data-lang] {
@@ -877,35 +982,57 @@ body::after {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
-  background: rgba(255, 255, 255, 0.20);
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.08)),
+    rgba(255, 255, 255, 0.18);
   font-size: 15px;
   position: relative;
   min-height: 50px;
   color: var(--text);
   /* 给选项纸面感:一道浅 ink tint 兜底,跟 panel 区分开但仍贴脸 */
 }
+.option::before {
+  content: "";
+  position: absolute;
+  left: -1px;
+  top: 10px;
+  bottom: 10px;
+  width: 2px;
+  border-radius: 999px;
+  background: transparent;
+  transition: background-color 0.16s ease, top 0.16s ease, bottom 0.16s ease;
+}
 .option:hover:not(.disabled):not(.selected):not(.correct):not(.wrong) {
-  /* 改用纯边框色变化,不再 translateY 引起周围抖动
-     排除已选/对/错 — 避免悬停覆盖 selected/批分后的深色 */
   border-color: rgba(21, 20, 15, 0.32);
-  background: rgba(255, 255, 255, 0.32);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.12)),
+    rgba(255, 255, 255, 0.24);
+  box-shadow: 0 8px 18px -18px rgba(23, 20, 15, 0.35);
+  transform: translateY(-1px);
 }
 .option.selected {
-  border-color: rgba(21, 20, 15, 0.42);
-  background: rgba(21, 20, 15, 0.045);
-  box-shadow: inset 0 0 0 1px rgba(21, 20, 15, 0.08);
+  border-color: rgba(217, 95, 77, 0.42);
+  background: linear-gradient(90deg, var(--primary-tint), rgba(255, 255, 255, 0.13));
+  box-shadow: inset 0 0 0 1px rgba(217, 95, 77, 0.08);
+}
+.option.selected::before {
+  top: 8px;
+  bottom: 8px;
+  background: var(--primary);
 }
 .option.correct {
   border-color: rgba(110, 116, 72, 0.45);
-  background: var(--success-light);
+  background: linear-gradient(90deg, var(--success-light), rgba(255, 255, 255, 0.12));
   color: var(--success-ink);
 }
+.option.correct::before { background: var(--success); }
 .option.wrong {
   border-color: rgba(168, 71, 58, 0.45);
-  background: var(--error-light);
+  background: linear-gradient(90deg, var(--error-light), rgba(255, 255, 255, 0.12));
   color: var(--error-ink);
 }
+.option.wrong::before { background: var(--error); }
 .option.disabled { cursor: not-allowed; }
 .option .opt-letter {
   width: 26px; height: 26px; flex-shrink: 0;
@@ -926,8 +1053,8 @@ body::after {
   border-color: var(--ink-soft);
 }
 .option.selected .opt-letter {
-  background: var(--ink);
-  border-color: var(--ink);
+  background: var(--primary);
+  border-color: var(--primary);
   color: var(--primary-ink);
 }
 .option.correct .opt-letter {
@@ -988,6 +1115,23 @@ body::after {
 /* KaTeX */
 .katex { font-size: 1.05em; }
 .katex-display { margin: 10px 0 !important; }
+.q-stem .katex-display,
+.opt-text .katex-display,
+.fb-expl .katex-display {
+  padding: 7px 10px;
+  border-left: 2px solid rgba(217, 95, 77, 0.42);
+  background: rgba(217, 95, 77, 0.045);
+}
+.ai-output .katex,
+.ai-output .katex-display {
+  color: var(--on-shell);
+}
+.ai-output .katex-display {
+  padding: 8px 10px;
+  background: rgba(240, 231, 210, 0.055);
+  border: 1px dashed var(--on-shell-border);
+  border-radius: 6px;
+}
 
 /* === Action buttons === */
 .actions {
@@ -1042,16 +1186,17 @@ body::after {
 }
 .status-pill.wrong::before { background: var(--error); }
 .btn {
+  min-height: 38px;
   padding: 8px 18px;
   border-radius: var(--radius);
   border: 1px solid var(--border);
-  background: var(--panel);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0)), var(--panel);
   color: var(--text);
   cursor: pointer;
   font-size: 13px;
   font-family: inherit;
   font-weight: 500;
-  transition: background 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
   display: inline-flex; align-items: center; gap: 6px;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -1060,10 +1205,12 @@ body::after {
   border-color: var(--border-strong);
   background: var(--ink-tint);
   color: var(--ink);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px -16px rgba(23, 20, 15, 0.35);
 }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn-primary {
-  background: var(--ink);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0)), var(--ink);
   color: var(--primary-ink);
   border-color: var(--ink);
   font-weight: 600;
@@ -1077,7 +1224,7 @@ body::after {
 }
 /* 提交 + 下一题 仍用 primary,但用 primary 里的"accent 提色" 提示这是主操作 */
 .btn-primary.btn-accent {
-  background: var(--primary);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0)), var(--primary);
   border-color: var(--primary);
   color: var(--primary-ink);
 }
@@ -1135,24 +1282,26 @@ body::after {
   display: none;
   border: 1px solid;
   background: var(--panel);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32);
 }
 .feedback.show {
   display: block;
+  animation: feedback-in 0.18s ease-out;
 }
 .feedback.correct {
-  background: var(--success-light);
+  background: linear-gradient(90deg, var(--success-light), rgba(251, 244, 228, 0.72));
   color: var(--success-ink);
   border-color: var(--success);
   border-left-width: 3px;
 }
 .feedback.wrong {
-  background: var(--error-light);
+  background: linear-gradient(90deg, var(--error-light), rgba(251, 244, 228, 0.72));
   color: var(--error-ink);
   border-color: var(--error);
   border-left-width: 3px;
 }
 .feedback.info {
-  background: var(--ink-tint);
+  background: linear-gradient(90deg, var(--ink-tint-strong), rgba(251, 244, 228, 0.72));
   color: var(--text);
   border-color: var(--ink);
   border-left-width: 3px;
@@ -1171,6 +1320,10 @@ body::after {
   white-space: pre-wrap;
   font-size: 13px;
   line-height: 1.72;
+}
+@keyframes feedback-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .study-tools {
@@ -1223,7 +1376,9 @@ body::after {
 /* === AI helper (dark console panel) === */
 .ai-shell {
   border: 1px solid rgba(239, 231, 210, 0.10);
-  background: var(--shell-dark);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(217, 95, 77, 0.08), transparent 32%),
+    var(--shell-dark);
   color: var(--on-shell);
   border-radius: var(--radius);
   overflow: hidden;
@@ -1239,7 +1394,7 @@ body::after {
   justify-content: space-between;
   gap: 12px;
   padding: 13px 16px;
-  background: linear-gradient(180deg, var(--shell-dark-2), var(--shell-dark));
+  background: linear-gradient(180deg, rgba(52, 48, 39, 0.88), var(--shell-dark));
   border-bottom: 1px dashed var(--on-shell-border);
 }
 .ai-title {
@@ -1287,6 +1442,12 @@ body::after {
   background: transparent;
   color: var(--on-shell-muted);
   cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+.ai-close:hover {
+  color: var(--on-shell);
+  border-color: rgba(240, 231, 210, 0.28);
+  background: rgba(240, 231, 210, 0.05);
 }
 .ai-head-tools {
   display: flex;
@@ -1303,6 +1464,12 @@ body::after {
   font-size: 15px;
   line-height: 1;
   cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+.ai-gear:hover {
+  color: var(--on-shell);
+  border-color: rgba(240, 231, 210, 0.28);
+  background: rgba(240, 231, 210, 0.05);
 }
 .ai-gear.active {
   background: var(--primary);
@@ -1375,7 +1542,7 @@ body::after {
   gap: 6px;
   padding: 9px 12px;
   margin-bottom: 12px;
-  background: var(--shell-dark-2);
+  background: rgba(240, 231, 210, 0.035);
   border: 1px dashed var(--on-shell-border);
   border-radius: 8px;
 }
@@ -1463,9 +1630,11 @@ body::after {
   min-height: 100px;
   flex: 0 0 auto;
   padding: 16px 18px;
-  border: 1px dashed var(--on-shell-border);
+  border: 1px solid rgba(240, 231, 210, 0.13);
   border-radius: calc(var(--radius) - 4px);
-  background: var(--shell-dark-2);
+  background:
+    linear-gradient(180deg, rgba(240, 231, 210, 0.045), rgba(240, 231, 210, 0.018)),
+    var(--shell-dark-2);
   color: var(--on-shell);
   font-size: 13.5px;
   line-height: 1.78;
@@ -1560,8 +1729,8 @@ body::after {
 .ai-output code {
   font: 12px/1.5 var(--font-mono);
   padding: 1px 6px;
-  background: var(--shell-dark-3);
-  border: 1px solid var(--on-shell-border);
+  background: rgba(240, 231, 210, 0.07);
+  border: 1px solid rgba(240, 231, 210, 0.15);
   border-radius: 3px;
   color: var(--on-shell);
 }
@@ -1569,13 +1738,15 @@ body::after {
   position: relative;
   margin: 10px 0;
   padding: 14px 14px 12px 16px;
-  background: var(--paper);
-  border: 1px dashed var(--border);
+  background: rgba(10, 9, 7, 0.22);
+  border: 1px dashed rgba(240, 231, 210, 0.18);
   border-radius: 8px;
-  overflow-x: auto;
+  overflow-x: visible;
   font: 12.5px/1.7 var(--font-mono);
-  color: var(--text);
-  white-space: pre;
+  color: var(--on-shell);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   tab-size: 2;
 }
 .ai-output pre::before {
@@ -1585,10 +1756,10 @@ body::after {
   left: 10px;
   width: 6px;
   height: 6px;
-  background: var(--ink);
+  background: var(--primary);
   border-radius: 1px;
-  box-shadow: 10px 0 0 var(--ink), 0 8px 0 0 var(--ink), 10px 8px 0 0 var(--ink);
-  opacity: 0.85;
+  box-shadow: 10px 0 0 rgba(240, 231, 210, 0.58), 0 8px 0 0 rgba(240, 231, 210, 0.58), 10px 8px 0 0 var(--primary);
+  opacity: 0.9;
 }
 .ai-output pre code { background: none; padding: 0; color: inherit; font: inherit; }
 .ai-output pre[data-lang]::after {
@@ -1599,11 +1770,11 @@ body::after {
   font: 9.5px/1 var(--font-mono);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--muted);
-  background: var(--bg);
+  color: var(--on-shell-muted);
+  background: rgba(31, 29, 24, 0.88);
   padding: 3px 6px;
   border-radius: 3px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--on-shell-border);
 }
 .ai-output pre[data-lang] { padding-right: 12px; }
 /* 语法高亮 token — 沿用 Atelier Zero 配色: 珊瑚(关键字) / 橄榄(字符串) / 墨黑(常规) / 灰(注释/运算符) */
@@ -1617,10 +1788,11 @@ body::after {
 .tok-type{ color: #a8473a; }                    /* 深珊瑚,函数返回类型/类名 */
 .ai-output blockquote {
   margin: 8px 0;
-  padding: 4px 0 4px 12px;
+  padding: 6px 0 6px 12px;
   border-left: 3px solid var(--primary);
-  color: var(--on-shell-muted);
+  color: rgba(240, 231, 210, 0.74);
   font-style: italic;
+  background: linear-gradient(90deg, rgba(217, 95, 77, 0.08), transparent 70%);
 }
 .ai-output hr {
   border: 0;
@@ -1645,6 +1817,16 @@ body::after {
 @keyframes ai-blink { to { visibility: hidden; } }
 @media (prefers-reduced-motion: reduce) {
   .ai-output .ai-cursor { animation: none; }
+  .option,
+  .btn,
+  .feedback.show {
+    transition: none;
+    animation: none;
+  }
+  .option:hover:not(.disabled):not(.selected):not(.correct):not(.wrong),
+  .btn:hover:not(:disabled) {
+    transform: none;
+  }
 }
 .ai-input-row {
   display: flex;
@@ -1991,9 +2173,7 @@ body::after {
         </div>
         <div class="side-group">
           <div class="side-group-label">章节</div>
-          <div class="side-chapter">
-            <select id="chapter-sel" title="选择章节"></select>
-          </div>
+          <div class="side-chapter" id="chapter-select"></div>
         </div>
         <div class="side-group">
           <div class="side-group-label">模式</div>
@@ -2792,6 +2972,26 @@ function render() {
   renderQuiz();
 }
 
+function closeChapterMenu() {
+  [
+    ["#chapter-picker", "#chapter-trigger", "#chapter-menu"],
+    ["#limit-picker", "#limit-trigger", "#limit-menu"]
+  ].forEach(([pickerSel, triggerSel, menuSel]) => {
+    const picker = $(pickerSel);
+    const trigger = $(triggerSel);
+    const menu = $(menuSel);
+    if (!picker || !trigger || !menu) return;
+    picker.classList.remove("is-open");
+    trigger.setAttribute("aria-expanded", "false");
+    menu.hidden = true;
+  });
+}
+
+document.addEventListener("click", closeChapterMenu);
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closeChapterMenu();
+});
+
 function renderHeader() {
   const totalQs = ALL_QUESTIONS.length;
   const favCount = Object.keys(STATE.favorite).length;
@@ -2855,26 +3055,64 @@ function renderBookTabs() {
 }
 
 function renderChapterSel() {
-  const sel = $("#chapter-sel");
+  const box = $("#chapter-select");
+  if (!box) return;
   if (CURRENT.book == null) {
-    sel.innerHTML = `<option value="">全部章节 (跨 ${getBooks().length} 本书)</option>`;
-    sel.disabled = true;
-    sel.onchange = null;
+    box.innerHTML = `
+      <div class="chapter-picker is-disabled">
+        <button class="chapter-trigger" type="button" disabled>全部章节 (跨 ${getBooks().length} 本书)</button>
+      </div>`;
     return;
   }
-  sel.disabled = false;
   const chapters = getChapters(CURRENT.book);
   const totalAll = chapters.reduce((s, [n]) =>
     s + ALL_QUESTIONS.filter(q => q.book === CURRENT.book && q.chapter === n).length, 0);
-  const opts = [`<option value="">全部章节 (${totalAll} 题)</option>`]
-    .concat(chapters.map(([num, title]) => {
-      const count = ALL_QUESTIONS.filter(q => q.book === CURRENT.book && q.chapter === num).length;
-      return `<option value="${num}" ${CURRENT.chapter === num ? "selected" : ""}>第 ${num} 章 ${title} (${count})</option>`;
-    }));
-  sel.innerHTML = opts.join("");
-  sel.onchange = (e) => {
-    const v = e.target.value;
-    setChapter(v === "" ? null : parseInt(v, 10));
+  const items = [{ value: "", label: "全部章节", count: `${totalAll} 题` }]
+    .concat(chapters.map(([num, title]) => ({
+      value: String(num),
+      label: `第 ${num} 章 ${title}`,
+      count: ALL_QUESTIONS.filter(q => q.book === CURRENT.book && q.chapter === num).length
+    })));
+  const active = items.find(it => it.value === (CURRENT.chapter == null ? "" : String(CURRENT.chapter))) || items[0];
+  box.innerHTML = `
+    <div class="chapter-picker" id="chapter-picker">
+      <button class="chapter-trigger" id="chapter-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+        <span>${escHtml(active.label)} (${escHtml(String(active.count))})</span>
+      </button>
+      <div class="chapter-menu" id="chapter-menu" role="listbox" hidden>
+        ${items.map(it => `
+          <button class="chapter-item ${it.value === active.value ? "active" : ""}" type="button" role="option" aria-selected="${it.value === active.value ? "true" : "false"}" data-chapter="${escHtml(it.value)}">
+            <span>${escHtml(it.label)}</span><span class="chapter-item-count">${escHtml(String(it.count))}</span>
+          </button>
+        `).join("")}
+      </div>
+    </div>`;
+
+  const picker = $("#chapter-picker");
+  const trigger = $("#chapter-trigger");
+  const menu = $("#chapter-menu");
+  const setOpen = (open) => {
+    picker.classList.toggle("is-open", open);
+    trigger.setAttribute("aria-expanded", open ? "true" : "false");
+    menu.hidden = !open;
+  };
+  trigger.onclick = (e) => {
+    e.stopPropagation();
+    setOpen(menu.hidden);
+  };
+  menu.onclick = (e) => e.stopPropagation();
+  $$("#chapter-menu .chapter-item").forEach(el => {
+    el.onclick = () => {
+      const v = el.dataset.chapter;
+      setChapter(v === "" ? null : parseInt(v, 10));
+    };
+  });
+  trigger.onkeydown = (e) => {
+    if (e.key === "Escape") setOpen(false);
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setOpen(menu.hidden);
+    }
   };
 }
 
@@ -2901,9 +3139,20 @@ function renderModeTabs() {
   // 全部模式下的题量调节
   let limitCtrl = "";
   if (CURRENT.book == null) {
-    limitCtrl = `<select id="limit-sel" class="mode-btn" style="background: var(--panel);">
-      ${[20, 50, 100, 200].map(n => `<option value="${n}" ${CURRENT.limit === n ? "selected" : ""}>每刷 ${n} 题</option>`).join("")}
-    </select>`;
+    const limits = [20, 50, 100, 200];
+    limitCtrl = `
+      <div class="chapter-picker limit-picker" id="limit-picker">
+        <button class="chapter-trigger limit-trigger mode-btn" id="limit-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <span>每刷 ${CURRENT.limit} 题</span>
+        </button>
+        <div class="chapter-menu limit-menu" id="limit-menu" role="listbox" hidden>
+          ${limits.map(n => `
+            <button class="chapter-item ${CURRENT.limit === n ? "active" : ""}" type="button" role="option" aria-selected="${CURRENT.limit === n ? "true" : "false"}" data-limit="${n}">
+              <span>每刷 ${n} 题</span>
+            </button>
+          `).join("")}
+        </div>
+      </div>`;
   }
   // 即时判分开关
   const instantCtrl = `<button id="instant-toggle" class="mode-btn ${CURRENT.instantGrade ? "active" : ""}" title="点击选项立即判分">即时判分</button>`;
@@ -2917,6 +3166,39 @@ function renderModeTabs() {
   $$("#mode-tabs .mode-btn[data-mode]").forEach(el => {
     el.onclick = () => setMode(el.dataset.mode);
   });
+  const limitPicker = $("#limit-picker");
+  const limitTrigger = $("#limit-trigger");
+  const limitMenu = $("#limit-menu");
+  if (limitPicker && limitTrigger && limitMenu) {
+    const setLimitOpen = (open) => {
+      limitPicker.classList.toggle("is-open", open);
+      limitTrigger.setAttribute("aria-expanded", open ? "true" : "false");
+      limitMenu.hidden = !open;
+    };
+    limitTrigger.onclick = (e) => {
+      e.stopPropagation();
+      setLimitOpen(limitMenu.hidden);
+    };
+    limitTrigger.onkeydown = (e) => {
+      if (e.key === "Escape") setLimitOpen(false);
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        setLimitOpen(limitMenu.hidden);
+      }
+    };
+    limitMenu.onclick = (e) => e.stopPropagation();
+    $$("#limit-menu .chapter-item").forEach(el => {
+      el.onclick = () => {
+        CURRENT.limit = parseInt(el.dataset.limit, 10);
+        localStorage.setItem("408-quiz-limit", String(CURRENT.limit));
+        CURRENT.questions = buildQuestionList();
+        CURRENT.idx = 0;
+        CURRENT.answers = {};
+        resetAiPanel();
+        render();
+      };
+    });
+  }
   const limitSel = document.querySelector("#limit-sel");
   if (limitSel) {
     limitSel.onchange = (e) => {
