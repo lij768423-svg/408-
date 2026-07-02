@@ -213,6 +213,7 @@ let WIKI_BROWSE_LOADED = false;
 let WIKI_LAST_RESULTS = [];
 let WIKI_PREVIEW_REQUEST = 0;
 let WIKI_PREVIEW_PATH = "";
+let WIKI_PREVIEW_NOTE = null;
 let WIKI_SELECTED_KIND = "concept";
 const WIKI_TREE_COLLAPSED = Object.create(null);
 
@@ -250,7 +251,7 @@ function wikiTypeLabel(type) {
 
 function wikiKindFilterLabel(kind) {
   const labels = {
-    all: "知识库",
+    all: "全部问题",
     concept: "概念问题",
     exam: "题目问题",
   };
@@ -260,6 +261,14 @@ function wikiKindFilterLabel(kind) {
 function isWikiQuestionItem(item) {
   const path = String(item && item.path || "");
   return (item && item.type === "question") || /^wiki\/questions?\//.test(path);
+}
+
+function filterWikiQuestionResults(results) {
+  return (Array.isArray(results) ? results : []).filter(item => {
+    if (!isWikiQuestionItem(item)) return false;
+    const kind = String(item && item.question_kind || "");
+    return WIKI_SELECTED_KIND === "all" || kind === WIKI_SELECTED_KIND;
+  });
 }
 
 function wikiItemKindLabel(item) {
@@ -387,7 +396,7 @@ function wikiWelcomeHtml(results, query, message) {
       '</aside>' +
     "</section>" +
     '<div class="wiki-welcome-actions" aria-label="知识库使用提示">' +
-      '<div class="wiki-welcome-card"><span>01</span><b>浏览目录</b><p>左侧是 Obsidian 风格树，按科目展开。</p></div>' +
+      '<div class="wiki-welcome-card"><span>01</span><b>浏览目录</b><p>左侧是双栏目录，按科目展开。</p></div>' +
       '<div class="wiki-welcome-card"><span>02</span><b>全文预览</b><p>选择笔记后在这里阅读，保留标题、表格和 callout。</p></div>' +
       '<div class="wiki-welcome-card"><span>03</span><b>智能归档</b><p>AI 追问会按首次问题保存为概念或题目问题。</p></div>' +
     "</div>" +
@@ -411,6 +420,7 @@ function renderWikiState(kind, message) {
   WIKI_LAST_RESULTS = [];
   WIKI_PREVIEW_REQUEST += 1;
   WIKI_PREVIEW_PATH = "";
+  WIKI_PREVIEW_NOTE = null;
   if (preview) {
     preview.hidden = false;
     preview.innerHTML = '<div class="' + cls + '">' + escHtml(message) + "</div>";
@@ -423,7 +433,8 @@ function renderWikiResults(data, query) {
   if (!box) return;
   WIKI_PREVIEW_REQUEST += 1;
   WIKI_PREVIEW_PATH = "";
-  const results = Array.isArray(data.results) ? data.results : [];
+  WIKI_PREVIEW_NOTE = null;
+  const results = filterWikiQuestionResults(data.results);
   WIKI_LAST_RESULTS = results;
   const hasQuery = !!(query || "").trim();
   const filterLabel = wikiKindFilterLabel(WIKI_SELECTED_KIND);
@@ -461,6 +472,7 @@ function attachWikiTreeHandlers() {
 function collapseWikiPreview() {
   WIKI_PREVIEW_REQUEST += 1;
   WIKI_PREVIEW_PATH = "";
+  WIKI_PREVIEW_NOTE = null;
   syncWikiTreeSelection();
   renderWikiWelcome(WIKI_LAST_RESULTS, $("#wiki-search-input") && $("#wiki-search-input").value || "");
 }
@@ -485,9 +497,11 @@ function wikiPreviewContentHtml(content) {
   return '<pre class="wiki-preview-fallback">' + escHtml(content || "") + "</pre>";
 }
 
-function renderWikiPreviewCard(item, bodyHtml, badgeText) {
+function renderWikiPreviewCard(item, bodyHtml, badgeText, options = {}) {
   const preview = $("#wiki-note-preview");
   if (!item || !preview) return;
+  const canMutate = !!(options.canMutate && item && item.path && typeof item.raw_content === "string");
+  const editing = !!options.editing;
   preview.hidden = false;
   preview.innerHTML = '<div class="wiki-preview-head">' +
       "<div>" +
@@ -496,6 +510,10 @@ function renderWikiPreviewCard(item, bodyHtml, badgeText) {
       "</div>" +
       '<div class="wiki-preview-head-actions">' +
         "<span>" + escHtml(badgeText || "") + "</span>" +
+        (editing ? '<button class="wiki-preview-action wiki-preview-save" type="button" data-wiki-save-edit="1">保存</button>' : "") +
+        (editing ? '<button class="wiki-preview-action" type="button" data-wiki-cancel-edit="1">取消</button>' : "") +
+        (!editing && canMutate ? '<button class="wiki-preview-action" type="button" data-wiki-edit="1">编辑</button>' : "") +
+        (!editing && canMutate ? '<button class="wiki-preview-action wiki-preview-danger" type="button" data-wiki-delete="1">删除</button>' : "") +
         '<button class="wiki-preview-close" type="button" data-wiki-close="1">收起</button>' +
       "</div>" +
     "</div>" +
@@ -504,8 +522,101 @@ function renderWikiPreviewCard(item, bodyHtml, badgeText) {
     '<div class="wiki-preview-body">' + bodyHtml + "</div>";
   const closeBtn = preview.querySelector("[data-wiki-close]");
   if (closeBtn) closeBtn.onclick = collapseWikiPreview;
+  const editBtn = preview.querySelector("[data-wiki-edit]");
+  if (editBtn) editBtn.onclick = beginWikiEdit;
+  const deleteBtn = preview.querySelector("[data-wiki-delete]");
+  if (deleteBtn) deleteBtn.onclick = deleteWikiPreviewNote;
+  const cancelBtn = preview.querySelector("[data-wiki-cancel-edit]");
+  if (cancelBtn) cancelBtn.onclick = cancelWikiEdit;
+  const saveBtn = preview.querySelector("[data-wiki-save-edit]");
+  if (saveBtn) saveBtn.onclick = saveWikiEdit;
   if (window.matchMedia && window.matchMedia("(max-width: 760px)").matches) {
     preview.scrollIntoView({ block: "nearest" });
+  }
+}
+
+function beginWikiEdit() {
+  const note = WIKI_PREVIEW_NOTE;
+  if (!note || !note.path || typeof note.raw_content !== "string") {
+    setWikiStatus("笔记尚未完整加载，不能编辑。", "error");
+    return;
+  }
+  renderWikiPreviewCard(
+    note,
+    '<div class="wiki-editor-wrap">' +
+      '<textarea class="wiki-editor" id="wiki-note-editor" spellcheck="false" aria-label="编辑 Markdown 笔记"></textarea>' +
+      '<p class="wiki-editor-hint">保存会覆盖当前 Markdown 文件；删除会移动到个人知识库 .trash，不会永久删除。</p>' +
+    '</div>',
+    "EDITING",
+    { editing: true }
+  );
+  const editor = $("#wiki-note-editor");
+  if (editor) {
+    editor.value = note.raw_content;
+    editor.focus();
+  }
+}
+
+function cancelWikiEdit() {
+  const note = WIKI_PREVIEW_NOTE;
+  if (!note) return collapseWikiPreview();
+  renderWikiPreviewCard(note, wikiPreviewContentHtml(note.content || ""), "MARKDOWN", { canMutate: true });
+}
+
+async function refreshWikiAfterMutation(path, reopen) {
+  const input = $("#wiki-search-input");
+  const query = input ? input.value : "";
+  await runWikiSearch(query, 20);
+  if (!reopen || !path) return;
+  const index = WIKI_LAST_RESULTS.findIndex(item => item && item.path === path);
+  if (index >= 0) await showWikiPreview(index);
+}
+
+async function saveWikiEdit() {
+  const note = WIKI_PREVIEW_NOTE;
+  const editor = $("#wiki-note-editor");
+  if (!note || !note.path || typeof note.raw_content !== "string" || !editor) {
+    setWikiStatus("笔记尚未完整加载，不能保存。", "error");
+    return;
+  }
+  const preview = $("#wiki-note-preview");
+  const buttons = preview ? preview.querySelectorAll("button") : [];
+  buttons.forEach(btn => { btn.disabled = true; });
+  setWikiStatus("正在保存笔记……");
+  try {
+    await apiJson("/api/wiki/note/update", {
+      method: "POST",
+      body: JSON.stringify({ path: note.path, content: editor.value, expected_mtime: note.mtime })
+    });
+    setWikiStatus("笔记已保存。");
+    await refreshWikiAfterMutation(note.path, true);
+  } catch (e) {
+    buttons.forEach(btn => { btn.disabled = false; });
+    const message = e && e.message ? e.message : String(e);
+    setWikiStatus("保存失败：" + message, "error");
+  }
+}
+
+async function deleteWikiPreviewNote() {
+  const note = WIKI_PREVIEW_NOTE;
+  if (!note || !note.path) {
+    setWikiStatus("笔记尚未完整加载，不能删除。", "error");
+    return;
+  }
+  const title = note.title || note.path;
+  if (!window.confirm("删除笔记「" + title + "」？\n\n这会移动到个人知识库 .trash，不会永久删除。")) return;
+  setWikiStatus("正在移动笔记到回收站……");
+  try {
+    await apiJson("/api/wiki/note/delete", {
+      method: "POST",
+      body: JSON.stringify({ path: note.path, reason: "user-request" })
+    });
+    WIKI_PREVIEW_NOTE = null;
+    setWikiStatus("笔记已移动到回收站。");
+    await refreshWikiAfterMutation("", false);
+  } catch (e) {
+    const message = e && e.message ? e.message : String(e);
+    setWikiStatus("删除失败：" + message, "error");
   }
 }
 
@@ -515,6 +626,7 @@ async function showWikiPreview(index) {
   if (!item || !preview || !item.path) return;
   const requestId = ++WIKI_PREVIEW_REQUEST;
   WIKI_PREVIEW_PATH = item.path;
+  WIKI_PREVIEW_NOTE = null;
   syncWikiTreeSelection();
   renderWikiPreviewCard(item, '<div class="wiki-empty">正在加载笔记全文预览……</div>', "LOADING");
   try {
@@ -523,7 +635,8 @@ async function showWikiPreview(index) {
       body: JSON.stringify({ path: item.path, kind: WIKI_SELECTED_KIND })
     });
     if (requestId !== WIKI_PREVIEW_REQUEST || WIKI_PREVIEW_PATH !== item.path) return;
-    renderWikiPreviewCard(data, wikiPreviewContentHtml(data.content || ""), "READ ONLY");
+    WIKI_PREVIEW_NOTE = data;
+    renderWikiPreviewCard(data, wikiPreviewContentHtml(data.content || ""), "MARKDOWN", { canMutate: true });
   } catch (e) {
     if (requestId !== WIKI_PREVIEW_REQUEST || WIKI_PREVIEW_PATH !== item.path) return;
     const message = e && e.message === "未登录"
@@ -540,7 +653,7 @@ async function runWikiSearch(query, limit = 20) {
   try {
     const data = await apiJson("/api/wiki/search", {
       method: "POST",
-      body: JSON.stringify({ query: query || "", limit: effectiveLimit, kind: WIKI_SELECTED_KIND })
+      body: JSON.stringify({ query: query || "", limit: effectiveLimit, kind: WIKI_SELECTED_KIND, scope: "question" })
     });
     renderWikiResults(data, query || "");
     WIKI_BROWSE_LOADED = WIKI_BROWSE_LOADED || !hasQuery;

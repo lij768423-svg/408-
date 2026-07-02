@@ -621,7 +621,7 @@ function buildAiIntro(q, state) {
   return [
     "已加载本题上下文。",
     status,
-    "可以让我先讲解思路，也可以复制完整上下文给 Claudian，让它继续追问或保存到 Obsidian。"
+    "可以让我先讲解思路，也可以复制完整上下文继续追问，或保存到知识库。"
   ].join("\n");
 }
 
@@ -652,7 +652,7 @@ function buildMistakeReview(q, state) {
   return parts.join("\n");
 }
 
-function buildObsidianNote(q, state) {
+function buildKnowledgeNote(q, state) {
   const selected = state.selected && state.selected.length ? state.selected.join("、") : "未作答";
   const result = state.submitted
     ? (state.shown ? "查看答案" : (state.correct ? "正确" : "错误"))

@@ -98,7 +98,7 @@ function buildAiMessages(mode, q, state, extra) {
   const user = {
     explain: "【任务：讲解思路】用 3-5 步拆解本题解题路径，逐项解释每个选项为什么对/错。\n\n" + ctx,
     mistake: "【任务：错因分析】基于用户当前作答与正确答案，指出可能的误解、漏判的限定条件、容易混淆的概念。\n\n" + ctx,
-    note: "【任务：Obsidian 笔记】输出可直接粘贴到 Obsidian 的 Markdown 错题卡：yaml frontmatter + 题目 + 关键考点 + 错因 + 复习提醒。不加客套。不要使用代码块外壳，直接输出 Markdown 正文。\n\n" + ctx,
+    note: "【任务：知识库笔记】输出可直接保存到个人知识库的 Markdown 错题卡：yaml frontmatter + 题目 + 关键考点 + 错因 + 复习提醒。不加客套。不要使用代码块外壳，直接输出 Markdown 正文。\n\n" + ctx,
     ask: "【任务：针对性回答】用户追问：\"" + (extra || "") + "\"。基于上下文给出有依据的回答。\n\n" + ctx
   }[mode] || ctx;
   return [
@@ -192,7 +192,7 @@ const AI_EMPTY_PROMPTS = [
   { group: "理解题目", label: "讲解思路", text: "请按 3-5 步讲解这题的解题思路，并说明每个选项为什么对或错。" },
   { group: "理解题目", label: "逐项排除", text: "请用“因果链/逐项排除”的方式分析本题，先抓题干考点，再排除干扰项。" },
   { group: "整理复习", label: "错因分析", text: "请基于我当前选择，指出我最可能误解了哪些概念或限定条件。" },
-  { group: "整理复习", label: "生成错题卡", text: "请生成一张可粘贴到 Obsidian 的 Markdown 错题卡，包含考点、错因和复习提醒。不要使用代码块外壳，直接输出 Markdown 正文。" },
+  { group: "整理复习", label: "生成错题卡", text: "请生成一张可保存到知识库的 Markdown 错题卡，包含考点、错因和复习提醒。不要使用代码块外壳，直接输出 Markdown 正文。" },
 ];
 function pickAiEmptyTip(q) {
   const seed = String(q && q.id ? q.id : "default");
@@ -262,8 +262,8 @@ function renderAiPanel(q, state) {
               </svg>
               <span>复制上下文</span>
             </button>
-            <button class="ai-copy-inline" id="ai-save-wiki" type="button" title="保存当前题目、作答和 AI 讲解到 Obsidian">
-              <span>保存到 Obsidian</span>
+            <button class="ai-copy-inline" id="ai-save-wiki" type="button" title="保存当前题目、作答和 AI 讲解到个人知识库">
+              <span>保存到知识库</span>
             </button>
           </div>
         </div>
@@ -275,19 +275,12 @@ function renderAiPanel(q, state) {
             }
           </div>
         </div>
-        <!-- Feature 7: 题目关联 -->
-        <div class="related-section" id="related-wrap" hidden></div>
-        <!-- Feature 2: AI 对话历史 -->
-        <div class="ai-history" id="ai-history-list" hidden>
-          <div class="ai-history-head">
-            <span>历史对话</span>
-            <button class="ai-history-clear" type="button" id="ai-history-clear">清空</button>
-          </div>
-        </div>
         <div class="ai-input-row">
-          <input id="ai-question" type="text" placeholder="追问：按回车发送,Shift+Enter 换行">
+          <input id="ai-question" type="text" placeholder="追问：按回车发送，Shift+Enter 换行">
           <button class="btn btn-primary" type="button" id="ai-ask">询问 AI</button>
         </div>
+        <!-- Feature 7: 题目关联 -->
+        <div class="related-section" id="related-wrap" hidden></div>
         <button class="batch-trigger ai-batch-trigger" type="button" id="batch-open">批量讲错题 · AI 串讲</button>
         <div class="ai-quick" id="ai-quick">
           <div class="ai-quick-row">
@@ -358,9 +351,6 @@ function bindAiPanel(q, state) {
       setAiOutput("⚠️ 服务器 AI 尚未配置。你仍然可以点击「复制上下文」手动粘贴给其他 AI。");
       return;
     }
-    // Feature 2: 记录用户提问
-    pushAiHistory(q.id, "user", ask);
-    renderAiHistory(q.id);
     // 切到"生成中"态:按钮变"停止"
     const askBtn = $("#ai-ask");
     const origText = askBtn.textContent;
@@ -375,16 +365,11 @@ function bindAiPanel(q, state) {
       // 末尾清理:不再追加光标
       CURRENT.aiOutput = text;
       endAiStream();
-      // Feature 2: 记录 AI 回复
-      pushAiHistory(q.id, "assistant", text);
-      renderAiHistory(q.id);
     } catch (e) {
       const fallback = getQuestionContext(q, state, ask);
       const errText = `⚠️ API 调用失败:${e.message}\n\n—— 已回退到本地整理 ——\n\n${fallback}`;
       CURRENT.aiOutput = errText;
       endAiStream();
-      pushAiHistory(q.id, "assistant", errText);
-      renderAiHistory(q.id);
     } finally {
       askBtn.textContent = origText;
       askBtn.classList.remove("is-loading");
@@ -402,9 +387,9 @@ function bindAiPanel(q, state) {
       try {
         const data = await saveQuestionToWiki(q, state);
         saveWikiBtn.textContent = data.cached ? "已保存" : "已写入";
-        toast(data.cached ? "已保存过，无需重复写入" : "已保存到 Obsidian");
+        toast(data.cached ? "已保存过，无需重复写入" : "已保存到知识库");
         if (data.question_path) {
-          CURRENT.aiOutput = (CURRENT.aiOutput || "") + `\n\n---\n已保存到 Obsidian：\`${data.question_path}\``;
+          CURRENT.aiOutput = (CURRENT.aiOutput || "") + `\n\n---\n已保存到知识库：\`${data.question_path}\``;
           endAiStream();
         }
       } catch (e) {
@@ -453,18 +438,7 @@ function bindAiPanel(q, state) {
     askInput.value = "";
     await runAsk(ask);
   };
-  // Feature 2: 清空历史对话
-  const clearBtn = $("#ai-history-clear");
-  if (clearBtn) {
-    clearBtn.onclick = () => {
-      if (confirm("清空本题所有历史对话？")) {
-        clearAiHistory(q.id);
-        renderAiHistory(q.id);
-      }
-    };
-  }
-  // Feature 2 & 7: 渲染历史对话 + 关联题目
-  renderAiHistory(q.id);
+  // Feature 7: 渲染关联题目
   renderRelated(q);
 }
 
@@ -656,29 +630,91 @@ function renderQuotes() {
 
 renderQuotes();
 
-// ============== Feature 5: 真题 / 自编题 区分 ==============
-// 默认所有题目标记为"课后题"(王道题源),用户可在题面点击标签改为"真题"
-// 状态保存在 STATE.sourceTags[qid] = "exam" | "self"
+// ============== Feature 5: 真题 / 模拟题 / 课后题标签 ==============
+// 默认从题干、id、题源字段推断来源；用户手动覆盖仍保存在 STATE.sourceTags[qid]。
+// 兼容旧值：STATE.sourceTags[qid] = "exam" | "self"，新逻辑也接受 "mock"。
+function normalizeSourceTag(tag) {
+  if (tag === "exam" || tag === "mock" || tag === "self") return tag;
+  const raw = String(tag || "").trim();
+  const s = raw.toLowerCase();
+  if (/^(exam|real|past|past_exam|unified|unified_exam)$/.test(s)) return "exam";
+  if (/^(mock|simulation|simulated)$/.test(s)) return "mock";
+  if (/^(self|post|practice|exercise|chapter)$/.test(s)) return "self";
+  if (/真题|统考/.test(raw)) return "exam";
+  if (/模拟/.test(raw)) return "mock";
+  if (/课后|自编|王道/.test(raw)) return "self";
+  if (tag === "真题") return "exam";
+  if (tag === "模拟" || tag === "模拟题") return "mock";
+  if (tag === "课后" || tag === "课后题" || tag === "自编题") return "self";
+  return "";
+}
+function questionSourceText(q) {
+  if (!q) return "";
+  const parts = [
+    q.id, q.question, q.source, q.source_type, q.sourceTag, q.source_tag,
+    q.origin, q.origin_title, q.section, q.section_title, q.chapter_title,
+    q.source_file, q.year,
+  ];
+  if (Array.isArray(q.tags)) parts.push(q.tags.join(" "));
+  if (q.meta && typeof q.meta === "object") parts.push(JSON.stringify(q.meta));
+  return parts.filter(v => v != null && v !== "").join(" ");
+}
+function inferQuestionSourceMeta(q) {
+  const raw = questionSourceText(q);
+  const text = raw.replace(/\s+/g, " ");
+  const explicitType = normalizeSourceTag(q && (q.source_type || q.sourceTag || q.source_tag || q.origin_type));
+  const explicitYear = q && q.year != null && /^(?:19|20)\d{2}$/.test(String(q.year)) ? String(q.year) : "";
+  const bracket = (text.match(/[【\[]\s*([^】\]]{0,40}?(?:真题|模拟题?|课后题|自编题)[^】\]]{0,20})[】\]]/) || [])[1] || "";
+  const src = bracket || text;
+  const bracketYear = bracket.match(/(?:19|20)\d{2}/);
+  const yearBeforeKind = text.match(/((?:19|20)\d{2})\s*(?:年)?\s*(?:统考)?\s*(?:真题|模拟题?)/);
+  const yearAfterKind = text.match(/(?:真题|模拟题?|统考)[^【】\[\]]{0,12}((?:19|20)\d{2})/);
+  const year = explicitYear || (bracketYear ? bracketYear[0] : (yearBeforeKind ? yearBeforeKind[1] : (yearAfterKind ? yearAfterKind[1] : "")));
+  const hasMock = /模拟题|模拟卷|仿真题/.test(src);
+  const hasExam = /(?:统考\s*)?真题|历年真题|考研真题/.test(src);
+  const hasSelf = /课后题|自编题|本节试题精选|王道/.test(src);
+  let type = explicitType || "self";
+  if (!explicitType && hasMock && !hasExam) type = "mock";
+  else if (!explicitType && hasExam) type = "exam";
+  else if (!explicitType && hasSelf) type = "self";
+  const unified = type === "exam" && /统考/.test(src);
+  return { type, year, unified, inferred: type !== "self" || !!year };
+}
+function getQuestionSourceMeta(q) {
+  if (!q) return { type: "self", year: "", unified: false, inferred: false, overridden: false, label: "课后题" };
+  const inferred = inferQuestionSourceMeta(q);
+  const override = normalizeSourceTag(STATE.sourceTags && STATE.sourceTags[q.id]);
+  const meta = override ? Object.assign({}, inferred, { type: override, overridden: true }) : Object.assign({}, inferred, { overridden: false });
+  if (meta.type === "exam") {
+    meta.label = meta.year ? `${meta.year}真题` : (meta.unified ? "统考真题" : "真题");
+  } else if (meta.type === "mock") {
+    meta.label = meta.year ? `${meta.year}模拟` : "模拟题";
+  } else {
+    meta.label = "课后题";
+  }
+  return meta;
+}
 function getSourceTag(q) {
-  if (!q) return "self";
-  const override = STATE.sourceTags && STATE.sourceTags[q.id];
-  if (override === "exam" || override === "self") return override;
-  return "self";  // 王道题库默认 = 课后题
+  return getQuestionSourceMeta(q).type;
 }
 function setSourceTag(qid, tag) {
+  const normalized = normalizeSourceTag(tag) || "self";
   if (!STATE.sourceTags) STATE.sourceTags = {};
-  STATE.sourceTags[qid] = tag;
+  STATE.sourceTags[qid] = normalized;
   persist();
+  if (typeof SEARCH_INDEX !== "undefined") SEARCH_INDEX = null;
 }
 function toggleSourceTag(qid) {
-  const cur = (STATE.sourceTags && STATE.sourceTags[qid]) || "self";
+  const q = ALL_QUESTIONS.find(qq => qq.id === qid);
+  const cur = q ? getQuestionSourceMeta(q).type : normalizeSourceTag(STATE.sourceTags && STATE.sourceTags[qid]) || "self";
   setSourceTag(qid, cur === "exam" ? "self" : "exam");
 }
 function renderSourceTag(q) {
-  const tag = getSourceTag(q);
-  const label = tag === "exam" ? "真题" : "课后题";
-  const cls = tag === "exam" ? "tag-exam" : "tag-self";
-  return `<span class="q-source-tag ${cls}" data-qid="${escHtml(q.id)}" title="点击切换：真题 ↔ 课后题">${label}</span>`;
+  const meta = getQuestionSourceMeta(q);
+  const cls = meta.type === "exam" ? "tag-exam" : (meta.type === "mock" ? "tag-mock" : "tag-self");
+  const yearAttr = meta.year ? ` data-source-year="${escHtml(meta.year)}"` : "";
+  const title = meta.overridden ? "来源：手动标记。点击切换：真题 ↔ 课后题" : "来源：自动识别。点击切换：真题 ↔ 课后题";
+  return `<span class="q-source-tag ${cls}" data-qid="${escHtml(q.id)}" data-source-type="${escHtml(meta.type)}"${yearAttr} title="${escHtml(title)}">${escHtml(meta.label)}</span>`;
 }
 
 // ============== Feature 1: 薄弱知识点 Top 10 ==============

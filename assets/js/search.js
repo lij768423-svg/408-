@@ -3,23 +3,67 @@
 let SEARCH_INDEX = null;
 let SEARCH_ACTIVE = -1;  // 当前高亮的搜索结果
 let SEARCH_RESULTS = [];
+let SEARCH_SOURCE_TYPE = "all";
+let SEARCH_YEAR = "all";
 function buildSearchIndex() {
   const idx = [];  // [{qid, plain}]
   for (const q of ALL_QUESTIONS) {
+    const meta = getQuestionSourceMeta(q);
     const text = [
       q.question || "",
       q.options?.A || "", q.options?.B || "", q.options?.C || "", q.options?.D || "",
       q.explanation || "",
       q.book || "", q.chapter_title || "", q.section_title || "", q.section || "",
+      meta.label || "", meta.type || "", meta.year || "", meta.unified ? "统考真题" : "",
     ].join(" ");
     idx.push({ qid: q.id, plain: text.toLowerCase() });
   }
   SEARCH_INDEX = idx;
 }
+function getSearchFilterState() {
+  return { sourceType: SEARCH_SOURCE_TYPE || "all", year: SEARCH_YEAR || "all" };
+}
+function hasActiveSearchFilter() {
+  const filters = getSearchFilterState();
+  return filters.sourceType !== "all" || filters.year !== "all";
+}
+function filterSearchQuestionIds(ids) {
+  const filters = getSearchFilterState();
+  return ids.filter(qid => {
+    const q = ALL_QUESTIONS.find(qq => qq.id === qid);
+    if (!q) return false;
+    const meta = getQuestionSourceMeta(q);
+    if (filters.sourceType !== "all" && meta.type !== filters.sourceType) return false;
+    if (filters.year !== "all" && String(meta.year || "") !== String(filters.year)) return false;
+    return true;
+  });
+}
+function getDiscoveredSourceYears() {
+  const years = new Set();
+  for (const q of ALL_QUESTIONS) {
+    const meta = getQuestionSourceMeta(q);
+    if (meta.year && (meta.type === "exam" || meta.type === "mock")) years.add(String(meta.year));
+  }
+  return Array.from(years).sort((a, b) => Number(b) - Number(a));
+}
+function renderSearchFilters() {
+  const yearSelect = $("#search-year-filter");
+  if (yearSelect) {
+    const years = getDiscoveredSourceYears();
+    const cur = years.includes(String(SEARCH_YEAR)) ? String(SEARCH_YEAR) : "all";
+    SEARCH_YEAR = cur;
+    yearSelect.innerHTML = '<option value="all">全部年份</option>' + years.map(y => '<option value="' + escHtml(y) + '">' + escHtml(y) + '</option>').join("");
+    yearSelect.value = cur;
+    yearSelect.disabled = years.length === 0;
+  }
+  $$(".search-source-filter").forEach(btn => {
+    btn.classList.toggle("is-active", btn.dataset.sourceType === SEARCH_SOURCE_TYPE);
+  });
+}
 function searchQuestions(query) {
   if (!SEARCH_INDEX) buildSearchIndex();
   const q = (query || "").trim().toLowerCase();
-  if (!q) return [];
+  if (!q) return hasActiveSearchFilter() ? filterSearchQuestionIds(SEARCH_INDEX.map(item => item.qid)) : [];
   // 支持空格分隔的多关键词 AND 检索
   const tokens = q.split(/\s+/).filter(Boolean);
   if (tokens.length === 0) return [];
@@ -31,7 +75,7 @@ function searchQuestions(query) {
     }
     if (allMatch) hits.push(item.qid);
   }
-  return hits;
+  return filterSearchQuestionIds(hits);
 }
 function highlightMatch(text, query) {
   const q = (query || "").trim();
@@ -53,7 +97,10 @@ function openSearch() {
   modal.hidden = false;
   const input = $("#search-input");
   input.value = "";
-  $("#search-results").innerHTML = `<div class="search-empty">输入关键词搜索题干 / 选项 / 解析<br>支持空格分隔多关键词(AND)</div>`;
+  SEARCH_SOURCE_TYPE = "all";
+  SEARCH_YEAR = "all";
+  renderSearchFilters();
+  $("#search-results").innerHTML = `<div class="search-empty">输入关键词搜索题干 / 选项 / 解析<br>也可按来源标签和年份筛选</div>`;
   $("#search-count").textContent = "0";
   $("#search-total").textContent = ALL_QUESTIONS.length;
   setTimeout(() => input.focus(), 30);
@@ -75,7 +122,9 @@ function renderSearchResults() {
   const box = $("#search-results");
   if (!box) return;
   if (SEARCH_RESULTS.length === 0) {
-    box.innerHTML = `<div class="search-empty">没有匹配的题目<br>试试其他关键词</div>`;
+    const q = ($("#search-input") && $("#search-input").value || "").trim();
+    const msg = q || hasActiveSearchFilter() ? "没有匹配的题目<br>试试其他关键词或筛选条件" : "输入关键词搜索题干 / 选项 / 解析<br>也可按来源标签和年份筛选";
+    box.innerHTML = `<div class="search-empty">${msg}</div>`;
     return;
   }
   const q = $("#search-input").value;
@@ -329,4 +378,3 @@ function renderBatchList() {
     };
   });
 }
-

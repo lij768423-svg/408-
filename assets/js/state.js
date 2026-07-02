@@ -15,7 +15,7 @@ let CURRENT = {
   aiRailCollapsed: false, // 右侧 AI 栏是否被手动折叠
   aiCfgOpen: false,     // AI 配置区是否展开
   aiOutput: "",         // AI 助手当前输出
-  aiLatestUserQuestions: {}, // qid -> { first, latest, firstTs, latestTs }，切题分开记录；保存到 Obsidian 时按首次追问判断类型
+  aiLatestUserQuestions: {}, // qid -> { first, latest, firstTs, latestTs }，切题分开记录；保存到知识库时按首次追问判断类型
 };
 
 // 答题反馈闪光:记录"上一次触发 flash 的题 id",切到新题/重渲染时不再误触

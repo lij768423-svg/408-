@@ -94,6 +94,23 @@ function bindNewFeatureControls() {
       }
     };
   }
+  $$(".search-source-filter").forEach(btn => {
+    btn.onclick = () => {
+      SEARCH_SOURCE_TYPE = btn.dataset.sourceType || "all";
+      renderSearchFilters();
+      runSearch();
+      if (searchInput) searchInput.focus();
+    };
+  });
+  const searchYearFilter = $("#search-year-filter");
+  if (searchYearFilter) {
+    searchYearFilter.onchange = () => {
+      SEARCH_YEAR = searchYearFilter.value || "all";
+      renderSearchFilters();
+      runSearch();
+      if (searchInput) searchInput.focus();
+    };
+  }
   const searchModal = $("#search-modal");
   if (searchModal) {
     searchModal.onclick = (e) => {

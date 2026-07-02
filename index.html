@@ -34,8 +34,15 @@
 
   <nav class="app-nav" aria-label="页面导航">
     <a class="app-nav-tab" href="#/quiz" data-route-link="quiz">刷题</a>
-    <a class="app-nav-tab" href="#/wiki" data-route-link="wiki">知识库</a>
-    <a class="app-nav-tab" href="#/ask" data-route-link="ask">问答</a>
+    <a class="app-nav-tab" href="#/wiki" data-route-link="wiki">个人知识库</a>
+    <a class="app-nav-tab" href="#/guide" data-route-link="guide">使用说明</a>
+    <button class="app-nav-search" type="button" id="search-open" aria-label="打开题库搜索">
+      <svg class="app-nav-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <span>搜索题库</span>
+      <kbd>Ctrl K</kbd>
+    </button>
   </nav>
 
   <section class="route-view" id="view-quiz" data-route-view="quiz" aria-label="刷题">
@@ -64,15 +71,6 @@
             <summary class="weak-head"><span class="weak-head-label">薄弱知识点</span></summary>
             <div class="weak-list" id="weak-list"></div>
           </details>
-        </div>
-        <div class="sidebar-utility">
-          <button class="search-trigger" type="button" id="search-open">
-            <svg class="search-trigger-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-            </svg>
-            <span class="search-trigger-text">搜索题面 / 选项 / 解析</span>
-            <span class="search-trigger-kbd">Ctrl K</span>
-          </button>
         </div>
       </div>
     </aside>
@@ -103,24 +101,24 @@
     <div class="panel placeholder-panel">
       <div class="placeholder-head">
         <div>
-          <p class="placeholder-kicker">LLMWiki / EARLY MVP</p>
-          <h2 id="wiki-title">我的知识库</h2>
+          <p class="placeholder-kicker">LLMWiki / PERSONAL REPOSITORY</p>
+          <h2 id="wiki-title">我的个人知识库</h2>
         </div>
         <span class="placeholder-badge">只读搜索</span>
       </div>
       <label class="placeholder-search" for="wiki-search-input">
-        <span>搜索知识库</span>
+        <span>搜索个人知识库</span>
         <input id="wiki-search-input" type="search" placeholder="搜索概念、题目、错题或路径……" autocomplete="off">
       </label>
       <div class="wiki-kind-tabs" role="tablist" aria-label="知识库问题类型">
-        <button class="wiki-kind-tab" type="button" role="tab" aria-selected="false" data-wiki-kind="all">全部</button>
+        <button class="wiki-kind-tab" type="button" role="tab" aria-selected="false" data-wiki-kind="all">全部问题</button>
         <button class="wiki-kind-tab is-active" type="button" role="tab" aria-selected="true" data-wiki-kind="concept">概念问题</button>
         <button class="wiki-kind-tab" type="button" role="tab" aria-selected="false" data-wiki-kind="exam">题目问题</button>
       </div>
       <div class="wiki-search-actions">
         <button class="btn btn-primary btn-accent" type="button" id="wiki-search-button">搜索</button>
         <button class="backup-btn" type="button" id="wiki-browse-button">浏览</button>
-        <span class="wiki-search-status" id="wiki-search-status">登录后可读取内部知识库索引。</span>
+        <span class="wiki-search-status" id="wiki-search-status">登录后可读取你的个人知识库索引。</span>
       </div>
       <div class="wiki-explorer">
         <aside class="wiki-tree-panel" aria-label="知识库目录">
@@ -132,45 +130,110 @@
             <span id="wiki-results-count">0</span>
           </div>
           <div class="wiki-result-list wiki-tree" id="wiki-results" aria-live="polite">
-            <div class="wiki-empty">进入知识库后会按科目浏览；也可以输入关键词搜索。</div>
+            <div class="wiki-empty">进入个人知识库后会按科目浏览；也可以输入关键词搜索。</div>
           </div>
         </aside>
         <section class="wiki-content-panel" aria-label="知识库预览">
           <div class="wiki-note-preview" id="wiki-note-preview">
             <div class="wiki-welcome">
               <span class="wiki-card-label">BROWSE</span>
-              <h3>按科目浏览知识库</h3>
+              <h3>按科目浏览个人知识库</h3>
               <p>从左侧目录选择一篇笔记，在这里查看全文预览。</p>
             </div>
           </div>
         </section>
       </div>
       <p class="placeholder-copy">
-        当前 MVP 只读取 <code>VAULT_PATH/wiki</code> 下的 Markdown 笔记并提供只读预览，不修改内容；问答入口仍保持禁用。
+        每个账号使用独立的个人知识库；当前页面读取该知识库 <code>wiki/</code> 下的 Markdown 笔记并提供预览与编辑。
       </p>
     </div>
   </section>
 
-  <section class="route-view placeholder-view" id="view-ask" data-route-view="ask" aria-labelledby="ask-title" hidden>
-    <div class="panel placeholder-panel">
-      <div class="placeholder-head">
+  <section class="route-view placeholder-view guide-view" id="view-guide" data-route-view="guide" aria-labelledby="guide-title" hidden>
+    <div class="panel placeholder-panel guide-panel">
+      <div class="placeholder-head guide-head">
         <div>
-          <p class="placeholder-kicker">KNOWLEDGE QA / PLACEHOLDER</p>
-          <h2 id="ask-title">知识库问答</h2>
+          <p class="placeholder-kicker">PROJECT GUIDE / 408 + LLMWiki</p>
+          <h2 id="guide-title">使用说明</h2>
         </div>
-        <span class="placeholder-badge">未启用</span>
+        <span class="placeholder-badge">入门指南</span>
       </div>
-      <label class="placeholder-field">
-        <span>问题</span>
-        <textarea rows="6" placeholder="输入想基于知识库追问的问题……" disabled></textarea>
-      </label>
-      <div class="placeholder-actions">
-        <button class="btn btn-primary btn-accent" type="button" disabled>向知识库提问</button>
-        <button class="backup-btn" type="button" disabled>保存问答</button>
+
+      <div class="guide-hero">
+        <div>
+          <span class="wiki-card-label">HOW TO USE</span>
+          <h3>刷题、AI 讲解、个人知识库是一条学习链路</h3>
+          <p>先刷题定位薄弱点，再用 AI 追问讲透，最后把题目复盘或概念总结保存到你的个人知识库。</p>
+        </div>
+        <div class="guide-flow" aria-label="使用流程">
+          <span>刷题</span>
+          <i></i>
+          <span>追问 AI</span>
+          <i></i>
+          <span>保存到知识库</span>
+        </div>
       </div>
-      <p class="placeholder-copy">
-        后续这里会连接已保存的概念、题目和错题；当前按钮保持禁用，避免误导为已接入后端能力。
-      </p>
+
+      <div class="guide-grid">
+        <article class="guide-card">
+          <span>01</span>
+          <h3>刷题与进度</h3>
+          <p>在「刷题」页选择书目、章节和模式。作答记录会自动保存在当前账号，可在右上角导出或导入学习记录。</p>
+        </article>
+        <article class="guide-card">
+          <span>02</span>
+          <h3>AI 讲题</h3>
+          <p>右侧 AI 面板支持预设问题和自由追问。输入框位于输出框下方，按 Enter 发送，Shift + Enter 换行。</p>
+        </article>
+        <article class="guide-card">
+          <span>03</span>
+          <h3>保存到知识库</h3>
+          <p>点击「保存到知识库」会把当前题目、作答和 AI 讲解归档到你的个人知识库。系统会根据你的追问自动区分「概念问题」和「题目问题」。</p>
+        </article>
+        <article class="guide-card">
+          <span>04</span>
+          <h3>个人知识库</h3>
+          <p>每个账号都有独立仓库。你可以按科目浏览、搜索 Markdown 笔记、查看全文预览，并对笔记进行编辑或软删除。</p>
+        </article>
+      </div>
+
+      <div class="guide-kind-section">
+        <div class="guide-kind-head">
+          <span class="wiki-card-label">CLASSIFICATION</span>
+          <h3>知识库里的「概念问题」和「题目问题」</h3>
+          <p>保存到知识库时，系统会优先看你对当前题目的第一次 AI 追问；连续追问会沿用第一次追问的分类，避免同一轮对话一会儿变概念、一会儿变题目。</p>
+        </div>
+        <div class="guide-kind-grid">
+          <article class="guide-kind-card">
+            <strong>概念问题</strong>
+            <p>适合保存成可长期复习的知识点解释，例如「什么是虚拟存储器」「TCP 和 UDP 的区别」「KMP next 数组怎么理解」。</p>
+            <ul>
+              <li>常见触发：什么是、概念、区别/对比、原理、怎么理解、总结、关系、定义。</li>
+              <li>笔记形态：问题、答案、关键结论、相关来源。</li>
+              <li>在知识库中用「概念问题」筛选查看。</li>
+            </ul>
+          </article>
+          <article class="guide-kind-card">
+            <strong>题目问题</strong>
+            <p>适合保存当前题目的复盘，例如「这题为什么选 B」「C 为什么错」「我错在哪」「逐项排除这道题」。</p>
+            <ul>
+              <li>常见触发：这题、本题、题干、选项、A/B/C/D、为什么不选、错在哪、正确答案。</li>
+              <li>笔记形态：题干、选项、我的作答、答案、AI 讲解、错因。</li>
+              <li>在知识库中用「题目问题」筛选查看。</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <h3>常用操作</h3>
+        <ul>
+          <li><strong>搜索题库：</strong>顶部搜索框或 Ctrl + K，可按来源和年份筛选题目。</li>
+          <li><strong>批量串讲：</strong>在 AI 面板底部点击「批量讲错题 · AI 串讲」，适合章节复盘。</li>
+          <li><strong>编辑知识库：</strong>进入「个人知识库」，点开笔记后使用右侧「编辑 / 删除」。删除会移动到 <code>.trash</code>，不会永久删除。</li>
+          <li><strong>账号隔离：</strong>不同账号的知识库互相不可见；旧共享知识库会作为首次打开时的初始内容复制到个人仓库。</li>
+        </ul>
+      </div>
     </div>
   </section>
 </div>
@@ -236,6 +299,18 @@
       </svg>
       <input class="search-input" type="text" id="search-input" placeholder="搜索题干 / 选项 / 解析……" autocomplete="off">
       <span class="search-hint" id="search-count">0</span>
+    </div>
+    <div class="search-filter-row" aria-label="搜索筛选">
+      <div class="search-source-filters" role="group" aria-label="来源类型">
+        <button class="search-source-filter is-active" type="button" data-source-type="all">全部</button>
+        <button class="search-source-filter" type="button" data-source-type="exam">真题</button>
+        <button class="search-source-filter" type="button" data-source-type="mock">模拟</button>
+        <button class="search-source-filter" type="button" data-source-type="self">课后</button>
+      </div>
+      <label class="search-year-label" for="search-year-filter">年份</label>
+      <select class="search-year-filter" id="search-year-filter" aria-label="年份筛选">
+        <option value="all">全部年份</option>
+      </select>
     </div>
     <div class="search-results" id="search-results"></div>
     <div class="search-footer">

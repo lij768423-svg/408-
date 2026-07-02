@@ -4,7 +4,7 @@
 // It only toggles top-level view visibility and nav state; quiz/auth/data
 // lifecycle stays owned by the existing classic scripts.
 (function () {
-  const ROUTES = ["quiz", "wiki", "ask"];
+  const ROUTES = ["quiz", "wiki", "guide"];
 
   function currentRoute() {
     const match = /^#\/([^/?#]+)/.exec(window.location.hash || "");
