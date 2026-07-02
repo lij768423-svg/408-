@@ -147,6 +147,168 @@ body::after {
   margin-top: 4px;
 }
 
+/* === Pseudo page navigation === */
+.app-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: -12px 0 18px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.20), rgba(255, 255, 255, 0)),
+    rgba(251, 244, 228, 0.62);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.44);
+}
+.app-nav-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 6px 15px;
+  border-radius: 999px;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
+}
+.app-nav-tab:hover {
+  color: var(--text);
+  background: var(--ink-tint);
+}
+.app-nav-tab.active {
+  color: var(--primary-ink);
+  background: var(--primary);
+  box-shadow: 0 6px 14px -12px rgba(23, 20, 15, 0.40), inset 0 1px 0 rgba(255, 255, 255, 0.20);
+}
+.app-nav-tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.route-view[hidden] { display: none; }
+
+/* === LLMWiki placeholder views === */
+.placeholder-view {
+  max-width: 980px;
+}
+.placeholder-panel {
+  padding: 26px;
+}
+.placeholder-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px dashed var(--border-strong);
+}
+.placeholder-kicker {
+  margin-bottom: 5px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+}
+.placeholder-head h2 {
+  font-family: var(--font-display);
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.placeholder-badge {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 999px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+.placeholder-search,
+.placeholder-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 18px;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 650;
+}
+.placeholder-search input,
+.placeholder-field textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--text);
+  font: inherit;
+  line-height: 1.5;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+.placeholder-search input {
+  min-height: 42px;
+  padding: 9px 12px;
+}
+.placeholder-field textarea {
+  resize: vertical;
+  min-height: 132px;
+  padding: 12px;
+}
+.placeholder-search input:disabled,
+.placeholder-field textarea:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+.wiki-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.wiki-card {
+  min-height: 150px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0)),
+    var(--panel-2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+.wiki-card-label {
+  display: inline-flex;
+  margin-bottom: 14px;
+  color: var(--primary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+.wiki-card strong {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 15px;
+  line-height: 1.35;
+}
+.wiki-card p,
+.placeholder-copy {
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.placeholder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0 18px;
+}
+
 .header-stats {
   display: flex;
   align-items: stretch;
@@ -705,6 +867,7 @@ body::after {
 @media (max-width: 1024px) {
   .main { flex-direction: column; }
   .quiz-stack { width: 100%; }
+  .wiki-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .ai-rail {
     position: static;
     width: 100%;
@@ -732,6 +895,13 @@ body::after {
 
 /* === Responsive: stack at narrow widths === */
 @media (max-width: 760px) {
+  .app-nav {
+    display: flex;
+    width: 100%;
+  }
+  .app-nav-tab {
+    flex: 1 1 0;
+  }
   .layout { flex-direction: column; gap: 12px; }
   .sidebar {
     width: 100%;
@@ -2016,6 +2186,14 @@ body::after {
   body { padding: 14px 12px 32px; }
   .panel { padding: 16px; }
   #quiz-area.panel { padding: 18px 16px; }
+  .app-nav { margin: -6px 0 14px; }
+  .placeholder-panel { padding: 18px 16px; }
+  .placeholder-head {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .placeholder-head h2 { font-size: 28px; }
+  .wiki-card-grid { grid-template-columns: 1fr; }
   .header {
     grid-template-columns: 1fr;
     align-items: stretch;
@@ -3287,4 +3465,3 @@ body::after {
   }
   .batch-foot button { width: 100%; }
 }
-

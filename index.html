@@ -32,6 +32,13 @@
     </div>
   </div>
 
+  <nav class="app-nav" aria-label="页面导航">
+    <a class="app-nav-tab" href="#/quiz" data-route-link="quiz">刷题</a>
+    <a class="app-nav-tab" href="#/wiki" data-route-link="wiki">知识库</a>
+    <a class="app-nav-tab" href="#/ask" data-route-link="ask">问答</a>
+  </nav>
+
+  <section class="route-view" id="view-quiz" data-route-view="quiz" aria-label="刷题">
   <div class="layout">
     <aside class="sidebar">
       <div class="panel" id="control-panel">
@@ -90,6 +97,71 @@
       <aside class="ai-rail" id="ai-rail" aria-label="AI 讲题"></aside>
     </div>
   </div>
+  </section>
+
+  <section class="route-view placeholder-view" id="view-wiki" data-route-view="wiki" aria-labelledby="wiki-title" hidden>
+    <div class="panel placeholder-panel">
+      <div class="placeholder-head">
+        <div>
+          <p class="placeholder-kicker">LLMWiki / EARLY MVP</p>
+          <h2 id="wiki-title">我的知识库</h2>
+        </div>
+        <span class="placeholder-badge">规划中</span>
+      </div>
+      <label class="placeholder-search">
+        <span>搜索知识库</span>
+        <input type="search" placeholder="搜索已保存的概念、题目、错题……" disabled>
+      </label>
+      <div class="wiki-card-grid" aria-label="知识库分类">
+        <article class="wiki-card">
+          <span class="wiki-card-label">最近保存</span>
+          <strong>保存过的题目会先出现在这里</strong>
+          <p>用于承接后续从刷题页保存到知识库的内容。</p>
+        </article>
+        <article class="wiki-card">
+          <span class="wiki-card-label">概念</span>
+          <strong>高频概念与术语</strong>
+          <p>后续可按数据结构、计组、操作系统、网络归类。</p>
+        </article>
+        <article class="wiki-card">
+          <span class="wiki-card-label">题目</span>
+          <strong>按题源沉淀上下文</strong>
+          <p>保留题干、选项、解析和个人备注的入口。</p>
+        </article>
+        <article class="wiki-card">
+          <span class="wiki-card-label">错题</span>
+          <strong>从薄弱点回到知识点</strong>
+          <p>为后续错题复盘、串讲和问答提供轻量结构。</p>
+        </article>
+      </div>
+      <p class="placeholder-copy">
+        这是 LLMWiki 的占位入口：当前只提供页面骨架，不接管题库加载、账号同步或保存题目逻辑。
+      </p>
+    </div>
+  </section>
+
+  <section class="route-view placeholder-view" id="view-ask" data-route-view="ask" aria-labelledby="ask-title" hidden>
+    <div class="panel placeholder-panel">
+      <div class="placeholder-head">
+        <div>
+          <p class="placeholder-kicker">KNOWLEDGE QA / PLACEHOLDER</p>
+          <h2 id="ask-title">知识库问答</h2>
+        </div>
+        <span class="placeholder-badge">未启用</span>
+      </div>
+      <label class="placeholder-field">
+        <span>问题</span>
+        <textarea rows="6" placeholder="输入想基于知识库追问的问题……" disabled></textarea>
+      </label>
+      <div class="placeholder-actions">
+        <button class="btn btn-primary btn-accent" type="button" disabled>向知识库提问</button>
+        <button class="backup-btn" type="button" disabled>保存问答</button>
+      </div>
+      <p class="placeholder-copy">
+        后续这里会连接已保存的概念、题目和错题；当前按钮保持禁用，避免误导为已接入后端能力。
+      </p>
+    </div>
+  </section>
 </div>
 
 <div class="preview-modal" id="preview-modal" hidden>
@@ -189,6 +261,7 @@
 <script src="assets/js/state.js"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/utils.js"></script>
+<script src="assets/js/router.js"></script>
 <script src="assets/js/quiz.js"></script>
 <script src="assets/js/auth.js"></script>
 <script src="assets/js/wiki.js"></script>
