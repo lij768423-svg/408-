@@ -72,3 +72,170 @@ async function copyText(text, okMsg = "已复制") {
   }
 }
 
+
+// ============== Wiki read-only search page ==============
+let WIKI_SEARCH_TIMER = null;
+let WIKI_RECENT_LOADED = false;
+let WIKI_LAST_RESULTS = [];
+
+function wikiPageActive() {
+  return document.body.dataset.route === "wiki" || (window.location.hash || "").startsWith("#/wiki");
+}
+
+function setWikiStatus(message, tone = "") {
+  const el = $("#wiki-search-status");
+  if (!el) return;
+  el.textContent = message || "";
+  el.dataset.tone = tone;
+}
+
+function setWikiResultsMeta(title, kicker, count) {
+  const titleEl = $("#wiki-results-title");
+  const kickerEl = $("#wiki-results-kicker");
+  const countEl = $("#wiki-results-count");
+  if (titleEl) titleEl.textContent = title;
+  if (kickerEl) kickerEl.textContent = kicker;
+  if (countEl) countEl.textContent = String(count || 0);
+}
+
+function wikiTypeLabel(type) {
+  const labels = {
+    question: "题目",
+    concept: "概念",
+    summary: "总结",
+    sources: "来源",
+    source: "来源",
+    tools: "工具",
+  };
+  return labels[type] || type || "笔记";
+}
+
+function formatWikiDate(value) {
+  if (!value) return "";
+  const raw = String(value);
+  const date = new Date(raw);
+  if (Number.isNaN(date.getTime())) return raw.slice(0, 16);
+  return date.toISOString().slice(0, 10);
+}
+
+function renderWikiState(kind, message) {
+  const box = $("#wiki-results");
+  if (!box) return;
+  const cls = kind === "error" ? "wiki-error" : "wiki-empty";
+  box.innerHTML = '<div class="' + cls + '">' + escHtml(message) + "</div>";
+  setWikiResultsMeta(kind === "loading" ? "加载中" : "知识库", kind.toUpperCase(), 0);
+}
+
+function renderWikiResults(data, query) {
+  const box = $("#wiki-results");
+  const preview = $("#wiki-note-preview");
+  if (!box) return;
+  if (preview) preview.hidden = true;
+  const results = Array.isArray(data.results) ? data.results : [];
+  WIKI_LAST_RESULTS = results;
+  const hasQuery = !!(query || "").trim();
+  setWikiResultsMeta(hasQuery ? "搜索：" + query.trim() : "最近更新", hasQuery ? "SEARCH" : "RECENT", results.length);
+  if (results.length === 0) {
+    box.innerHTML = '<div class="wiki-empty">' + escHtml(hasQuery ? "没有匹配的知识库笔记。" : "知识库暂无可展示的 Markdown 笔记。") + "</div>";
+    setWikiStatus(hasQuery ? "搜索完成：0 条结果。" : "最近更新加载完成：0 条结果。");
+    return;
+  }
+  box.innerHTML = results.map((item, index) => {
+    const tags = Array.isArray(item.tags) ? item.tags.slice(0, 5) : [];
+    const meta = [
+      wikiTypeLabel(item.type),
+      item.subject || "",
+      item.updated ? formatWikiDate(item.updated) : "",
+    ].filter(Boolean).map(value => "<span>" + escHtml(value) + "</span>").join("");
+    const tagHtml = tags.length
+      ? '<span class="wiki-result-tags">' + tags.map(tag => "<i>" + escHtml(tag) + "</i>").join("") + "</span>"
+      : "";
+    return '<button class="wiki-result" type="button" data-wiki-index="' + index + '">' +
+      '<span class="wiki-result-meta">' + meta + "</span>" +
+      "<strong>" + escHtml(item.title || item.path || "未命名笔记") + "</strong>" +
+      '<span class="wiki-result-snippet">' + escHtml(item.snippet || item.path || "") + "</span>" +
+      '<span class="wiki-result-path">' + escHtml(item.path || "") + "</span>" +
+      tagHtml +
+      "</button>";
+  }).join("");
+  $$(".wiki-result").forEach(el => {
+    el.onclick = () => showWikiPreview(parseInt(el.dataset.wikiIndex || "-1", 10));
+  });
+  setWikiStatus((hasQuery ? "搜索" : "最近更新") + "完成：" + results.length + " 条结果。");
+}
+
+function showWikiPreview(index) {
+  const item = WIKI_LAST_RESULTS[index];
+  const preview = $("#wiki-note-preview");
+  if (!item || !preview) return;
+  preview.hidden = false;
+  preview.innerHTML = '<div class="wiki-preview-head">' +
+      "<strong>" + escHtml(item.title || "未命名笔记") + "</strong>" +
+      "<span>" + escHtml(wikiTypeLabel(item.type)) + "</span>" +
+    "</div>" +
+    '<div class="wiki-preview-path">' + escHtml(item.path || "") + "</div>" +
+    "<p>" + escHtml(item.snippet || "该结果暂无摘要。") + "</p>";
+}
+
+async function runWikiSearch(query, limit = 20) {
+  renderWikiState("loading", "正在读取知识库索引……");
+  try {
+    const data = await apiJson("/api/wiki/search", {
+      method: "POST",
+      body: JSON.stringify({ query: query || "", limit })
+    });
+    renderWikiResults(data, query || "");
+    WIKI_RECENT_LOADED = WIKI_RECENT_LOADED || !(query || "").trim();
+  } catch (e) {
+    const message = e && e.message === "未登录"
+      ? "请先登录，再读取知识库搜索。"
+      : "知识库搜索失败：" + (e.message || e);
+    renderWikiState("error", message);
+    setWikiStatus(message, "error");
+  }
+}
+
+function scheduleWikiSearch() {
+  const input = $("#wiki-search-input");
+  if (!input) return;
+  clearTimeout(WIKI_SEARCH_TIMER);
+  WIKI_SEARCH_TIMER = setTimeout(() => runWikiSearch(input.value, 20), 250);
+}
+
+function maybeLoadWikiRecent() {
+  if (!wikiPageActive() || WIKI_RECENT_LOADED) return;
+  runWikiSearch("", 20);
+}
+
+function initWikiPage() {
+  const input = $("#wiki-search-input");
+  const searchBtn = $("#wiki-search-button");
+  const recentBtn = $("#wiki-recent-button");
+  if (!input || !searchBtn || !recentBtn) return;
+  input.addEventListener("input", scheduleWikiSearch);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      clearTimeout(WIKI_SEARCH_TIMER);
+      runWikiSearch(input.value, 20);
+    }
+  });
+  searchBtn.onclick = () => {
+    clearTimeout(WIKI_SEARCH_TIMER);
+    runWikiSearch(input.value, 20);
+  };
+  recentBtn.onclick = () => {
+    input.value = "";
+    clearTimeout(WIKI_SEARCH_TIMER);
+    WIKI_RECENT_LOADED = false;
+    runWikiSearch("", 20);
+  };
+  window.addEventListener("hashchange", maybeLoadWikiRecent);
+  maybeLoadWikiRecent();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initWikiPage);
+} else {
+  initWikiPage();
+}

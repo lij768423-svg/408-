@@ -106,36 +106,30 @@
           <p class="placeholder-kicker">LLMWiki / EARLY MVP</p>
           <h2 id="wiki-title">我的知识库</h2>
         </div>
-        <span class="placeholder-badge">规划中</span>
+        <span class="placeholder-badge">只读搜索</span>
       </div>
-      <label class="placeholder-search">
+      <label class="placeholder-search" for="wiki-search-input">
         <span>搜索知识库</span>
-        <input type="search" placeholder="搜索已保存的概念、题目、错题……" disabled>
+        <input id="wiki-search-input" type="search" placeholder="搜索已保存的概念、题目、错题……" autocomplete="off">
       </label>
-      <div class="wiki-card-grid" aria-label="知识库分类">
-        <article class="wiki-card">
-          <span class="wiki-card-label">最近保存</span>
-          <strong>保存过的题目会先出现在这里</strong>
-          <p>用于承接后续从刷题页保存到知识库的内容。</p>
-        </article>
-        <article class="wiki-card">
-          <span class="wiki-card-label">概念</span>
-          <strong>高频概念与术语</strong>
-          <p>后续可按数据结构、计组、操作系统、网络归类。</p>
-        </article>
-        <article class="wiki-card">
-          <span class="wiki-card-label">题目</span>
-          <strong>按题源沉淀上下文</strong>
-          <p>保留题干、选项、解析和个人备注的入口。</p>
-        </article>
-        <article class="wiki-card">
-          <span class="wiki-card-label">错题</span>
-          <strong>从薄弱点回到知识点</strong>
-          <p>为后续错题复盘、串讲和问答提供轻量结构。</p>
-        </article>
+      <div class="wiki-search-actions">
+        <button class="btn btn-primary btn-accent" type="button" id="wiki-search-button">搜索</button>
+        <button class="backup-btn" type="button" id="wiki-recent-button">最近更新</button>
+        <span class="wiki-search-status" id="wiki-search-status">登录后可读取内部知识库索引。</span>
       </div>
+      <div class="wiki-results-head">
+        <div>
+          <span class="wiki-card-label" id="wiki-results-kicker">RECENT</span>
+          <strong id="wiki-results-title">最近更新</strong>
+        </div>
+        <span id="wiki-results-count">0</span>
+      </div>
+      <div class="wiki-result-list" id="wiki-results" aria-live="polite">
+        <div class="wiki-empty">进入知识库后会加载最近更新；也可以输入关键词搜索。</div>
+      </div>
+      <div class="wiki-note-preview" id="wiki-note-preview" hidden></div>
       <p class="placeholder-copy">
-        这是 LLMWiki 的占位入口：当前只提供页面骨架，不接管题库加载、账号同步或保存题目逻辑。
+        当前 MVP 只读取 <code>VAULT_PATH/wiki</code> 下的 Markdown 索引，不打开或修改笔记全文；问答入口仍保持禁用。
       </p>
     </div>
   </section>
