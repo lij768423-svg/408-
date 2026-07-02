@@ -210,6 +210,21 @@ function renderMarkdown(md) {
       const lvl = m[1].length;
       out.push(`<h${lvl}>${inlineMd(m[2])}</h${lvl}>`); i++; continue;
     }
+    if ((m = /^\[!(note|tip|info|warning|danger|question)\]\s*(.*)$/i.exec(line.trim()))) {
+      const kind = m[1].toLowerCase();
+      const labelMap = { note: "Note", tip: "Tip", info: "Info", warning: "Warning", danger: "Danger", question: "Question" };
+      const body = [];
+      if (m[2]) body.push(m[2]);
+      i++;
+      while (i < lines.length && lines[i].trim() !== "" &&
+             !/^(#{1,6}\s|\[!(note|tip|info|warning|danger|question)\]|>\s|[-*]\s|\d+\.\s)/i.test(lines[i]) &&
+             !(isTableRow(lines[i]) && isTableSep(lines[i + 1])) &&
+             !/^-{3,}$/.test(lines[i].trim())) {
+        body.push(lines[i]); i++;
+      }
+      out.push('<aside class="md-callout md-callout-' + kind + '"><div class="md-callout-title">' + escHtml(labelMap[kind] || kind) + '</div><div class="md-callout-body">' + inlineMd(body.join(" ")) + '</div></aside>');
+      continue;
+    }
     if (isTableRow(lines[i]) && isTableSep(lines[i + 1])) {
       const header = splitTableRow(lines[i]);
       i += 2; // 跳过表头和分隔线

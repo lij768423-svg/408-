@@ -75,7 +75,7 @@ async function copyText(text, okMsg = "已复制") {
 
 // ============== Wiki read-only search page ==============
 let WIKI_SEARCH_TIMER = null;
-let WIKI_RECENT_LOADED = false;
+let WIKI_BROWSE_LOADED = false;
 let WIKI_LAST_RESULTS = [];
 let WIKI_PREVIEW_REQUEST = 0;
 let WIKI_PREVIEW_PATH = "";
@@ -152,12 +152,61 @@ function formatWikiDate(value) {
   return date.toISOString().slice(0, 10);
 }
 
+const WIKI_SUBJECT_ORDER = ["数据结构", "操作系统", "计算机组成原理", "计算机网络", "数学", "其他"];
+
+function wikiSubjectLabel(item) {
+  const raw = String(item && item.subject || "").trim();
+  const path = String(item && item.path || "");
+  const haystack = raw + " " + path;
+  if (/数据结构|data\s*structure|ds\b/i.test(haystack)) return "数据结构";
+  if (/操作系统|operating\s*system|os\b/i.test(haystack)) return "操作系统";
+  if (/计算机组成原理|组成原理|计算机组成|computer\s*organization|computer\s*architecture|co\b/i.test(haystack)) return "计算机组成原理";
+  if (/计算机网络|网络|computer\s*network|cn\b/i.test(haystack)) return "计算机网络";
+  if (/数学|math|高数|线代|概率/i.test(haystack)) return "数学";
+  return "其他";
+}
+
+function groupWikiResultsBySubject(results) {
+  const grouped = new Map();
+  results.forEach((item, index) => {
+    const subject = wikiSubjectLabel(item);
+    if (!grouped.has(subject)) grouped.set(subject, []);
+    grouped.get(subject).push({ item, index });
+  });
+  return Array.from(grouped.entries()).sort((a, b) => {
+    const ai = WIKI_SUBJECT_ORDER.indexOf(a[0]);
+    const bi = WIKI_SUBJECT_ORDER.indexOf(b[0]);
+    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi) || a[0].localeCompare(b[0], "zh-Hans-CN");
+  });
+}
+
+function wikiResultCardHtml(item, index) {
+  const subject = wikiSubjectLabel(item);
+  const extraTags = Array.isArray(item.tags) ? item.tags.slice(0, 3) : [];
+  const metaValues = [
+    wikiItemKindLabel(item),
+    subject,
+    item && item.updated ? formatWikiDate(item.updated) : "",
+  ].filter(Boolean);
+  const meta = metaValues.map(value => "<span>" + escHtml(value) + "</span>").join("");
+  const extraTagHtml = extraTags.length
+    ? '<span class="wiki-result-tags">' + extraTags.map(tag => "<i>" + escHtml(tag) + "</i>").join("") + "</span>"
+    : "";
+  return '<button class="wiki-result" type="button" data-wiki-index="' + index + '">' +
+    '<span class="wiki-result-meta">' + meta + "</span>" +
+    "<strong>" + escHtml(item.title || item.path || "未命名笔记") + "</strong>" +
+    '<span class="wiki-result-snippet">' + escHtml(item.snippet || "打开查看笔记全文预览。") + "</span>" +
+    '<span class="wiki-result-path">' + escHtml(item.path || "") + "</span>" +
+    extraTagHtml +
+    "</button>";
+}
+
 function renderWikiState(kind, message) {
   const box = $("#wiki-results");
   if (!box) return;
   const cls = kind === "error" ? "wiki-error" : "wiki-empty";
   box.innerHTML = '<div class="' + cls + '">' + escHtml(message) + "</div>";
-  setWikiResultsMeta(kind === "loading" ? "加载中" : wikiKindFilterLabel(WIKI_SELECTED_KIND), kind.toUpperCase(), 0);
+  setWikiResultsMeta(kind === "loading" ? "加载中" : wikiKindFilterLabel(WIKI_SELECTED_KIND), kind === "error" ? "错误" : "状态", 0);
 }
 
 function renderWikiResults(data, query) {
@@ -174,34 +223,27 @@ function renderWikiResults(data, query) {
   WIKI_LAST_RESULTS = results;
   const hasQuery = !!(query || "").trim();
   const filterLabel = wikiKindFilterLabel(WIKI_SELECTED_KIND);
-  setWikiResultsMeta(hasQuery ? filterLabel + "搜索：" + query.trim() : filterLabel + " · 最近更新", hasQuery ? "SEARCH" : "RECENT", results.length);
+  setWikiResultsMeta(hasQuery ? "搜索结果" : "按科目浏览", hasQuery ? "搜索" : "浏览", results.length);
   if (results.length === 0) {
     box.innerHTML = '<div class="wiki-empty">' + escHtml(hasQuery ? "没有匹配的" + filterLabel + "。" : filterLabel + "暂无可展示的 Markdown 笔记。") + "</div>";
-    setWikiStatus((hasQuery ? "搜索" : "最近更新") + "完成：0 条结果。");
+    setWikiStatus((hasQuery ? "搜索" : "浏览") + "完成：0 条结果。");
     return;
   }
-  box.innerHTML = results.map((item, index) => {
-    const tags = Array.isArray(item.tags) ? item.tags.slice(0, 5) : [];
-    const meta = [
-      wikiItemKindLabel(item),
-      item.subject || "",
-      item.updated ? formatWikiDate(item.updated) : "",
-    ].filter(Boolean).map(value => "<span>" + escHtml(value) + "</span>").join("");
-    const tagHtml = tags.length
-      ? '<span class="wiki-result-tags">' + tags.map(tag => "<i>" + escHtml(tag) + "</i>").join("") + "</span>"
-      : "";
-    return '<button class="wiki-result" type="button" data-wiki-index="' + index + '">' +
-      '<span class="wiki-result-meta">' + meta + "</span>" +
-      "<strong>" + escHtml(item.title || item.path || "未命名笔记") + "</strong>" +
-      '<span class="wiki-result-snippet">' + escHtml(item.snippet || item.path || "") + "</span>" +
-      '<span class="wiki-result-path">' + escHtml(item.path || "") + "</span>" +
-      tagHtml +
-      "</button>";
+  box.innerHTML = groupWikiResultsBySubject(results).map(([subject, entries]) => {
+    return '<section class="wiki-subject-group" aria-label="' + escHtml(subject) + '">' +
+      '<div class="wiki-subject-head">' +
+        '<h3>' + escHtml(subject) + "</h3>" +
+        '<span>' + entries.length + " 条</span>" +
+      "</div>" +
+      '<div class="wiki-result-grid">' +
+        entries.map(({ item, index }) => wikiResultCardHtml(item, index)).join("") +
+      "</div>" +
+      "</section>";
   }).join("");
   $$(".wiki-result").forEach(el => {
     el.onclick = () => showWikiPreview(parseInt(el.dataset.wikiIndex || "-1", 10));
   });
-  setWikiStatus(filterLabel + (hasQuery ? "搜索" : "最近更新") + "完成：" + results.length + " 条结果。");
+  setWikiStatus(filterLabel + (hasQuery ? "搜索" : "浏览") + "完成：" + results.length + " 条结果。");
 }
 
 function collapseWikiPreview() {
@@ -279,14 +321,16 @@ async function showWikiPreview(index) {
 }
 
 async function runWikiSearch(query, limit = 20) {
+  const hasQuery = !!(query || "").trim();
+  const effectiveLimit = hasQuery ? limit : 120;
   renderWikiState("loading", "正在读取" + wikiKindFilterLabel(WIKI_SELECTED_KIND) + "索引……");
   try {
     const data = await apiJson("/api/wiki/search", {
       method: "POST",
-      body: JSON.stringify({ query: query || "", limit, kind: WIKI_SELECTED_KIND })
+      body: JSON.stringify({ query: query || "", limit: effectiveLimit, kind: WIKI_SELECTED_KIND })
     });
     renderWikiResults(data, query || "");
-    WIKI_RECENT_LOADED = WIKI_RECENT_LOADED || !(query || "").trim();
+    WIKI_BROWSE_LOADED = WIKI_BROWSE_LOADED || !hasQuery;
   } catch (e) {
     const message = e && e.message === "未登录"
       ? "请先登录，再读取知识库搜索。"
@@ -303,16 +347,16 @@ function scheduleWikiSearch() {
   WIKI_SEARCH_TIMER = setTimeout(() => runWikiSearch(input.value, 20), 250);
 }
 
-function maybeLoadWikiRecent() {
-  if (!wikiPageActive() || WIKI_RECENT_LOADED) return;
+function maybeLoadWikiBrowse() {
+  if (!wikiPageActive() || WIKI_BROWSE_LOADED) return;
   runWikiSearch("", 20);
 }
 
 function initWikiPage() {
   const input = $("#wiki-search-input");
   const searchBtn = $("#wiki-search-button");
-  const recentBtn = $("#wiki-recent-button");
-  if (!input || !searchBtn || !recentBtn) return;
+  const browseBtn = $("#wiki-browse-button");
+  if (!input || !searchBtn || !browseBtn) return;
   syncWikiKindTabs();
   input.addEventListener("input", scheduleWikiSearch);
   input.addEventListener("keydown", (e) => {
@@ -326,10 +370,10 @@ function initWikiPage() {
     clearTimeout(WIKI_SEARCH_TIMER);
     runWikiSearch(input.value, 20);
   };
-  recentBtn.onclick = () => {
+  browseBtn.onclick = () => {
     input.value = "";
     clearTimeout(WIKI_SEARCH_TIMER);
-    WIKI_RECENT_LOADED = false;
+    WIKI_BROWSE_LOADED = false;
     runWikiSearch("", 20);
   };
   $$("[data-wiki-kind]").forEach(btn => {
@@ -340,12 +384,12 @@ function initWikiPage() {
       syncWikiKindTabs();
       collapseWikiPreview();
       clearTimeout(WIKI_SEARCH_TIMER);
-      WIKI_RECENT_LOADED = false;
+      WIKI_BROWSE_LOADED = false;
       runWikiSearch(input.value, 20);
     };
   });
-  window.addEventListener("hashchange", maybeLoadWikiRecent);
-  maybeLoadWikiRecent();
+  window.addEventListener("hashchange", maybeLoadWikiBrowse);
+  maybeLoadWikiBrowse();
 }
 
 if (document.readyState === "loading") {

@@ -110,7 +110,7 @@
       </div>
       <label class="placeholder-search" for="wiki-search-input">
         <span>搜索知识库</span>
-        <input id="wiki-search-input" type="search" placeholder="搜索已保存的概念、题目、错题……" autocomplete="off">
+        <input id="wiki-search-input" type="search" placeholder="搜索概念、题目、错题或路径……" autocomplete="off">
       </label>
       <div class="wiki-kind-tabs" role="tablist" aria-label="知识库问题类型">
         <button class="wiki-kind-tab" type="button" role="tab" aria-selected="false" data-wiki-kind="all">全部</button>
@@ -119,18 +119,18 @@
       </div>
       <div class="wiki-search-actions">
         <button class="btn btn-primary btn-accent" type="button" id="wiki-search-button">搜索</button>
-        <button class="backup-btn" type="button" id="wiki-recent-button">最近更新</button>
+        <button class="backup-btn" type="button" id="wiki-browse-button">浏览</button>
         <span class="wiki-search-status" id="wiki-search-status">登录后可读取内部知识库索引。</span>
       </div>
       <div class="wiki-results-head">
         <div>
-          <span class="wiki-card-label" id="wiki-results-kicker">RECENT</span>
-          <strong id="wiki-results-title">最近更新</strong>
+          <span class="wiki-card-label" id="wiki-results-kicker">浏览</span>
+          <strong id="wiki-results-title">按科目浏览</strong>
         </div>
         <span id="wiki-results-count">0</span>
       </div>
       <div class="wiki-result-list" id="wiki-results" aria-live="polite">
-        <div class="wiki-empty">进入知识库后会加载最近更新；也可以输入关键词搜索。</div>
+        <div class="wiki-empty">进入知识库后会按科目浏览；也可以输入关键词搜索。</div>
       </div>
       <div class="wiki-note-preview" id="wiki-note-preview" hidden></div>
       <p class="placeholder-copy">
