@@ -266,6 +266,31 @@ body::after {
   opacity: 0.72;
   cursor: not-allowed;
 }
+.wiki-kind-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -8px 0 14px;
+}
+.wiki-kind-tab {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: var(--text-2);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  padding: 7px 12px;
+}
+.wiki-kind-tab:hover,
+.wiki-kind-tab.is-active {
+  border-color: var(--primary);
+  color: var(--text);
+}
+.wiki-kind-tab.is-active {
+  background: var(--primary-tint-soft);
+}
 .wiki-search-actions {
   display: flex;
   align-items: center;

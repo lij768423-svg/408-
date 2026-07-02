@@ -112,6 +112,11 @@
         <span>搜索知识库</span>
         <input id="wiki-search-input" type="search" placeholder="搜索已保存的概念、题目、错题……" autocomplete="off">
       </label>
+      <div class="wiki-kind-tabs" role="tablist" aria-label="知识库问题类型">
+        <button class="wiki-kind-tab" type="button" role="tab" aria-selected="false" data-wiki-kind="all">全部</button>
+        <button class="wiki-kind-tab is-active" type="button" role="tab" aria-selected="true" data-wiki-kind="concept">概念问题</button>
+        <button class="wiki-kind-tab" type="button" role="tab" aria-selected="false" data-wiki-kind="exam">题目问题</button>
+      </div>
       <div class="wiki-search-actions">
         <button class="btn btn-primary btn-accent" type="button" id="wiki-search-button">搜索</button>
         <button class="backup-btn" type="button" id="wiki-recent-button">最近更新</button>
