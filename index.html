@@ -122,17 +122,29 @@
         <button class="backup-btn" type="button" id="wiki-browse-button">浏览</button>
         <span class="wiki-search-status" id="wiki-search-status">登录后可读取内部知识库索引。</span>
       </div>
-      <div class="wiki-results-head">
-        <div>
-          <span class="wiki-card-label" id="wiki-results-kicker">浏览</span>
-          <strong id="wiki-results-title">按科目浏览</strong>
-        </div>
-        <span id="wiki-results-count">0</span>
+      <div class="wiki-explorer">
+        <aside class="wiki-tree-panel" aria-label="知识库目录">
+          <div class="wiki-results-head">
+            <div>
+              <span class="wiki-card-label" id="wiki-results-kicker">浏览</span>
+              <strong id="wiki-results-title">按科目浏览</strong>
+            </div>
+            <span id="wiki-results-count">0</span>
+          </div>
+          <div class="wiki-result-list wiki-tree" id="wiki-results" aria-live="polite">
+            <div class="wiki-empty">进入知识库后会按科目浏览；也可以输入关键词搜索。</div>
+          </div>
+        </aside>
+        <section class="wiki-content-panel" aria-label="知识库预览">
+          <div class="wiki-note-preview" id="wiki-note-preview">
+            <div class="wiki-welcome">
+              <span class="wiki-card-label">BROWSE</span>
+              <h3>按科目浏览知识库</h3>
+              <p>从左侧目录选择一篇笔记，在这里查看全文预览。</p>
+            </div>
+          </div>
+        </section>
       </div>
-      <div class="wiki-result-list" id="wiki-results" aria-live="polite">
-        <div class="wiki-empty">进入知识库后会按科目浏览；也可以输入关键词搜索。</div>
-      </div>
-      <div class="wiki-note-preview" id="wiki-note-preview" hidden></div>
       <p class="placeholder-copy">
         当前 MVP 只读取 <code>VAULT_PATH/wiki</code> 下的 Markdown 笔记并提供只读预览，不修改内容；问答入口仍保持禁用。
       </p>

@@ -339,6 +339,18 @@ function bindAiPanel(q, state) {
   // 追问运行器:有 API 配置就走流式(OpenAI 兼容),否则本地 builder 拼出追问上下文
   let askAbort = null;  // 当前进行中的请求 AbortController
   async function runAsk(ask) {
+    const text = String(ask || "").trim();
+    const qid = q && q.id ? String(q.id) : "__current";
+    if (!CURRENT.aiLatestUserQuestions) CURRENT.aiLatestUserQuestions = {};
+    const prev = CURRENT.aiLatestUserQuestions[qid];
+    const first = prev && typeof prev === "object" ? String(prev.first || prev.text || prev.latest || "").trim() : String(prev || "").trim();
+    CURRENT.aiLatestUserQuestions[qid] = {
+      first: first || text,
+      latest: text,
+      firstTs: prev && typeof prev === "object" && prev.firstTs ? prev.firstTs : Date.now(),
+      latestTs: Date.now()
+    };
+    CURRENT.aiLatestUserQuestion = text;
     if (!AI_STATUS.enabled) {
       await refreshAiStatus();
     }
