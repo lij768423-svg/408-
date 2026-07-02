@@ -390,9 +390,21 @@ body::after {
 }
 .wiki-preview-head {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 8px;
+}
+.wiki-preview-head strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 16px;
+  line-height: 1.35;
+}
+.wiki-preview-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .wiki-preview-head span,
 .wiki-preview-path {
@@ -400,11 +412,55 @@ body::after {
   font-family: var(--font-mono);
   font-size: 11px;
 }
+.wiki-preview-close {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  color: var(--text);
+  cursor: pointer;
+}
+.wiki-preview-meta,
+.wiki-preview-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.wiki-preview-meta span,
+.wiki-preview-tags i {
+  padding: 2px 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-style: normal;
+  letter-spacing: 0.08em;
+}
 .wiki-preview-path {
   margin-bottom: 8px;
   overflow-wrap: anywhere;
 }
+.wiki-preview-body {
+  margin-top: 12px;
+}
+.wiki-preview-body > :first-child {
+  margin-top: 0;
+}
+.wiki-preview-body > :last-child {
+  margin-bottom: 0;
+}
 .wiki-note-preview p {
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.wiki-preview-fallback {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
   color: var(--text-2);
   font-size: 13px;
   line-height: 1.7;

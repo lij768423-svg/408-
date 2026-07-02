@@ -77,6 +77,8 @@ async function copyText(text, okMsg = "已复制") {
 let WIKI_SEARCH_TIMER = null;
 let WIKI_RECENT_LOADED = false;
 let WIKI_LAST_RESULTS = [];
+let WIKI_PREVIEW_REQUEST = 0;
+let WIKI_PREVIEW_PATH = "";
 
 function wikiPageActive() {
   return document.body.dataset.route === "wiki" || (window.location.hash || "").startsWith("#/wiki");
@@ -130,7 +132,12 @@ function renderWikiResults(data, query) {
   const box = $("#wiki-results");
   const preview = $("#wiki-note-preview");
   if (!box) return;
-  if (preview) preview.hidden = true;
+  if (preview) {
+    preview.hidden = true;
+    preview.innerHTML = "";
+  }
+  WIKI_PREVIEW_REQUEST += 1;
+  WIKI_PREVIEW_PATH = "";
   const results = Array.isArray(data.results) ? data.results : [];
   WIKI_LAST_RESULTS = results;
   const hasQuery = !!(query || "").trim();
@@ -164,17 +171,78 @@ function renderWikiResults(data, query) {
   setWikiStatus((hasQuery ? "搜索" : "最近更新") + "完成：" + results.length + " 条结果。");
 }
 
-function showWikiPreview(index) {
-  const item = WIKI_LAST_RESULTS[index];
+function collapseWikiPreview() {
+  const preview = $("#wiki-note-preview");
+  WIKI_PREVIEW_REQUEST += 1;
+  WIKI_PREVIEW_PATH = "";
+  if (!preview) return;
+  preview.hidden = true;
+  preview.innerHTML = "";
+}
+
+function wikiPreviewMetaHtml(item) {
+  return [
+    wikiTypeLabel(item && item.type),
+    item && item.subject,
+    item && item.updated ? formatWikiDate(item.updated) : "",
+  ].filter(Boolean).map(value => "<span>" + escHtml(value) + "</span>").join("");
+}
+
+function wikiPreviewTagsHtml(item) {
+  const tags = Array.isArray(item && item.tags) ? item.tags.slice(0, 12) : [];
+  return tags.length
+    ? '<div class="wiki-preview-tags">' + tags.map(tag => "<i>" + escHtml(tag) + "</i>").join("") + "</div>"
+    : "";
+}
+
+function wikiPreviewContentHtml(content) {
+  if (typeof renderMarkdown === "function") return renderMarkdown(content || "");
+  return '<pre class="wiki-preview-fallback">' + escHtml(content || "") + "</pre>";
+}
+
+function renderWikiPreviewCard(item, bodyHtml, badgeText) {
   const preview = $("#wiki-note-preview");
   if (!item || !preview) return;
   preview.hidden = false;
   preview.innerHTML = '<div class="wiki-preview-head">' +
-      "<strong>" + escHtml(item.title || "未命名笔记") + "</strong>" +
-      "<span>" + escHtml(wikiTypeLabel(item.type)) + "</span>" +
+      "<div>" +
+        "<strong>" + escHtml(item && (item.title || item.path || "未命名笔记")) + "</strong>" +
+        '<div class="wiki-preview-meta">' + wikiPreviewMetaHtml(item || {}) + "</div>" +
+      "</div>" +
+      '<div class="wiki-preview-head-actions">' +
+        "<span>" + escHtml(badgeText || "") + "</span>" +
+        '<button class="wiki-preview-close" type="button" data-wiki-close="1">收起</button>' +
+      "</div>" +
     "</div>" +
-    '<div class="wiki-preview-path">' + escHtml(item.path || "") + "</div>" +
-    "<p>" + escHtml(item.snippet || "该结果暂无摘要。") + "</p>";
+    '<div class="wiki-preview-path">' + escHtml(item && item.path || "") + "</div>" +
+    wikiPreviewTagsHtml(item || {}) +
+    '<div class="wiki-preview-body">' + bodyHtml + "</div>";
+  const closeBtn = preview.querySelector("[data-wiki-close]");
+  if (closeBtn) closeBtn.onclick = collapseWikiPreview;
+  preview.scrollIntoView({ block: "nearest" });
+}
+
+async function showWikiPreview(index) {
+  const item = WIKI_LAST_RESULTS[index];
+  const preview = $("#wiki-note-preview");
+  if (!item || !preview || !item.path) return;
+  const requestId = ++WIKI_PREVIEW_REQUEST;
+  WIKI_PREVIEW_PATH = item.path;
+  renderWikiPreviewCard(item, '<div class="wiki-empty">正在加载笔记全文预览……</div>', "LOADING");
+  try {
+    const data = await apiJson("/api/wiki/note", {
+      method: "POST",
+      body: JSON.stringify({ path: item.path })
+    });
+    if (requestId !== WIKI_PREVIEW_REQUEST || WIKI_PREVIEW_PATH !== item.path) return;
+    renderWikiPreviewCard(data, wikiPreviewContentHtml(data.content || ""), "READ ONLY");
+  } catch (e) {
+    if (requestId !== WIKI_PREVIEW_REQUEST || WIKI_PREVIEW_PATH !== item.path) return;
+    const message = e && e.message === "未登录"
+      ? "请先登录，再读取笔记全文预览。"
+      : "笔记预览失败：" + (e.message || e);
+    renderWikiPreviewCard(item, '<div class="wiki-error">' + escHtml(message) + "</div>", "ERROR");
+  }
 }
 
 async function runWikiSearch(query, limit = 20) {
