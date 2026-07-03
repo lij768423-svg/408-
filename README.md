@@ -35,9 +35,17 @@
 
 仓库中已放置截图，可在 GitHub 预览：
 
-| 主界面 | AI 讲题 | AI 配置 |
+| 主界面 | 章节选择 | 搜索题库 |
 |---|---|---|
-| ![](docs/screenshots/main.png) | ![](docs/screenshots/ai-explain.png) | ![](docs/screenshots/ai-config.png) |
+| ![](docs/screenshots/main.png) | ![](docs/screenshots/chapter-menu.png) | ![](docs/screenshots/search.png) |
+
+| 答题反馈 | AI 讲题 | 批量串讲 |
+|---|---|---|
+| ![](docs/screenshots/feedback.png) | ![](docs/screenshots/ai-explain.png) | ![](docs/screenshots/batch-menu.png) |
+
+| 题库预览 | 个人知识库 | 使用说明 |
+|---|---|---|
+| ![](docs/screenshots/preview.png) | ![](docs/screenshots/wiki.png) | ![](docs/screenshots/guide.png) |
 
 ---
 
