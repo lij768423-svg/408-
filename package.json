@@ -4,7 +4,7 @@
   "description": "轻量级网页刷题应用,基于王道 2026/2027 四本 408 教材的精选题库。",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --check assets/js/*.js && python3 -m json.tool data.json >/dev/null"
   },
   "keywords": [],
   "author": "",
