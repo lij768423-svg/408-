@@ -214,6 +214,7 @@ let WIKI_LAST_RESULTS = [];
 let WIKI_PREVIEW_REQUEST = 0;
 let WIKI_PREVIEW_PATH = "";
 let WIKI_PREVIEW_NOTE = null;
+let WIKI_FOLLOWUP_STATE = { path: "", question: "", answer: "", busy: false, saving: false, error: "" };
 let WIKI_SELECTED_KIND = "concept";
 const WIKI_TREE_COLLAPSED = Object.create(null);
 
@@ -497,11 +498,141 @@ function wikiPreviewContentHtml(content) {
   return '<pre class="wiki-preview-fallback">' + escHtml(content || "") + "</pre>";
 }
 
+function resetWikiFollowupState(path) {
+  WIKI_FOLLOWUP_STATE = { path: path || "", question: "", answer: "", busy: false, saving: false, error: "" };
+}
+
+function wikiFollowupQuestionValue(value, maxLen = 1000) {
+  const text = String(value || "").replace(/\r\n?/g, "\n").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, "").trim();
+  return text.length > maxLen ? text.slice(0, maxLen).trim() : text;
+}
+
+function wikiFollowupMarkdownText(value, maxLen = 1000) {
+  return wikiFollowupQuestionValue(value, maxLen)
+    .split("\n")
+    .map(line => line
+      .replace(/^(\s{0,3})(#{1,6}\s+)/, "$1\\$2")
+      .replace(/^(\s{0,3})([-*_])\2\2+\s*$/, "$1\\$2$2$2"))
+    .join("\n")
+    .trim();
+}
+
+function wikiFollowupTimestamp(date = new Date()) {
+  const pad = value => String(value).padStart(2, "0");
+  return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate()) +
+    " " + pad(date.getHours()) + ":" + pad(date.getMinutes());
+}
+
+function wikiFollowupSummary(question) {
+  const text = (typeof plainText === "function" ? plainText(question || "") : String(question || ""))
+    .replace(/\s+/g, " ")
+    .replace(/^[#\s>：:、，。！？?！-]+/, "")
+    .trim();
+  return (text || "追问").slice(0, 42);
+}
+
+function wikiFollowupMessages(note, question) {
+  const content = typeof note.raw_content === "string" ? note.raw_content : (note.content || "");
+  return [
+    {
+      role: "system",
+      content: "你是 408 考研个人知识库助手。中文作答，使用 Markdown。只基于用户给出的当前笔记内容回答；如果笔记信息不足，明确说明不足并给出可验证的推理。不要寒暄。"
+    },
+    {
+      role: "user",
+      content: [
+        "【任务】继续追问这篇笔记。请基于当前笔记回答用户问题，输出可直接追加到 Markdown 笔记的回答。",
+        "",
+        "【笔记标题】",
+        note.title || "",
+        "",
+        "【笔记路径】",
+        note.path || "",
+        "",
+        "【笔记内容】",
+        content || "",
+        "",
+        "【用户问题】",
+        question
+      ].join("\n")
+    }
+  ];
+}
+
+function wikiFollowupHtml() {
+  const answerHtml = WIKI_FOLLOWUP_STATE.answer
+    ? '<div class="wiki-followup-answer-body">' + wikiPreviewContentHtml(WIKI_FOLLOWUP_STATE.answer) + "</div>"
+    : '<div class="wiki-followup-empty">AI 回答会显示在这里。确认后再手动保存到当前笔记。</div>';
+  return '<section class="wiki-followup-card" aria-label="继续追问这篇笔记">' +
+    '<div class="wiki-followup-head">' +
+      '<div><h3>继续追问这篇笔记</h3><p>AI 会基于当前笔记内容回答，确认后可追加到当前笔记。</p></div>' +
+      '<span>AI</span>' +
+    "</div>" +
+    '<label class="wiki-followup-label" for="wiki-followup-question">你的问题</label>' +
+    '<textarea id="wiki-followup-question" class="wiki-followup-input" rows="3" maxlength="1000" placeholder="例如：这篇笔记里 TCP 拥塞控制和流量控制的区别再解释一下？"></textarea>' +
+    '<div class="wiki-followup-actions">' +
+      '<button class="wiki-preview-action wiki-followup-ask" type="button" data-wiki-followup-ask="1">询问 AI</button>' +
+      '<button class="wiki-preview-action wiki-preview-save wiki-followup-save" type="button" data-wiki-followup-save="1"' + (WIKI_FOLLOWUP_STATE.answer ? "" : " disabled") + '>保存到当前笔记</button>' +
+      '<span class="wiki-followup-status" data-wiki-followup-status></span>' +
+    "</div>" +
+    '<div class="wiki-followup-answer" data-wiki-followup-answer>' + answerHtml + "</div>" +
+  "</section>";
+}
+
+function syncWikiFollowupUi() {
+  const card = $(".wiki-followup-card");
+  if (!card) return;
+  const input = $("#wiki-followup-question");
+  const askBtn = card.querySelector("[data-wiki-followup-ask]");
+  const saveBtn = card.querySelector("[data-wiki-followup-save]");
+  const statusEl = card.querySelector("[data-wiki-followup-status]");
+  const answerEl = card.querySelector("[data-wiki-followup-answer]");
+  const busy = !!WIKI_FOLLOWUP_STATE.busy;
+  const saving = !!WIKI_FOLLOWUP_STATE.saving;
+  if (input) input.disabled = busy || saving;
+  if (askBtn) askBtn.disabled = busy || saving;
+  if (saveBtn) saveBtn.disabled = busy || saving || !WIKI_FOLLOWUP_STATE.answer;
+  if (statusEl) {
+    statusEl.textContent = WIKI_FOLLOWUP_STATE.error || (busy ? "正在询问 AI……" : (saving ? "正在追加到当前笔记……" : ""));
+    statusEl.dataset.tone = WIKI_FOLLOWUP_STATE.error ? "error" : "";
+  }
+  if (answerEl) {
+    answerEl.innerHTML = WIKI_FOLLOWUP_STATE.answer
+      ? '<div class="wiki-followup-answer-body">' + wikiPreviewContentHtml(WIKI_FOLLOWUP_STATE.answer) + (busy ? '<span class="ai-cursor">▍</span>' : "") + "</div>"
+      : '<div class="wiki-followup-empty">AI 回答会显示在这里。确认后再手动保存到当前笔记。</div>';
+  }
+}
+
+function attachWikiFollowupHandlers(preview, item) {
+  const card = preview.querySelector(".wiki-followup-card");
+  if (!card || !item || !item.path) return;
+  const input = card.querySelector("#wiki-followup-question");
+  const askBtn = card.querySelector("[data-wiki-followup-ask]");
+  const saveBtn = card.querySelector("[data-wiki-followup-save]");
+  if (WIKI_FOLLOWUP_STATE.path !== item.path) resetWikiFollowupState(item.path);
+  if (input) {
+    input.value = WIKI_FOLLOWUP_STATE.question || "";
+    input.oninput = () => {
+      const value = wikiFollowupQuestionValue(input.value);
+      if (WIKI_FOLLOWUP_STATE.answer && value !== WIKI_FOLLOWUP_STATE.question) {
+        WIKI_FOLLOWUP_STATE.question = value;
+        WIKI_FOLLOWUP_STATE.answer = "";
+        WIKI_FOLLOWUP_STATE.error = "";
+        syncWikiFollowupUi();
+      }
+    };
+  }
+  if (askBtn) askBtn.onclick = askWikiNoteFollowup;
+  if (saveBtn) saveBtn.onclick = saveWikiNoteFollowup;
+  syncWikiFollowupUi();
+}
+
 function renderWikiPreviewCard(item, bodyHtml, badgeText, options = {}) {
   const preview = $("#wiki-note-preview");
   if (!item || !preview) return;
   const canMutate = !!(options.canMutate && item && item.path && typeof item.raw_content === "string");
   const editing = !!options.editing;
+  if (!editing && canMutate && WIKI_FOLLOWUP_STATE.path !== item.path) resetWikiFollowupState(item.path);
   preview.hidden = false;
   preview.innerHTML = '<div class="wiki-preview-head">' +
       "<div>" +
@@ -519,7 +650,8 @@ function renderWikiPreviewCard(item, bodyHtml, badgeText, options = {}) {
     "</div>" +
     '<div class="wiki-preview-path">' + escHtml(item && item.path || "") + "</div>" +
     wikiPreviewTagsHtml(item || {}) +
-    '<div class="wiki-preview-body">' + bodyHtml + "</div>";
+    '<div class="wiki-preview-body">' + bodyHtml + "</div>" +
+    (!editing && canMutate ? wikiFollowupHtml() : "");
   const closeBtn = preview.querySelector("[data-wiki-close]");
   if (closeBtn) closeBtn.onclick = collapseWikiPreview;
   const editBtn = preview.querySelector("[data-wiki-edit]");
@@ -530,8 +662,141 @@ function renderWikiPreviewCard(item, bodyHtml, badgeText, options = {}) {
   if (cancelBtn) cancelBtn.onclick = cancelWikiEdit;
   const saveBtn = preview.querySelector("[data-wiki-save-edit]");
   if (saveBtn) saveBtn.onclick = saveWikiEdit;
+  if (!editing && canMutate) attachWikiFollowupHandlers(preview, item);
   if (window.matchMedia && window.matchMedia("(max-width: 760px)").matches) {
     preview.scrollIntoView({ block: "nearest" });
+  }
+}
+
+async function askWikiNoteFollowup() {
+  const note = WIKI_PREVIEW_NOTE;
+  const input = $("#wiki-followup-question");
+  if (!note || !note.path || typeof note.raw_content !== "string") {
+    setWikiStatus("笔记尚未完整加载，不能追问。", "error");
+    return;
+  }
+  const question = wikiFollowupQuestionValue(input && input.value);
+  if (!question) {
+    WIKI_FOLLOWUP_STATE.error = "请先输入问题。";
+    syncWikiFollowupUi();
+    toast("请先输入问题");
+    return;
+  }
+  const pathToken = note.path;
+  WIKI_FOLLOWUP_STATE = { path: pathToken, question, answer: "", busy: true, saving: false, error: "" };
+  syncWikiFollowupUi();
+  setWikiStatus("正在询问 AI……");
+  let answer = "";
+  try {
+    const messages = wikiFollowupMessages(note, question);
+    if (typeof streamAiApi === "function" && window.ReadableStream) {
+      const fullText = await streamAiApi(messages, delta => {
+        if (WIKI_PREVIEW_PATH !== pathToken) return;
+        answer += delta || "";
+        WIKI_FOLLOWUP_STATE.answer = answer;
+        syncWikiFollowupUi();
+      });
+      if (fullText) answer = fullText;
+    } else {
+      const data = await apiJson("/api/ai/chat", {
+        method: "POST",
+        body: JSON.stringify({ messages })
+      });
+      answer = data.content || "";
+    }
+    if (WIKI_PREVIEW_PATH !== pathToken) return;
+    WIKI_FOLLOWUP_STATE.answer = String(answer || "").trim();
+    WIKI_FOLLOWUP_STATE.busy = false;
+    WIKI_FOLLOWUP_STATE.error = WIKI_FOLLOWUP_STATE.answer ? "" : "AI 没有返回可保存的回答。";
+    syncWikiFollowupUi();
+    setWikiStatus(WIKI_FOLLOWUP_STATE.answer ? "AI 已回答，确认后可追加到当前笔记。" : "AI 没有返回可保存的回答。", WIKI_FOLLOWUP_STATE.answer ? "" : "error");
+  } catch (e) {
+    if (WIKI_PREVIEW_PATH !== pathToken) return;
+    const message = e && e.message ? e.message : String(e);
+    WIKI_FOLLOWUP_STATE.busy = false;
+    WIKI_FOLLOWUP_STATE.error = "询问失败：" + message;
+    syncWikiFollowupUi();
+    setWikiStatus("询问 AI 失败：" + message, "error");
+    toast("询问 AI 失败");
+  }
+}
+
+function appendWikiFollowupRecord(content, question, answer) {
+  const source = String(content || "").replace(/\s+$/g, "");
+  const heading = "## 追问记录";
+  const summary = wikiFollowupSummary(question);
+  const block = [
+    "---",
+    "",
+    "### " + wikiFollowupTimestamp() + " " + summary,
+    "",
+    "**问题：**",
+    wikiFollowupMarkdownText(question),
+    "",
+    "**AI 回答：**",
+    String(answer || "").trim()
+  ].join("\n").trim();
+  if (/^##\s+追问记录\s*$/m.test(source)) {
+    return source + "\n\n" + block + "\n";
+  }
+  return source + "\n\n" + heading + "\n\n" + block + "\n";
+}
+
+async function reloadWikiPreviewNote(path) {
+  if (!path) return;
+  const data = await apiJson("/api/wiki/note", {
+    method: "POST",
+    body: JSON.stringify({ path, kind: WIKI_SELECTED_KIND })
+  });
+  if (WIKI_PREVIEW_PATH !== path) return;
+  WIKI_PREVIEW_NOTE = data;
+  resetWikiFollowupState(path);
+  renderWikiPreviewCard(data, wikiPreviewContentHtml(data.content || ""), "MARKDOWN", { canMutate: true });
+}
+
+async function saveWikiNoteFollowup() {
+  const note = WIKI_PREVIEW_NOTE;
+  if (!note || !note.path || typeof note.raw_content !== "string") {
+    setWikiStatus("笔记尚未完整加载，不能保存追问。", "error");
+    return;
+  }
+  const question = wikiFollowupQuestionValue(WIKI_FOLLOWUP_STATE.question);
+  const answer = String(WIKI_FOLLOWUP_STATE.answer || "").trim();
+  if (!question) {
+    WIKI_FOLLOWUP_STATE.error = "请先输入问题。";
+    syncWikiFollowupUi();
+    toast("请先输入问题");
+    return;
+  }
+  if (!answer) {
+    WIKI_FOLLOWUP_STATE.error = "请先询问 AI，确认回答后再保存。";
+    syncWikiFollowupUi();
+    toast("请先询问 AI");
+    return;
+  }
+  const pathToken = note.path;
+  const nextContent = appendWikiFollowupRecord(note.raw_content, question, answer);
+  WIKI_FOLLOWUP_STATE.saving = true;
+  WIKI_FOLLOWUP_STATE.error = "";
+  syncWikiFollowupUi();
+  setWikiStatus("正在追加追问记录……");
+  try {
+    await apiJson("/api/wiki/note/update", {
+      method: "POST",
+      body: JSON.stringify({ path: note.path, content: nextContent, expected_mtime: note.mtime })
+    });
+    if (WIKI_PREVIEW_PATH !== pathToken) return;
+    setWikiStatus("已追加到当前笔记。");
+    toast("已追加到当前笔记");
+    await reloadWikiPreviewNote(pathToken);
+  } catch (e) {
+    if (WIKI_PREVIEW_PATH !== pathToken) return;
+    const message = e && e.message ? e.message : String(e);
+    WIKI_FOLLOWUP_STATE.saving = false;
+    WIKI_FOLLOWUP_STATE.error = "保存失败：" + message;
+    syncWikiFollowupUi();
+    setWikiStatus("保存追问失败：" + message, "error");
+    toast("保存失败：" + message);
   }
 }
 
