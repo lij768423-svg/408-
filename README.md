@@ -29,23 +29,7 @@
 - Markdown/公式/代码渲染：题面、解析和 AI 输出支持 Markdown、KaTeX 和代码块。
 - 导入导出：学习记录可用 JSON 迁移。
 
----
-
-## 截图
-
-仓库中已放置截图，可在 GitHub 预览：
-
-| 主界面 | 章节选择 | 搜索题库 |
-|---|---|---|
-| ![](docs/screenshots/main.png) | ![](docs/screenshots/chapter-menu.png) | ![](docs/screenshots/search.png) |
-
-| 答题反馈 | AI 讲题 | 批量串讲 |
-|---|---|---|
-| ![](docs/screenshots/feedback.png) | ![](docs/screenshots/ai-explain.png) | ![](docs/screenshots/batch-menu.png) |
-
-| 题库预览 | 个人知识库 | 使用说明 |
-|---|---|---|
-| ![](docs/screenshots/preview.png) | ![](docs/screenshots/wiki.png) | ![](docs/screenshots/guide.png) |
+![主刷题界面：题库导航、题卡、学习进度和右侧 AI 讲题面板](docs/screenshots/main.png)
 
 ---
 
@@ -303,6 +287,8 @@ location /api/ {
 | `#/wiki` | 个人知识库：目录树、搜索、预览、编辑、软删除 |
 | `#/guide` | 使用说明：保存规则、概念/题目分类、常见操作路径 |
 
+![使用说明：刷题、AI 讲解、个人知识库的学习链路，以及概念问题/题目问题分类规则](docs/screenshots/guide.png)
+
 ### 刷题流程
 
 1. 选择科目、章节和刷题模式。
@@ -316,6 +302,18 @@ location /api/ {
 - 单选题：点击选项后立即判定。
 - 多选题：选错立即判错；选全正确答案后判对。
 
+![章节选择：按科目和章节快速切换题目范围](docs/screenshots/chapter-menu.png)
+
+![答题反馈：提交后显示正确答案、你的答案和解析](docs/screenshots/feedback.png)
+
+点击顶部“题库预览”可以查看当前账号所有题目的状态分布；点色块可直接跳转到对应题目。
+
+![题库预览：按章节展示做对、错题、收藏和未做状态](docs/screenshots/preview.png)
+
+顶部搜索支持按关键词检索题库，并结合来源/年份筛选快速定位题目。
+
+![题库搜索：按关键词、来源和年份筛选题目](docs/screenshots/search.png)
+
 ### AI 讲题
 
 AI 面板会自动整理当前题目的上下文，包括题源、章节、题型、当前选择、正确答案、题干、选项和解析。
@@ -327,6 +325,12 @@ AI 面板会自动整理当前题目的上下文，包括题源、章节、题�
 - 配置 API 后直接在页面内追问。
 - 点击“保存到知识库”，把讲解沉淀为个人知识库条目。
 
+![AI 讲题：流式讲解、上下文复制、保存到知识库和题目关联](docs/screenshots/ai-explain.png)
+
+错题较多时，可以打开“批量讲错题 · AI 串讲”，从错题列表中选择一组题让 AI 汇总讲解。
+
+![批量串讲：选择错题并生成一组复盘材料](docs/screenshots/batch-menu.png)
+
 ### 保存到知识库
 
 保存时根据首次追问分类：
@@ -337,6 +341,10 @@ AI 面板会自动整理当前题目的上下文，包括题源、章节、题�
 | 题目问题 | `wiki/question/<科目>/<题目标题>.md` | 围绕具体题目的追问、错因、解析补充 |
 
 同一道题的后续追问会保留第一次追问形成的分类，不会因为后续切换问题而串到其他题目。
+
+进入 `#/wiki` 后，可以按“全部问题 / 概念问题 / 题目问题”筛选个人知识库，支持搜索、预览、编辑和软删除。
+
+![个人知识库：按科目浏览、搜索和预览 Markdown 笔记](docs/screenshots/wiki.png)
 
 ### 键盘快捷键
 
