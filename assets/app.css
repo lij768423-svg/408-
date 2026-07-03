@@ -1181,20 +1181,21 @@ body::after {
   overflow: hidden;
   margin-top: 22px;
   padding: 16px;
-  border: 1px solid rgba(174, 123, 64, 0.24);
+  border: 1px solid rgba(190, 150, 98, 0.26);
   border-radius: 16px;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(250, 244, 232, 0.68)),
-    rgba(255, 255, 255, 0.62);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.36);
+    radial-gradient(circle at 0% 0%, rgba(232, 168, 93, 0.12), transparent 34%),
+    linear-gradient(135deg, rgba(255, 253, 247, 0.86), rgba(252, 244, 229, 0.78)),
+    rgba(255, 250, 240, 0.66);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42);
 }
 .wiki-followup-card::before {
   content: "";
   position: absolute;
-  inset: 14px auto 14px 0;
+  inset: 16px auto 16px 0;
   width: 3px;
   border-radius: 0 999px 999px 0;
-  background: rgba(224, 98, 78, 0.72);
+  background: linear-gradient(180deg, rgba(224, 98, 78, 0.58), rgba(214, 153, 74, 0.58));
 }
 .wiki-followup-head {
   position: relative;
@@ -1221,10 +1222,10 @@ body::after {
 .wiki-followup-head span {
   flex: 0 0 auto;
   padding: 3px 8px;
-  border: 1px solid rgba(224, 98, 78, 0.26);
+  border: 1px solid rgba(214, 153, 74, 0.30);
   border-radius: 999px;
-  background: rgba(224, 98, 78, 0.08);
-  color: #b94d3f;
+  background: rgba(246, 231, 203, 0.46);
+  color: #9b6230;
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.10em;
@@ -1241,36 +1242,37 @@ body::after {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
-  margin: 0 0 8px;
+  gap: 8px;
+  margin: 0 0 10px;
 }
 .wiki-followup-quick {
   appearance: none;
-  border: 1px solid rgba(224, 98, 78, 0.28);
-  border-radius: 999px;
-  padding: 5px 10px;
-  background: rgba(224, 98, 78, 0.07);
-  color: #8d3f34;
+  border: 1px solid rgba(190, 150, 98, 0.34);
+  border-radius: 12px;
+  padding: 6px 12px;
+  background: rgba(255, 252, 246, 0.72);
+  color: #6d5135;
   font: inherit;
   font-size: 12px;
   line-height: 1.25;
   cursor: pointer;
+  box-shadow: inset 0 -1px 0 rgba(174, 123, 64, 0.06);
   transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
 }
 .wiki-followup-quick:hover {
-  border-color: rgba(224, 98, 78, 0.48);
-  background: rgba(224, 98, 78, 0.12);
-  color: #5e2d26;
-  box-shadow: 0 6px 16px rgba(224, 98, 78, 0.10);
+  border-color: rgba(214, 153, 74, 0.56);
+  background: rgba(255, 245, 226, 0.88);
+  color: #3f2b1d;
+  box-shadow: 0 4px 12px rgba(146, 92, 39, 0.08), inset 0 -1px 0 rgba(174, 123, 64, 0.08);
 }
 .wiki-followup-quick:active {
   transform: translateY(1px);
-  background: rgba(224, 98, 78, 0.16);
+  background: rgba(247, 228, 196, 0.82);
 }
 .wiki-followup-quick:focus-visible {
   outline: none;
-  border-color: rgba(224, 98, 78, 0.58);
-  box-shadow: 0 0 0 3px rgba(224, 98, 78, 0.12);
+  border-color: rgba(224, 98, 78, 0.46);
+  box-shadow: 0 0 0 3px rgba(224, 98, 78, 0.10);
 }
 .wiki-followup-quick:disabled {
   cursor: wait;
@@ -1282,18 +1284,18 @@ body::after {
   min-height: 90px;
   resize: vertical;
   padding: 11px 12px;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(190, 150, 98, 0.24);
   border-radius: 12px;
   outline: none;
-  background: rgba(255, 255, 255, 0.52);
+  background: rgba(255, 255, 255, 0.62);
   color: var(--text);
   font: inherit;
   font-size: 14px;
   line-height: 1.6;
 }
 .wiki-followup-input:focus {
-  border-color: rgba(224, 98, 78, 0.46);
-  box-shadow: 0 0 0 3px rgba(224, 98, 78, 0.10);
+  border-color: rgba(224, 98, 78, 0.36);
+  box-shadow: 0 0 0 3px rgba(224, 98, 78, 0.08);
 }
 .wiki-followup-input:disabled {
   cursor: wait;
@@ -1307,13 +1309,18 @@ body::after {
   margin-top: 10px;
 }
 .wiki-followup-actions .wiki-followup-ask {
-  border-color: rgba(224, 98, 78, 0.30);
-  background: rgba(224, 98, 78, 0.10);
-  color: #5e2d26;
+  border-color: rgba(224, 98, 78, 0.28);
+  background: rgba(224, 98, 78, 0.08);
+  color: #7b3b32;
 }
 .wiki-followup-actions .wiki-followup-ask:hover {
-  border-color: rgba(224, 98, 78, 0.48);
-  background: rgba(224, 98, 78, 0.16);
+  border-color: rgba(224, 98, 78, 0.42);
+  background: rgba(224, 98, 78, 0.12);
+}
+.wiki-followup-actions .wiki-followup-save {
+  border-color: rgba(190, 150, 98, 0.40);
+  background: rgba(246, 231, 203, 0.54);
+  color: #5f452b;
 }
 .wiki-followup-actions .wiki-preview-action:disabled {
   cursor: not-allowed;
@@ -1328,9 +1335,9 @@ body::after {
 .wiki-followup-answer {
   margin-top: 12px;
   padding: 12px;
-  border: 1px dashed rgba(174, 123, 64, 0.24);
+  border: 1px dashed rgba(190, 150, 98, 0.26);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.34);
 }
 .wiki-followup-empty {
   color: var(--muted);
