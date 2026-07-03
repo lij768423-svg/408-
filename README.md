@@ -1,20 +1,10 @@
 # 408 考研刷题库
 
-一个面向 408 考研复习的网页刷题应用：题库、错题、收藏、AI 讲题和个人知识库放在同一个界面里。
+一个面向 408 考研复习的网页刷题应用：题库、错题、收藏、AI 讲题和个人知识库放在同一个界面里。仓库本身是静态 Web 应用，克隆后不需要构建即可运行；账号同步、后端 AI 代理和个人知识库属于可选增强能力。
 
-页面提供：
+> 适合：408 复习刷题、错题复盘、AI 讲题、把题目/概念追问沉淀为自己的知识库。
 
-- 刷题：题卡、模式、错题、收藏、进度、AI 讲题。
-- 个人知识库：保存到知识库、搜索、预览、编辑、软删除、回收目录。
-- 使用说明页：解释概念问题和题目问题的分类规则。
-
-整个应用以静态文件方式运行，知识库后端可独立部署。
-
----
-
-## 1. 对外服务（线上访问）
-
-### 1.1 入口地址
+## 在线体验
 
 | 页面 | 地址 |
 |---|---|
@@ -22,158 +12,325 @@
 | 个人知识库 | `https://quiz.hermesjj.com/#/wiki` |
 | 使用说明 | `https://quiz.hermesjj.com/#/guide` |
 
-打开以上任一地址即可使用。
-
-### 1.2 对外能看到什么
-
-- 刷题、错题、收藏、答题统计：所有本地+账号绑定数据都会随账号保留。
-- AI 讲题 + 保存到知识库：依赖浏览器侧用户配置的 AI Key 或后端代理。
-- 个人知识库：账号级隔离，每个用户的知识库互不干扰。
-- 使用说明页：解释 AI 保存到知识库的分类规则。
-
-### 1.3 数据和隐私
-
-- 学习记录只保存在浏览器本地（`localStorage`），不写入仓库。
-- 账号绑定数据（账号级进度、错题、收藏、知识库）由后端服务管理，不向第三方发送。
-- AI Key 由用户在自己浏览器里输入，仅保存在该浏览器的 `localStorage`。
-- 应用默认不会主动把任何题目发送到外部服务，只有用户主动点「询问 AI」或保存到知识库时才触发对应请求。
-- 知识库后端（systemd 服务 `wiki-question-api`）只接收本机或反代调用，无对外凭证。
+如果页面没有更新，先尝试强制刷新：`Ctrl + F5`。
 
 ---
 
-## 2. 核心特性
+## 功能概览
 
 - 四门 408 科目题库：操作系统、数据结构、计算机组成原理、计算机网络。
+- 题库规模：`data.json` 当前包含 `1777` 道题，运行时不需要联网下载题库。
 - 多种刷题模式：顺序、随机、错题、收藏、未做、全部随机。
-- 账号体系：不同用户的进度、错题、收藏和知识库互相隔离。
-- AI 讲题：题目上下文自动整理，可复制上下文，也可直接追问 AI。
-- 保存到知识库：AI 讲解和追问结果可以沉淀到个人知识库。
-- 知识库浏览：支持概念问题、题目问题、全部问题三类筛选。
-- 知识库预览与维护：支持预览、编辑正文、软删除到回收目录。
-- 使用说明页：独立页面解释概念问题和题目问题的分类规则。
+- 本地学习记录：错题、收藏、已答统计、偏好设置默认保存在浏览器 `localStorage`。
+- 可选账号同步：接入后端后可把进度绑定到账号。
+- AI 讲题：自动整理当前题目上下文，可复制给外部 AI，也可配置 API 后直接追问。
+- 个人知识库：支持保存 AI 讲解和追问结果，浏览、搜索、预览、编辑、软删除。
+- 智能分类：首次追问决定保存为“概念问题”或“题目问题”；同题后续追问保持独立状态。
 - Markdown/公式/代码渲染：题面、解析和 AI 输出支持 Markdown、KaTeX 和代码块。
-- 导入导出学习记录：可用 JSON 迁移学习数据。
+- 导入导出：学习记录可用 JSON 迁移。
 
 ---
 
-## 3. 页面结构
+## 截图
+
+仓库中已放置截图，可在 GitHub 预览：
+
+| 主界面 | AI 讲题 | AI 配置 |
+|---|---|---|
+| ![](docs/screenshots/main.png) | ![](docs/screenshots/ai-explain.png) | ![](docs/screenshots/ai-config.png) |
+
+---
+
+## 快速开始
+
+### 方式一：直接用 Python 静态服务
+
+```bash
+git clone https://github.com/lij768423-svg/408-.git
+cd 408-
+python3 -m http.server 8767
+```
+
+打开：
+
+```text
+http://127.0.0.1:8767/
+```
+
+### 方式二：用 Node 静态服务
+
+```bash
+git clone https://github.com/lij768423-svg/408-.git
+cd 408-
+npx serve . -l 8767
+```
+
+打开：
+
+```text
+http://127.0.0.1:8767/
+```
+
+### 方式三：只打开文件
+
+也可以直接双击 `index.html`，但不推荐长期这样用：
+
+- `file://` 和 `http://127.0.0.1:8767` 是不同浏览器来源。
+- 两种打开方式的 `localStorage` 不互通。
+- 某些浏览器对本地文件的资源读取限制更严格。
+
+---
+
+## 部署指南
+
+本项目最简单的部署方式是当作静态网站托管。由于应用使用 hash 路由（`#/quiz`、`#/wiki`、`#/guide`），大多数静态托管平台无需额外 SPA fallback 配置。
+
+### 部署形态对比
+
+| 形态 | 适合场景 | 可用能力 |
+|---|---|---|
+| GitHub Pages / 静态托管 | 公开演示、个人使用 | 刷题、本地错题/收藏、导入导出、复制 AI 上下文 |
+| Nginx/Caddy 静态站点 | 自己服务器长期运行 | 同上，可绑定域名和 HTTPS |
+| Docker 静态站点 | 服务器上容器化运行 | 同上，方便 systemd/Docker 自启动 |
+| 静态前端 + `/api/*` 后端 | 多用户服务 | 账号、进度同步、后端 AI 代理、个人知识库 |
+
+### 1. GitHub Pages
+
+1. Fork 或推送本仓库到自己的 GitHub 仓库。
+2. 进入仓库 `Settings -> Pages`。
+3. Source 选择 `Deploy from a branch`。
+4. Branch 选择 `main`，目录选择 `/root`。
+5. 保存后等待 GitHub Pages 构建完成。
+
+访问地址通常是：
+
+```text
+https://<你的用户名>.github.io/<仓库名>/
+```
+
+例如仓库名为 `408-` 时，路径可能是：
+
+```text
+https://<你的用户名>.github.io/408-/
+```
+
+> GitHub Pages 纯静态部署没有 `/api/*` 后端。账号同步、服务端 AI 代理和个人知识库接口不可用；本地刷题记录仍可保存在当前浏览器。
+
+### 2. Nginx 静态部署
+
+把仓库放到服务器目录，例如：
+
+```bash
+sudo mkdir -p /var/www/408-quiz
+sudo rsync -a --delete ./ /var/www/408-quiz/
+```
+
+Nginx 配置示例：
+
+```nginx
+server {
+    listen 80;
+    server_name quiz.example.com;
+
+    root /var/www/408-quiz;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~* \.(?:css|js|json|svg|jpg|jpeg|png|webp|woff2?)$ {
+        expires 7d;
+        add_header Cache-Control "public";
+        try_files $uri =404;
+    }
+}
+```
+
+验证并重载：
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+curl -I http://quiz.example.com/
+```
+
+如果你只用 hash 路由，`try_files $uri $uri/ /index.html;` 不是强制要求，但保留它更稳。
+
+### 3. Caddy 静态部署
+
+`Caddyfile` 示例：
+
+```caddyfile
+quiz.example.com {
+    root * /var/www/408-quiz
+    file_server
+    try_files {path} /index.html
+}
+```
+
+启动或重载：
+
+```bash
+sudo systemctl reload caddy
+```
+
+### 4. Docker 静态部署
+
+不需要在仓库里写 Dockerfile，也可以直接用 Nginx 镜像挂载当前目录：
+
+```bash
+docker run -d \
+  --name 408-quiz \
+  --restart unless-stopped \
+  -p 8767:80 \
+  -v "$PWD:/usr/share/nginx/html:ro" \
+  nginx:1.27-alpine
+```
+
+访问：
+
+```text
+http://127.0.0.1:8767/
+```
+
+更新代码后：
+
+```bash
+git pull
+docker restart 408-quiz
+```
+
+### 5. Docker Compose 静态部署
+
+`docker-compose.yml` 示例：
+
+```yaml
+services:
+  quiz:
+    image: nginx:1.27-alpine
+    container_name: 408-quiz
+    restart: unless-stopped
+    ports:
+      - "8767:80"
+    volumes:
+      - ./:/usr/share/nginx/html:ro
+```
+
+启动：
+
+```bash
+docker compose up -d
+curl -I http://127.0.0.1:8767/
+```
+
+---
+
+## 可选：部署完整多用户后端
+
+仓库当前开箱即用的是静态前端。若要启用账号同步、后端 AI 代理和个人知识库，需要额外提供兼容的 `/api/*` 服务。
+
+### 前端期望的 API
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| `GET` | `/api/auth/me` | 查询当前登录用户 |
+| `POST` | `/api/auth/register` | 注册并写入会话 Cookie |
+| `POST` | `/api/auth/login` | 登录并写入会话 Cookie |
+| `POST` | `/api/auth/logout` | 登出并清理会话 Cookie |
+| `GET` | `/api/progress` | 读取账号级刷题进度 |
+| `PUT` | `/api/progress` | 保存账号级刷题进度 |
+| `GET` | `/api/ai/status` | 查询后端 AI 代理状态 |
+| `POST` | `/api/ai/chat` | 后端 AI 聊天代理，可支持流式返回 |
+| `POST` | `/api/wiki/save-question` | 保存题目/概念到个人知识库 |
+| `GET/POST` | `/api/wiki/search` | 搜索个人知识库 |
+| `GET/POST` | `/api/wiki/note` | 读取单篇笔记 |
+| `POST` | `/api/wiki/note/update` | 更新笔记正文 |
+| `POST` | `/api/wiki/note/delete` | 软删除笔记 |
+
+### 推荐后端职责
+
+一个完整后端通常需要：
+
+- 静态文件服务：返回 `index.html`、`assets/*`、`data.json`、`images/*`。
+- 账号系统：注册、登录、退出、会话 Cookie。
+- 进度存储：按用户保存错题、收藏、统计、偏好设置。
+- AI 代理：把用户请求转发到 OpenAI/Anthropic/Ollama 等兼容接口。
+- 知识库服务：按用户隔离保存 Markdown，提供搜索、读取、编辑和软删除。
+- 安全控制：限制请求体大小、校验路径、保护密钥、避免把 `.env` 暴露到静态目录。
+
+### 后端部署建议
+
+- 密钥只放在服务器 `.env` 或 Secret Manager，不写入仓库。
+- Cookie 建议设置 `HttpOnly`、`SameSite=Lax`，HTTPS 下增加 `Secure`。
+- `/api/wiki/note/update` 和 `/api/wiki/note/delete` 必须做用户隔离和路径穿越校验。
+- 知识库保存建议支持 `Idempotency-Key`，避免用户重复点击导致重复写入。
+- 数据库、用户知识库和上传/生成数据应放在持久化目录，并加入备份策略。
+
+### 反向代理 `/api/*`
+
+如果静态文件由 Nginx 托管，后端监听在 `127.0.0.1:8787`，可按需增加：
+
+```nginx
+location /api/ {
+    proxy_pass http://127.0.0.1:8787/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+```
+
+> 注意：上面的 `proxy_pass` 只是示例。实际后端如果已经包含 `/api/...` 路径，末尾斜杠和路径重写规则要相应调整。
+
+---
+
+## 使用说明
+
+### 路由
 
 | 路由 | 说明 |
 |---|---|
 | `#/quiz` | 默认刷题页：题卡、模式、进度、AI 讲题 |
 | `#/wiki` | 个人知识库：目录树、搜索、预览、编辑、软删除 |
-| `#/guide` | 使用说明：说明保存规则、概念/题目分类和常见用法 |
+| `#/guide` | 使用说明：保存规则、概念/题目分类、常见操作路径 |
 
----
+### 刷题流程
 
-## 4. 如何使用
-
-### 4.1 登录或注册
-
-服务使用账号隔离数据。注册/登录后，以下内容会绑定到当前账号：
-
-- 刷题进度
-- 错题
-- 收藏
-- 偏好设置
-- 个人知识库
-
-新账号会创建空的个人知识库，不会继承其他账号或旧共享内容。
-
-### 4.2 刷题
-
-左侧选择科目、章节和刷题模式：
-
-| 模式 | 说明 |
-|---|---|
-| 顺序 | 按题库顺序刷 |
-| 随机 | 当前范围内随机打乱 |
-| 错题 | 只刷当前范围内做错过的题 |
-| 收藏 | 只刷收藏题 |
-| 未做 | 只刷还没有答过的题 |
-| 全部随机 | 跨科目随机刷题，可选每组 20/50/100/200 题 |
-
-默认答题流程：
-
-1. 点击 A/B/C/D 选择答案。
-2. 点击「提交」判分。
-3. 查看正确答案和解析。
-4. 点击「下一题」继续。
+1. 选择科目、章节和刷题模式。
+2. 点击 A/B/C/D 选择答案。
+3. 点击“提交”判分。
+4. 查看正确答案和解析。
+5. 点击“下一题”继续。
 
 即时判分开启后：
 
 - 单选题：点击选项后立即判定。
-- 多选题：选错会立即判错；选全正确答案后判对。
+- 多选题：选错立即判错；选全正确答案后判对。
 
-### 4.3 AI 讲题
+### AI 讲题
 
-右侧 AI 面板会自动带上当前题目的上下文，包括：
-
-- 题源
-- 章节
-- 题型
-- 当前选择
-- 正确答案
-- 题干
-- 选项
-- 解析
+AI 面板会自动整理当前题目的上下文，包括题源、章节、题型、当前选择、正确答案、题干、选项和解析。
 
 常见用法：
 
-- 点击「复制上下文」，把题目和解析复制给外部 AI。
-- 在追问框输入「为什么选 A」「B 为什么不对」「这题考点是什么」。
-- 点击「保存到知识库」，把讲解沉淀到个人知识库。
+- 点击“复制上下文”，把题目和解析复制给外部 AI。
+- 在追问框输入“为什么选 A”“B 为什么不对”“这题考点是什么”。
+- 配置 API 后直接在页面内追问。
+- 点击“保存到知识库”，把讲解沉淀为个人知识库条目。
 
-AI 输出支持 Markdown、公式和代码块。
+### 保存到知识库
 
-### 4.4 保存到知识库
+保存时根据首次追问分类：
 
-保存时会根据内容自动分类：
-
-| 分类 | 路径 | 适合内容 |
+| 分类 | 保存路径 | 适合内容 |
 |---|---|---|
-| 概念问题 | `wiki/question/<科目>/<概念>.md` | 「什么是管程」「Cache 和 TLB 区别」这类知识点解释 |
-| 题目问题 | `wiki/question/<科目>/<题目ID>.md` | 围绕具体题目的追问、错因、解析补充 |
+| 概念问题 | `wiki/question/<科目>/<概念>.md` | “什么是管程”“Cache 和 TLB 区别”这类知识点解释 |
+| 题目问题 | `wiki/question/<科目>/<题目标题>.md` | 围绕具体题目的追问、错因、解析补充 |
 
-同一道题的后续追问会继续写入同一个题目问题；概念类问题会按概念标题归档。
+同一道题的后续追问会保留第一次追问形成的分类，不会因为后续切换问题而串到其他题目。
 
-### 4.5 浏览和维护知识库
-
-进入：
-
-```text
-#/wiki
-```
-
-可用功能：
-
-- 搜索个人知识库。
-- 用「全部问题 / 概念问题 / 题目问题」筛选。
-- 左侧目录树浏览条目。
-- 右侧预览 Markdown 内容。
-- 编辑正文。
-- 软删除到回收目录。
-
-删除不是永久删除，文件会移动到用户目录下的回收位置，便于后续恢复。
-
-### 4.6 使用说明页
-
-进入：
-
-```text
-#/guide
-```
-
-该页解释：
-
-- 什么时候会保存为概念问题。
-- 什么时候会保存为题目问题。
-- AI 面板和知识库如何配合使用。
-- 常见操作路径。
-
----
-
-## 5. 键盘快捷键
+### 键盘快捷键
 
 | 键 | 作用 |
 |---|---|
@@ -185,180 +342,18 @@ AI 输出支持 Markdown、公式和代码块。
 
 ---
 
-## 6. 浏览器兼容
+## AI 配置
 
-建议使用现代浏览器：
-
-- Chrome 121+
-- Edge 121+
-- Safari 14+
-- Firefox 88+
-
-需要支持 ES6、`fetch`、`localStorage` 和现代 CSS。
-
----
-
-## 7. 本地下载、安装与 AI 配置（面向自部署用户）
-
-这一节面向自己下载本仓库并在本地或自己服务器上运行的人。如果只想使用线上服务，可以只看前六节。
-
-### 7.1 下载与克隆
-
-```bash
-git clone git@github.com:lij768423-svg/408-.git ~/408-quiz
-cd ~/408-quiz
-```
-
-如果你只是想本地运行，不需要 `npm install`；`package.json` 只用于开发辅助，当前没有真实测试命令。
-
-### 7.2 三种部署形态
-
-| 形态 | 端口 | 是否需要后端 | 适用 |
-|---|---|---|---|
-| 纯静态（本地 HTTP） | 自己选（如 `8767`） | 否 | 单机纯刷题 |
-| Docker Compose（推荐） | `8767` | 是 | 服务器长期运行 |
-| 知识库后端 | `8787` | 是 | 任何需要知识库功能的部署 |
-
-`8767` 是线上/容器默认端口，部署在 `quiz-408` 容器里；`8768` 是开发预览端口，部署在 `quiz-408-dev` 容器里。`wiki-question-api` 独立运行在 `8787`，由 systemd 管理。
-
-### 7.3 纯静态单机
-
-进入项目目录后直接起静态服务：
-
-```bash
-python3 -m http.server 8767
-```
-
-然后打开：
-
-```text
-http://127.0.0.1:8767/
-```
-
-纯静态模式下：
-
-- 可以正常使用刷题、错题、收藏、导入导出。
-- 可以使用「复制上下文」。
-- 没有后端代理时，AI 追问需要自己在 AI 配置面板里填 API Key 和 Base URL。
-- 个人知识库接口不可用（没有 `:8787` 后端支持）。
-
-注意：`file://` 和 `http://127.0.0.1:8767` 在浏览器里是两个不同来源，`localStorage` 不互通，建议长期固定使用同一种打开方式。
-
-### 7.4 Docker Compose 部署（推荐）
-
-正式服务由 Docker Compose 托管：
-
-```text
-/data/compose/quiz-408
-```
-
-正式容器：
-
-```text
-quiz-408 -> 0.0.0.0:8767
-```
-
-开发容器：
-
-```text
-quiz-408-dev -> 0.0.0.0:8768
-```
-
-管理/辅助容器：
-
-```text
-quiz-408-admin -> 0.0.0.0:8769
-```
-
-常用命令：
-
-```bash
-cd /data/compose/quiz-408
-docker restart quiz-408
-```
-
-正式静态文件目录：
-
-```text
-/data/projects/408
-```
-
-开发静态文件目录：
-
-```text
-/data/projects/408-dev
-```
-
-### 7.5 知识库后端
-
-知识库 API 独立运行在 systemd 服务中：
-
-```text
-wiki-question-api.service -> 0.0.0.0:8787
-```
-
-健康检查：
-
-```bash
-curl -fsS http://127.0.0.1:8787/health
-```
-
-前端通过 `/api/wiki/*` 代理调用它。systemd unit 文件示例：
-
-```ini
-[Unit]
-Description=Personal knowledge base API
-After=network.target
-
-[Service]
-User=lijunjie
-WorkingDirectory=/home/lijunjie/services/wiki-question-api
-EnvironmentFile=-/home/lijunjie/services/wiki-question-api/.env
-ExecStart=/home/lijunjie/services/wiki-question-api/.venv/bin/python -m app.main --host 0.0.0.0 --port 8787
-Restart=always
-RestartSec=3
-
-[Install]
-WantedBy=multi-user.target
-```
-
-建议把 `.venv/`、`.env`、vault 数据目录排除在仓库外，避免密钥/缓存入库。
-
-### 7.6 配置 AI Key
-
-AI Key 由用户在前端 UI 里配置；也可以由后端容器代理透传。
-
-#### 7.6.1 浏览器侧配置（推荐给个人使用）
-
-打开任意页面，右上角 AI 面板点齿轮：
+浏览器侧配置入口：右上角 AI 面板齿轮。
 
 | 字段 | 说明 |
 |---|---|
 | Base URL | API 服务地址，例如 OpenAI 兼容接口、Ollama 或本地中转服务 |
 | Model | 模型名称，例如 `qwen2.5:7b`、`deepseek-chat`、`gpt-4o-mini` |
-| 协议 | 可选自动推断、OpenAI 兼容、Anthropic 兼容 |
-| Key | API Key；Ollama 或本地服务通常可以留空 |
+| 协议 | 自动推断、OpenAI 兼容、Anthropic 兼容 |
+| Key | API Key；Ollama 或本地服务通常可留空 |
 
-Key 只保存在当前浏览器的 `localStorage`，不会发送到仓库或导出到学习记录 JSON。换浏览器或换电脑需要重新输入。
-
-配置完成后右上角会从 `LOCAL` 变成 `API · 模型名`。
-
-#### 7.6.2 后端代理透传（推荐给团队/共享服务）
-
-把用户自己的 Key 放在后端容器的环境变量：
-
-```bash
-QUIZ_AI_BASE_URL=https://api.deepseek.com
-QUIZ_AI_MODEL=deepseek-chat
-QUIZ_AI_PROVIDER=openai_compat
-QUIZ_AI_TOKEN=sk-xxxxxxxxxxxxxxxx
-```
-
-这些变量写在 `/data/compose/quiz-408/.env` 中，`docker compose up` 时被加载，不会进入仓库。
-
-#### 7.6.3 Ollama / 本地模型示例
-
-如果你本地启动了 Ollama 并开启 OpenAI 兼容接口：
+Ollama 示例：
 
 | 字段 | 示例 |
 |---|---|
@@ -367,9 +362,7 @@ QUIZ_AI_TOKEN=sk-xxxxxxxxxxxxxxxx
 | 协议 | OpenAI 兼容 |
 | Key | 留空 |
 
-#### 7.6.4 OpenAI 兼容接口示例
-
-如果你使用 DeepSeek、OpenAI 或其他兼容 `/chat/completions` 的服务：
+OpenAI/DeepSeek 兼容接口示例：
 
 | 字段 | 示例 |
 |---|---|
@@ -378,70 +371,62 @@ QUIZ_AI_TOKEN=sk-xxxxxxxxxxxxxxxx
 | 协议 | OpenAI 兼容 |
 | Key | 填自己的 API Key |
 
-#### 7.6.5 Anthropic 兼容接口示例
+密钥原则：
 
-| 字段 | 示例 |
-|---|---|
-| Base URL | `https://api.anthropic.com` |
-| Model | `claude-3-5-sonnet-latest` |
-| 协议 | Anthropic 兼容 |
-| Key | 填自己的 API Key |
-
-#### 7.6.6 不配置 API 时能干什么
-
-- 刷题、错题、收藏、导入导出全部可用。
-- 「复制上下文」可用。
-- 直接追问 AI 会回退到「复制上下文」并提示，不会把题目主动发到外部服务。
-
-### 7.7 关于密钥的明确原则
-
-- 仓库代码中没有任何内嵌的 API Key、Token、用户名或密码。
-- 任何 AI Key 都由用户在自己浏览器输入，或由部署者在自己的 `.env` 中配置。
-- 不要把包含 Key 的 `.env`、`config.toml` 加入仓库；建议 `git status` 在每次提交前检查一次。
-- 学习记录 JSON 不包含 Key；账号/密码只在用户使用过程中临时存在于会话中。
+- 仓库代码不包含任何内嵌 API Key、Token、用户名或密码。
+- 浏览器侧 Key 只保存在当前浏览器 `localStorage`。
+- 后端 `.env`、模型配置、包含密钥的日志不要提交到仓库。
+- 学习记录 JSON 不包含 API Key。
 
 ---
 
-## 8. 文件结构
+## 项目结构
 
 ```text
 408-quiz/
-├── index.html          # 单页入口，包含三大路由容器
-├── data.json           # 题库数据
+├── index.html          # 单页入口，包含 #/quiz、#/wiki、#/guide 三个视图
+├── data.json           # 题库数据，当前 questions=1777
+├── favicon.svg
+├── package.json        # 开发辅助；当前 npm test 仍是占位脚本
 ├── assets/
-│   ├── app.css         # 全局样式
+│   ├── app.css         # 全局样式、响应式布局、知识库/AI 面板视觉
 │   ├── app.js          # 旧版兼容脚本，保留
 │   └── js/
-│       ├── state.js    # 全局状态、进度、备份
-│       ├── api.js      # API 请求、账号和进度辅助
-│       ├── utils.js    # DOM/Markdown/Toast 工具
-│       ├── router.js   # #/quiz、#/wiki、#/guide 路由
-│       ├── quiz.js     # 题目列表、渲染、答题逻辑
-│       ├── auth.js     # 登录注册和账号菜单
-│       ├── wiki.js     # 知识库保存、搜索、预览、编辑、软删除
-│       ├── ai.js       # AI 面板、提示词、追问和保存入口
-│       ├── search.js   # 题库搜索、关联题目和批量弹窗
-│       └── app-init.js # 加载数据并启动应用
+│       ├── state.js    # 全局状态、本地进度、会话快照、备份控制
+│       ├── api.js      # apiJson、账号态进度同步、服务端请求辅助
+│       ├── utils.js    # DOM 工具、Markdown 渲染、Toast、格式化
+│       ├── router.js   # hash 路由：#/quiz、#/wiki、#/guide
+│       ├── quiz.js     # 题目列表、渲染、导航、判题、知识库 payload 基础数据
+│       ├── auth.js     # 登录/注册 UI、账号菜单、账号态进度初始化
+│       ├── wiki.js     # 保存到知识库、搜索、预览、编辑、软删除
+│       ├── ai.js       # AI 面板、提示词、追问、流式输出、保存入口
+│       ├── search.js   # 题库搜索、相关题目、批量弹窗
+│       └── app-init.js # 加载 data.json 并启动应用
+├── docs/screenshots/   # README 截图
 ├── images/             # 题图资源
 └── README.md
 ```
 
-脚本以 classic `<script>` 方式加载，不是 ES modules。加载顺序见：
-
-```text
-assets/js/README.md
-```
+`assets/js/*.js` 以 classic `<script>` 方式加载，不是 ES modules。加载顺序记录在 `assets/js/README.md`，不要随意改成 `type="module"`，否则全局函数和启动时序需要一起重构。
 
 ---
 
-## 9. 开发说明
+## 开发与验证
 
-当前没有构建步骤；修改 HTML/CSS/JS 后直接刷新页面即可。
+当前没有构建步骤；修改 HTML/CSS/JS 后刷新页面即可。
 
 基础检查：
 
 ```bash
 node --check assets/js/*.js
+python3 -m json.tool data.json >/dev/null
+```
+
+本地预览：
+
+```bash
+python3 -m http.server 8767
+curl -I http://127.0.0.1:8767/
 ```
 
 注意：当前 `npm run test` 仍是占位脚本，会输出：
@@ -450,37 +435,51 @@ node --check assets/js/*.js
 Error: no test specified
 ```
 
-因此提交前需要用 `node --check`、服务端 `py_compile` 和针对性 smoke/ad-hoc 脚本验证实际改动。
+因此提交前建议至少执行：
+
+1. `node --check assets/js/*.js`
+2. `python3 -m json.tool data.json >/dev/null`
+3. 本地打开 `#/quiz`、`#/wiki`、`#/guide` 做一次 UI 验收
+4. 若改动 AI 或知识库逻辑，额外验证对应配置和保存流程
 
 ---
 
-## 10. 数据来源
+## 数据来源
 
-项目根目录的 `data.json` 是刷题数据文件。它由题库提取脚本生成，不需要应用运行时联网下载。
-
-数据生成流程大致是：
+`data.json` 是刷题数据文件，由题库提取脚本生成。大致流程：
 
 1. 读取四门科目的章节 Markdown。
-2. 找到每章的习题精选和答案解析。
-3. 提取 4 选项题。
+2. 找到每章习题精选和答案解析。
+3. 提取四选项题。
 4. 配对题干、选项、答案和解析。
-5. 输出标准化 JSON 到本项目目录。
+5. 输出标准化 JSON 到项目目录。
 
 只要保持 `data.json` 结构一致，也可以替换成自己的题库。
 
 ---
 
-## 11. 常见问题
+## 浏览器兼容
+
+建议使用现代浏览器：
+
+- Chrome 121+
+- Edge 121+
+- Safari 14+
+- Firefox 88+
+
+需要支持 ES6、`fetch`、`localStorage` 和现代 CSS。KaTeX 字体和公式渲染资源来自 CDN；无网时公式会回退为原文，不影响基础刷题。
+
+---
+
+## 常见问题
+
+### GitHub Pages 部署后为什么账号/知识库不可用？
+
+GitHub Pages 只能托管静态文件，没有 `/api/*` 后端。刷题、本地错题/收藏、复制 AI 上下文仍可用；账号同步、后端 AI 代理和知识库需要额外部署服务端。
 
 ### 为什么线上页面看起来还是旧版？
 
-通常是浏览器缓存。可以尝试：
-
-```text
-Ctrl + F5
-```
-
-或打开：
+通常是浏览器缓存。可以尝试 `Ctrl + F5`，或给 URL 加版本参数，例如：
 
 ```text
 https://quiz.hermesjj.com/?v=20260703#/wiki
@@ -488,16 +487,18 @@ https://quiz.hermesjj.com/?v=20260703#/wiki
 
 ### 新账号为什么看不到旧知识库？
 
-这是预期行为。个人知识库按账号隔离，新账号默认是空知识库，不会继承其他用户的内容。
+这是预期行为。个人知识库按账号隔离，新账号默认是空知识库，不继承其他用户的内容。
 
 ### 删除知识库条目会永久删除吗？
 
-不会。当前删除是软删除，会移动到用户目录下的回收位置。
+不会。完整后端模式下，当前删除是软删除，会移动到用户目录下的回收位置。
 
 ### 不配置 AI API 能用吗？
 
-可以刷题，也可以复制上下文；只有直接追问 AI 和自动生成讲解需要 API 或后端代理支持。
+可以刷题，也可以复制上下文；只有直接追问 AI 和自动生成讲解需要浏览器侧配置或后端代理支持。
 
-### 我应该担心密钥泄漏吗？
+---
 
-不需要。仓库代码不包含任何内嵌的 API Key；用户配置的 Key 只保存在自己浏览器 `localStorage`，后端 `.env` 也不入库。建议提交前用 `git status` 确认没有意外加入 `.env`、`.toml`、包含 Key 的日志。
+## License
+
+当前仓库未显式声明开源许可证。发布到 GitHub 前如果希望他人复用，请补充 `LICENSE` 文件。
