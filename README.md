@@ -517,4 +517,4 @@ https://quiz.hermesjj.com/?v=20260703#/wiki
 
 ## License
 
-当前仓库未显式声明开源许可证。发布到 GitHub 前如果希望他人复用，请补充 `LICENSE` 文件。
+本项目基于 ISC License 开源，详见 [LICENSE](LICENSE)。
