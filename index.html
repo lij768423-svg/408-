@@ -99,29 +99,32 @@
 
   <section class="route-view placeholder-view" id="view-wiki" data-route-view="wiki" aria-labelledby="wiki-title" hidden>
     <div class="panel placeholder-panel">
-      <div class="placeholder-head">
-        <div>
-          <p class="placeholder-kicker">LLMWiki / PERSONAL REPOSITORY</p>
-          <h2 id="wiki-title">我的个人知识库</h2>
-        </div>
-        <span class="placeholder-badge">只读搜索</span>
-      </div>
-      <label class="placeholder-search" for="wiki-search-input">
-        <span>搜索个人知识库</span>
-        <input id="wiki-search-input" type="search" placeholder="搜索概念、题目、错题或路径……" autocomplete="off">
-      </label>
-      <div class="wiki-kind-tabs" role="tablist" aria-label="知识库问题类型">
-        <button class="wiki-kind-tab" type="button" role="tab" aria-selected="false" data-wiki-kind="all">全部问题</button>
-        <button class="wiki-kind-tab is-active" type="button" role="tab" aria-selected="true" data-wiki-kind="concept">概念问题</button>
-        <button class="wiki-kind-tab" type="button" role="tab" aria-selected="false" data-wiki-kind="exam">题目问题</button>
-      </div>
-      <div class="wiki-search-actions">
-        <button class="btn btn-primary btn-accent" type="button" id="wiki-search-button">搜索</button>
-        <button class="backup-btn" type="button" id="wiki-browse-button">浏览</button>
-        <span class="wiki-search-status" id="wiki-search-status">登录后可读取你的个人知识库索引。</span>
-      </div>
       <div class="wiki-explorer">
         <aside class="wiki-tree-panel" aria-label="知识库目录">
+          <div class="wiki-sidebar-controls">
+            <div class="wiki-sidebar-title">
+              <div>
+                <p class="placeholder-kicker">个人知识库</p>
+                <h2 id="wiki-title">个人知识库</h2>
+              </div>
+              <span class="placeholder-badge">只读搜索</span>
+            </div>
+            <label class="placeholder-search wiki-sidebar-search" for="wiki-search-input">
+              <span>搜索</span>
+              <input id="wiki-search-input" type="search" placeholder="搜索概念、题目、错题或路径……" autocomplete="off">
+            </label>
+            <div class="wiki-kind-tabs" role="tablist" aria-label="知识库问题类型">
+              <button class="wiki-kind-tab" type="button" role="tab" aria-selected="false" data-wiki-kind="all">全部问题</button>
+              <button class="wiki-kind-tab is-active" type="button" role="tab" aria-selected="true" data-wiki-kind="concept">概念问题</button>
+              <button class="wiki-kind-tab" type="button" role="tab" aria-selected="false" data-wiki-kind="exam">题目问题</button>
+            </div>
+            <div class="wiki-search-actions">
+              <button class="btn btn-primary btn-accent" type="button" id="wiki-search-button">搜索</button>
+              <button class="backup-btn" type="button" id="wiki-browse-button">浏览</button>
+              <span class="wiki-search-status" id="wiki-search-status">登录后可读取你的个人知识库索引。</span>
+            </div>
+            <p class="wiki-sidebar-note">每个账号使用独立的个人知识库；当前页面读取该知识库 <code>wiki/</code> 下的 Markdown 笔记并提供预览与编辑。</p>
+          </div>
           <div class="wiki-results-head">
             <div>
               <span class="wiki-card-label" id="wiki-results-kicker">浏览</span>
@@ -143,9 +146,6 @@
           </div>
         </section>
       </div>
-      <p class="placeholder-copy">
-        每个账号使用独立的个人知识库；当前页面读取该知识库 <code>wiki/</code> 下的 Markdown 笔记并提供预览与编辑。
-      </p>
     </div>
   </section>
 
