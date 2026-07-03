@@ -4,23 +4,21 @@
 
 ## 当前入口
 
-正式版：
+对外访问地址：
 
 ```text
-http://127.0.0.1:8767/
+https://quiz.hermesjj.com/#/quiz
 ```
 
-开发版：
+常用页面：
 
-```text
-http://127.0.0.1:8768/
-```
+| 页面 | 地址 |
+|---|---|
+| 刷题 | `https://quiz.hermesjj.com/#/quiz` |
+| 个人知识库 | `https://quiz.hermesjj.com/#/wiki` |
+| 使用说明 | `https://quiz.hermesjj.com/#/guide` |
 
-服务器局域网/Tailscale 访问时，把 `127.0.0.1` 换成服务器 IP 即可，例如：
-
-```text
-http://100.102.32.24:8767/
-```
+本机端口 `8767` / `8768` 仅用于服务器运维和开发调试，不作为对外入口展示。
 
 ## 核心特性
 
