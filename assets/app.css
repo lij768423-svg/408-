@@ -1225,6 +1225,44 @@ body::after {
   font-size: 11px;
   letter-spacing: 0.08em;
 }
+.wiki-followup-quick-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 8px;
+}
+.wiki-followup-quick {
+  appearance: none;
+  border: 1px solid rgba(174, 123, 64, 0.24);
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: rgba(255, 255, 255, 0.24);
+  color: var(--text-2);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.25;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, color 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
+}
+.wiki-followup-quick:hover {
+  border-color: rgba(174, 123, 64, 0.42);
+  background: rgba(246, 231, 203, 0.48);
+  color: var(--text);
+}
+.wiki-followup-quick:active {
+  transform: translateY(1px);
+  background: rgba(232, 206, 162, 0.44);
+}
+.wiki-followup-quick:focus-visible {
+  outline: none;
+  border-color: rgba(174, 123, 64, 0.58);
+  box-shadow: 0 0 0 3px rgba(174, 123, 64, 0.14);
+}
+.wiki-followup-quick:disabled {
+  cursor: wait;
+  opacity: 0.62;
+}
 .wiki-followup-input {
   display: block;
   width: 100%;

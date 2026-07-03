@@ -217,6 +217,24 @@ let WIKI_PREVIEW_NOTE = null;
 let WIKI_FOLLOWUP_STATE = { path: "", question: "", answer: "", busy: false, saving: false, error: "" };
 let WIKI_SELECTED_KIND = "concept";
 const WIKI_TREE_COLLAPSED = Object.create(null);
+const WIKI_FOLLOWUP_QUICK_PROMPTS = [
+  {
+    label: "一句话口诀",
+    prompt: "请基于这篇笔记生成一句适合 408 复习的一句话口诀，并补充一句解释。"
+  },
+  {
+    label: "提炼易错点",
+    prompt: "请基于这篇笔记提炼 3-5 个考试易错点，每个易错点包含“容易错在哪”和“正确理解”。"
+  },
+  {
+    label: "生成自测题",
+    prompt: "请基于这篇笔记生成 3 道自测题，包含答案和简短解析。"
+  },
+  {
+    label: "整理成表格",
+    prompt: "请基于这篇笔记把核心概念整理成 Markdown 表格，列出概念、作用、易混点和记忆提示。"
+  }
+];
 
 function wikiPageActive() {
   return document.body.dataset.route === "wiki" || (window.location.hash || "").startsWith("#/wiki");
@@ -563,12 +581,16 @@ function wikiFollowupHtml() {
   const answerHtml = WIKI_FOLLOWUP_STATE.answer
     ? '<div class="wiki-followup-answer-body">' + wikiPreviewContentHtml(WIKI_FOLLOWUP_STATE.answer) + "</div>"
     : '<div class="wiki-followup-empty">AI 回答会显示在这里。确认后再手动保存到当前笔记。</div>';
+  const quickPromptHtml = WIKI_FOLLOWUP_QUICK_PROMPTS
+    .map(item => '<button class="wiki-followup-quick" type="button" data-wiki-followup-prompt="' + escHtml(item.prompt) + '">' + escHtml(item.label) + "</button>")
+    .join("");
   return '<section class="wiki-followup-card" aria-label="继续追问这篇笔记">' +
     '<div class="wiki-followup-head">' +
       '<div><h3>继续追问这篇笔记</h3><p>AI 会基于当前笔记内容回答，确认后可追加到当前笔记。</p></div>' +
       '<span>AI</span>' +
     "</div>" +
     '<label class="wiki-followup-label" for="wiki-followup-question">你的问题</label>' +
+    '<div class="wiki-followup-quick-list" aria-label="快捷追问">' + quickPromptHtml + "</div>" +
     '<textarea id="wiki-followup-question" class="wiki-followup-input" rows="3" maxlength="1000" placeholder="例如：这篇笔记里 TCP 拥塞控制和流量控制的区别再解释一下？"></textarea>' +
     '<div class="wiki-followup-actions">' +
       '<button class="wiki-preview-action wiki-followup-ask" type="button" data-wiki-followup-ask="1">询问 AI</button>' +
@@ -587,11 +609,13 @@ function syncWikiFollowupUi() {
   const saveBtn = card.querySelector("[data-wiki-followup-save]");
   const statusEl = card.querySelector("[data-wiki-followup-status]");
   const answerEl = card.querySelector("[data-wiki-followup-answer]");
+  const quickBtns = Array.from(card.querySelectorAll("[data-wiki-followup-prompt]"));
   const busy = !!WIKI_FOLLOWUP_STATE.busy;
   const saving = !!WIKI_FOLLOWUP_STATE.saving;
   if (input) input.disabled = busy || saving;
   if (askBtn) askBtn.disabled = busy || saving;
   if (saveBtn) saveBtn.disabled = busy || saving || !WIKI_FOLLOWUP_STATE.answer;
+  quickBtns.forEach(btn => { btn.disabled = busy || saving; });
   if (statusEl) {
     statusEl.textContent = WIKI_FOLLOWUP_STATE.error || (busy ? "正在询问 AI……" : (saving ? "正在追加到当前笔记……" : ""));
     statusEl.dataset.tone = WIKI_FOLLOWUP_STATE.error ? "error" : "";
@@ -609,6 +633,7 @@ function attachWikiFollowupHandlers(preview, item) {
   const input = card.querySelector("#wiki-followup-question");
   const askBtn = card.querySelector("[data-wiki-followup-ask]");
   const saveBtn = card.querySelector("[data-wiki-followup-save]");
+  const quickBtns = Array.from(card.querySelectorAll("[data-wiki-followup-prompt]"));
   if (WIKI_FOLLOWUP_STATE.path !== item.path) resetWikiFollowupState(item.path);
   if (input) {
     input.value = WIKI_FOLLOWUP_STATE.question || "";
@@ -622,6 +647,20 @@ function attachWikiFollowupHandlers(preview, item) {
       }
     };
   }
+  quickBtns.forEach(btn => {
+    btn.onclick = () => {
+      const prompt = wikiFollowupQuestionValue(btn.dataset.wikiFollowupPrompt || "");
+      if (!prompt || WIKI_FOLLOWUP_STATE.busy || WIKI_FOLLOWUP_STATE.saving) return;
+      WIKI_FOLLOWUP_STATE.question = prompt;
+      WIKI_FOLLOWUP_STATE.answer = "";
+      WIKI_FOLLOWUP_STATE.error = "";
+      if (input) {
+        input.value = prompt;
+        input.focus();
+      }
+      syncWikiFollowupUi();
+    };
+  });
   if (askBtn) askBtn.onclick = askWikiNoteFollowup;
   if (saveBtn) saveBtn.onclick = saveWikiNoteFollowup;
   syncWikiFollowupUi();
