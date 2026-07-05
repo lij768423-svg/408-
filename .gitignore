@@ -22,3 +22,6 @@ index.html.artifact.json
 mp*-image.png
 mp*.jpg
 *.tmp
+
+# 静态压缩产物（部署时生成，不入库）
+*.gz
