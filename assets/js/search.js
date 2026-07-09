@@ -100,7 +100,7 @@ function openSearch() {
   SEARCH_SOURCE_TYPE = "all";
   SEARCH_YEAR = "all";
   renderSearchFilters();
-  $("#search-results").innerHTML = `<div class="search-empty">输入关键词搜索题干 / 选项 / 解析<br>也可按来源标签和年份筛选</div>`;
+  $("#search-results").innerHTML = `<div class="search-empty">搜索题干 / 选项 / 解析<br>也可按来源和年份筛选</div>`;
   $("#search-count").textContent = "0";
   $("#search-total").textContent = ALL_QUESTIONS.length;
   setTimeout(() => input.focus(), 30);

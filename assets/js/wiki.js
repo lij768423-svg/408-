@@ -432,18 +432,10 @@ function wikiWelcomeHtml(results, query, message) {
         '</div>'
       ).join("") + '</div>'
     : "";
-  const subjectSummary = grouped.length
-    ? '<div class="wiki-welcome-subjects">' + grouped.map(([subject, entries]) =>
-        '<div class="wiki-welcome-subject">' +
-          '<span><b>' + escHtml(subject) + '</b><small>' + escHtml(wikiSubjectHint(subject)) + '</small></span>' +
-          '<strong>' + entries.length + '</strong>' +
-        '</div>'
-      ).join("") + "</div>"
-    : "";
   const title = hasQuery ? "从结果里挑一篇开始读" : "从这里开始读";
   const detail = message || (results && results.length
-    ? "悬停查看分布，点击任一科目直接进入对应内容。"
-    : (hasQuery ? "没有匹配的" + filterLabel + "。换个关键词，或者切换全部 / 题目问题再试。" : filterLabel + "暂无可展示的 Markdown 笔记。"));
+    ? "左侧找，右侧读。"
+    : (hasQuery ? "没有匹配的" + filterLabel + "。换个关键词试试。" : filterLabel + "暂无可展示的 Markdown 笔记。"));
   const chartSummary = hasQuery ? "搜索结果" : "可浏览笔记";
   const focusSubject = "全部科目";
   const focusCount = totalCount;
@@ -476,7 +468,6 @@ function wikiWelcomeHtml(results, query, message) {
         '</div>' +
       '</aside>' +
     "</section>" +
-    (subjectSummary ? '<div class="wiki-welcome-section"><div class="wiki-welcome-section-head"><b>快速进入</b><span>' + escHtml(filterLabel) + '</span></div>' + subjectSummary + '</div>' : "") +
   "</div>";
 }
 
@@ -516,7 +507,7 @@ function renderWikiResults(data, query) {
   const filterLabel = wikiKindFilterLabel(WIKI_SELECTED_KIND);
   setWikiResultsMeta(hasQuery ? "搜索结果" : "按科目浏览", hasQuery ? "搜索" : "浏览", results.length);
   if (results.length === 0) {
-    box.innerHTML = '<div class="wiki-empty">' + escHtml(hasQuery ? "没有匹配的" + filterLabel + "。" : filterLabel + "暂无可展示的 Markdown 笔记。") + "</div>";
+    box.innerHTML = '<div class="wiki-empty">' + escHtml(hasQuery ? "没有匹配的" + filterLabel + "。" : filterLabel + "暂无笔记。") + "</div>";
     renderWikiWelcome(results, query || "");
     setWikiStatus("");
     return;

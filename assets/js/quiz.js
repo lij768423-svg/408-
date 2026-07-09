@@ -353,7 +353,7 @@ function renderQuiz() {
     let emptyMsg = "该章节暂无题目";
     if (CURRENT.mode === "wrong") emptyMsg = "当前没有错题";
     else if (CURRENT.mode === "favorite") emptyMsg = "还没有收藏的题";
-    else if (CURRENT.mode === "unattempted") emptyMsg = "本章节的题都已经做过,切到「顺序/随机」巩固一下吧";
+    else if (CURRENT.mode === "unattempted") emptyMsg = "本章节已全部做过，可切到顺序 / 随机继续。";
     area.innerHTML = `<div class="empty">${emptyMsg}</div>`;
     const rail = $("#ai-rail"); if (rail) rail.innerHTML = "";
     syncSession();
@@ -418,12 +418,12 @@ function renderQuiz() {
     <div class="actions">
       ${!state.submitted
         ? (instant && !isMulti)
-          ? `<span class="action-hint">即时判分已开启,点击选项立即判分</span>
+          ? `<span class="action-hint">即时判分已开</span>
              <button class="btn btn-ghost action-spacer" id="btn-skip">跳过</button>`
           : instant && isMulti
           ? `<button class="btn btn-primary btn-accent" id="btn-submit">提交 (${state.selected.length || 0}/${q.answer.length})</button>
              <button class="btn btn-ghost" id="btn-skip">跳过</button>
-             <span class="action-hint action-spacer">选对继续,选错立即判错,选全立即判对</span>`
+             <span class="action-hint action-spacer">多选题：错选即判错，选全即判对</span>`
           : `<button class="btn btn-primary btn-accent" id="btn-submit">提交${isMulti ? " (多选)" : ""}</button>
              <button class="btn btn-ghost" id="btn-skip">跳过</button>
              <button class="btn btn-ghost action-spacer" id="btn-show">显示答案</button>`
@@ -688,4 +688,3 @@ function buildKnowledgeNote(q, state) {
     "- [ ] 解释每个干扰项为什么不选"
   ].join("\n");
 }
-

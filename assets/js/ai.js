@@ -291,7 +291,7 @@ function renderAiEmpty(q) {
     '<div class="ai-empty-quote">' + escHtml(t.text) + '</div>' +
     author +
     '<div class="ai-empty-rule"></div>' +
-    '<div class="ai-empty-hint">点击预设问题，或在下方输入追问</div>' +
+    '<div class="ai-empty-hint">可点预设，或直接追问</div>' +
     '<div class="ai-empty-prompts">' + prompts + '</div>' +
   '</div>';
 }
@@ -816,7 +816,7 @@ function renderWeakPanel() {
   if (!box) return;
   const stats = getChapterStats().filter(s => s.attempted >= 3);
   if (stats.length === 0) {
-    box.innerHTML = `<div class="weak-empty">再答几道题后,<br>这里会列出你最需要巩固的章节</div>`;
+    box.innerHTML = `<div class="weak-empty">再答几题后，<br>这里会出现薄弱章节</div>`;
     return;
   }
   // 按正确率升序,同正确率按已做数降序
