@@ -1,11 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
-  <rect width="128" height="128" rx="28" fill="#eee4cd"/>
-  <circle cx="64" cy="64" r="45" fill="none" stroke="#d95f4d" stroke-width="8"/>
-  <text x="64" y="75"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="408">
+  <rect width="128" height="128" rx="30" fill="#2f3328"/>
+  <rect x="10" y="10" width="108" height="108" rx="24" fill="none" stroke="#a94f3b" stroke-width="5"/>
+  <text x="64" y="69"
         text-anchor="middle"
-        font-family="Georgia, 'Times New Roman', serif"
+        dominant-baseline="middle"
+        font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
         font-size="34"
-        font-weight="700"
-        font-style="italic"
-        fill="#d95f4d">408</text>
+        font-weight="900"
+        fill="#fff6e8">408</text>
+  <rect x="72" y="86" width="28" height="7" rx="3.5" fill="#d9644b"/>
 </svg>

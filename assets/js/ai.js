@@ -6,60 +6,117 @@ function setAiOutput(text) {
   const out = $("#ai-output");
   if (out) {
     out.innerHTML = renderMarkdown(text);
-    scrollAiToBottom();
+    scrollAiToBottom(true);
   }
 }
 
 let AI_RENDER_TIMER = null;
 let AI_RENDER_PENDING = false;
+let AI_STREAM_RAF = 0;
+let AI_STREAM_TARGET = "";
+let AI_STREAM_VISIBLE = "";
+let AI_AUTO_SCROLL = true;
+const AI_BOTTOM_THRESHOLD = 48;
 
-function scrollAiToBottom() {
-  const area = document.querySelector("#ai-output") && document.querySelector("#ai-output").closest(".ai-output-area");
+function getAiOutputArea() {
   const out = $("#ai-output");
-  if (area) area.scrollTop = area.scrollHeight;
-  else if (out && out.scrollIntoView) out.scrollIntoView({ block: "end", inline: "nearest" });
+  return out ? out.closest(".ai-output-area") : null;
+}
+
+function isAiNearBottom(area = getAiOutputArea()) {
+  if (!area) return true;
+  return area.scrollHeight - area.scrollTop - area.clientHeight <= AI_BOTTOM_THRESHOLD;
+}
+
+function bindAiOutputScrollState() {
+  const area = getAiOutputArea();
+  if (!area || area.dataset.aiScrollBound === "1") return;
+  area.dataset.aiScrollBound = "1";
+  area.addEventListener("scroll", () => {
+    AI_AUTO_SCROLL = isAiNearBottom(area);
+  }, { passive: true });
+}
+
+function scrollAiToBottom(force = false) {
+  const area = getAiOutputArea();
+  const out = $("#ai-output");
+  if (area) {
+    if (force || AI_AUTO_SCROLL || isAiNearBottom(area)) {
+      area.scrollTop = area.scrollHeight;
+      AI_AUTO_SCROLL = true;
+    }
+  } else if (out && out.scrollIntoView) {
+    out.scrollIntoView({ block: "end", inline: "nearest" });
+  }
 }
 
 function renderAiStreamFrame(force = false) {
   const out = $("#ai-output");
   if (!out) return;
-  out.innerHTML = renderMarkdown(CURRENT.aiOutput) + '<span class="ai-cursor">▍</span>';
-  scrollAiToBottom();
+  const area = getAiOutputArea();
+  const shouldStickToBottom = force || AI_AUTO_SCROLL || isAiNearBottom(area);
+  const previousScrollTop = area ? area.scrollTop : 0;
+  const targetText = AI_STREAM_TARGET || CURRENT.aiOutput || "";
+
+  if (force) {
+    AI_STREAM_VISIBLE = targetText;
+  } else if (AI_STREAM_VISIBLE.length < targetText.length) {
+    const backlog = targetText.length - AI_STREAM_VISIBLE.length;
+    const step = Math.min(backlog, Math.max(2, Math.min(72, Math.ceil(backlog * 0.28))));
+    AI_STREAM_VISIBLE += targetText.slice(AI_STREAM_VISIBLE.length, AI_STREAM_VISIBLE.length + step);
+  }
+
+  out.innerHTML = renderMarkdown(AI_STREAM_VISIBLE) + '<span class="ai-cursor">▍</span>';
+  if (shouldStickToBottom) {
+    scrollAiToBottom(true);
+  } else if (area) {
+    area.scrollTop = previousScrollTop;
+  }
   AI_RENDER_PENDING = false;
   if (force && AI_RENDER_TIMER) {
     clearTimeout(AI_RENDER_TIMER);
     AI_RENDER_TIMER = null;
   }
+  if (AI_STREAM_VISIBLE.length < targetText.length) scheduleAiStreamRender();
 }
 
 function scheduleAiStreamRender() {
   if (AI_RENDER_PENDING) return;
   AI_RENDER_PENDING = true;
-  AI_RENDER_TIMER = setTimeout(() => {
-    AI_RENDER_TIMER = null;
+  AI_STREAM_RAF = requestAnimationFrame(() => {
+    AI_STREAM_RAF = 0;
     renderAiStreamFrame(false);
-  }, 80);
+  });
 }
 
 // 流式输出:累积原始 Markdown,节流渲染整段,避免长输出每个 token 重排卡住。
 // 光标用 <span class="ai-cursor">▍</span> 渲染在末尾。
 function startAiStream() {
   CURRENT.aiOutput = "";
+  AI_STREAM_TARGET = "";
+  AI_STREAM_VISIBLE = "";
+  AI_AUTO_SCROLL = true;
   if (AI_RENDER_TIMER) {
     clearTimeout(AI_RENDER_TIMER);
     AI_RENDER_TIMER = null;
+  }
+  if (AI_STREAM_RAF) {
+    cancelAnimationFrame(AI_STREAM_RAF);
+    AI_STREAM_RAF = 0;
   }
   AI_RENDER_PENDING = false;
   const out = $("#ai-output");
   if (out) {
     out.innerHTML = '<span class="ai-cursor">▍</span>';
     out.classList.add("is-streaming");
-    scrollAiToBottom();
+    bindAiOutputScrollState();
+    scrollAiToBottom(true);
   }
 }
 function appendAiDelta(delta) {
   if (!delta) return;
-  CURRENT.aiOutput += delta;
+  AI_STREAM_TARGET += delta;
+  CURRENT.aiOutput = AI_STREAM_TARGET;
   scheduleAiStreamRender();
 }
 function endAiStream() {
@@ -67,11 +124,24 @@ function endAiStream() {
     clearTimeout(AI_RENDER_TIMER);
     AI_RENDER_TIMER = null;
   }
+  if (AI_STREAM_RAF) {
+    cancelAnimationFrame(AI_STREAM_RAF);
+    AI_STREAM_RAF = 0;
+  }
+  AI_STREAM_TARGET = CURRENT.aiOutput || AI_STREAM_TARGET;
+  AI_STREAM_VISIBLE = AI_STREAM_TARGET;
   const out = $("#ai-output");
   if (out) {
+    const area = getAiOutputArea();
+    const shouldStickToBottom = AI_AUTO_SCROLL || isAiNearBottom(area);
+    const previousScrollTop = area ? area.scrollTop : 0;
     out.innerHTML = renderMarkdown(CURRENT.aiOutput);
     out.classList.remove("is-streaming");
-    scrollAiToBottom();
+    if (shouldStickToBottom) {
+      scrollAiToBottom(true);
+    } else if (area) {
+      area.scrollTop = previousScrollTop;
+    }
   }
   AI_RENDER_PENDING = false;
 }
@@ -297,6 +367,7 @@ function renderAiPanel(q, state) {
     </div>
   `;
   bindAiPanel(q, state);
+  bindAiOutputScrollState();
   // 折叠把手/抽屉把手 点击恢复 — 用 onclick 避免 renderQuiz 反复调用时 listener 累积
   rail.onclick = (e) => {
     if (window.matchMedia("(max-width: 1024px)").matches) {

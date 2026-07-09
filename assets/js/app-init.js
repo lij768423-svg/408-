@@ -63,6 +63,22 @@ let NEW_FEATURES_BOUND = false;
 function bindNewFeatureControls() {
   if (NEW_FEATURES_BOUND) return;
   NEW_FEATURES_BOUND = true;
+  $$(".guide-doc-nav [data-guide-target]").forEach(btn => {
+    btn.onclick = () => {
+      const targetId = btn.dataset.guideTarget || "";
+      const target = document.getElementById(targetId);
+      if (!target) return;
+      $$(".guide-doc-nav [data-guide-target]").forEach(item => item.classList.remove("is-active"));
+      $$(".guide-doc-nav [data-guide-target]").forEach(item => item.setAttribute("aria-pressed", "false"));
+      btn.classList.add("is-active");
+      btn.setAttribute("aria-pressed", "true");
+      $$(".guide-doc-section").forEach(section => {
+        const isCurrent = section === target;
+        section.hidden = !isCurrent;
+        section.classList.toggle("is-active", isCurrent);
+      });
+    };
+  });
   // Feature 6: 搜索
   const searchOpen = $("#search-open");
   if (searchOpen) searchOpen.onclick = () => openSearch();

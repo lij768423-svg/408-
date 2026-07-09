@@ -4,15 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>408 考研刷题库</title>
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon.svg?v=20260709-0745" type="image/svg+xml">
+<link rel="shortcut icon" href="/favicon.svg?v=20260709-0745" type="image/svg+xml">
 <link rel="preload" href="data.json" as="fetch" type="application/json">
-<link rel="preload" href="assets/app.css" as="style">
+<link rel="preload" href="assets/app.css?v=20260709-0745" as="style">
 <link rel="preload" href="assets/js/state.js" as="script">
 <link rel="preload" href="assets/js/api.js" as="script">
 <link rel="preload" href="assets/js/utils.js" as="script">
 <link rel="preload" href="assets/js/quiz.js" as="script">
-<link rel="preload" href="assets/js/app-init.js" as="script">
+<link rel="preload" href="assets/js/app-init.js?v=20260709-0640" as="script">
 <!-- KaTeX(公式渲染;无网时自动回退为原文,不影响刷题) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
@@ -20,16 +20,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="assets/app.css?v=20260709-0745">
 </head>
 <body>
 <div class="app">
   <div class="header">
     <h1 class="header-brand">
-      <span class="brand-mark">408</span>
+      <span class="brand-mark" aria-hidden="true">408</span>
       <span class="brand-text">
         <span class="brand-name">考研刷题库</span>
-        <span class="brand-sub">WANGDAO 2026 / LOCAL PRACTICE</span>
+        <span class="brand-sub">WANGDAO 2027 / LOCAL PRACTICE</span>
       </span>
     </h1>
     <span class="header-quote" id="header-quote"></span>
@@ -166,80 +166,135 @@
         <span class="placeholder-badge">入门指南</span>
       </div>
 
-      <div class="guide-hero">
-        <div>
-          <span class="wiki-card-label">HOW TO USE</span>
-          <h3>刷题、AI 讲解、个人知识库是一条学习链路</h3>
-          <p>先刷题定位薄弱点，再用 AI 追问讲透，最后把题目复盘或概念总结保存到你的个人知识库。</p>
-        </div>
-        <div class="guide-flow" aria-label="使用流程">
-          <span>刷题</span>
-          <i></i>
-          <span>追问 AI</span>
-          <i></i>
-          <span>保存到知识库</span>
-        </div>
-      </div>
+      <div class="guide-doc-layout">
+        <aside class="guide-doc-sidebar" aria-label="使用说明目录">
+          <div class="guide-doc-sidebar-head">
+            <span>目录</span>
+            <strong>Guide</strong>
+          </div>
+          <nav class="guide-doc-nav">
+            <button type="button" class="is-active" data-guide-target="guide-overview" aria-controls="guide-overview" aria-pressed="true">概览</button>
+            <button type="button" data-guide-target="guide-quickstart" aria-controls="guide-quickstart" aria-pressed="false">快速开始</button>
+            <button type="button" data-guide-target="guide-quiz" aria-controls="guide-quiz" aria-pressed="false">刷题</button>
+            <button type="button" data-guide-target="guide-ai" aria-controls="guide-ai" aria-pressed="false">AI 讲题</button>
+            <button type="button" data-guide-target="guide-wiki-save" aria-controls="guide-wiki-save" aria-pressed="false">保存到知识库</button>
+            <button type="button" data-guide-target="guide-wiki" aria-controls="guide-wiki" aria-pressed="false">个人知识库</button>
+            <button type="button" data-guide-target="guide-data" aria-controls="guide-data" aria-pressed="false">账号与同步</button>
+            <button type="button" data-guide-target="guide-faq" aria-controls="guide-faq" aria-pressed="false">常见问题</button>
+          </nav>
+          <p class="guide-doc-note">建议顺序：先刷一组题，再把卡住的问题问 AI，最后只保存真正值得复习的内容。</p>
+        </aside>
 
-      <div class="guide-grid">
-        <article class="guide-card">
-          <span>01</span>
-          <h3>刷题与进度</h3>
-          <p>在「刷题」页选择书目、章节和模式。作答记录会自动保存在当前账号，可在右上角导出或导入学习记录。</p>
-        </article>
-        <article class="guide-card">
-          <span>02</span>
-          <h3>AI 讲题</h3>
-          <p>右侧 AI 面板支持预设问题和自由追问。输入框位于输出框下方，按 Enter 发送，Shift + Enter 换行。</p>
-        </article>
-        <article class="guide-card">
-          <span>03</span>
-          <h3>保存到知识库</h3>
-          <p>点击「保存到知识库」会把当前题目、作答和 AI 讲解归档到你的个人知识库。系统会根据你的追问自动区分「概念问题」和「题目问题」。</p>
-        </article>
-        <article class="guide-card">
-          <span>04</span>
-          <h3>个人知识库</h3>
-          <p>每个账号都有独立仓库。你可以按科目浏览、搜索 Markdown 笔记、查看全文预览，并对笔记进行编辑或软删除。</p>
-        </article>
-      </div>
+        <article class="guide-doc-content">
+          <section class="guide-doc-section guide-doc-intro is-active" id="guide-overview">
+            <p class="guide-doc-kicker">开始使用</p>
+            <h3>概览</h3>
+            <p class="guide-doc-lead">这不是单纯的题库。它把刷题、AI 讲解和个人知识库放在同一条复习链路里：用题目定位薄弱点，用追问讲透卡点，再把复盘结果沉淀成 Markdown 笔记。</p>
+            <div class="guide-doc-flow" aria-label="学习链路">
+              <span>刷题定位</span>
+              <span>AI 讲透</span>
+              <span>知识库沉淀</span>
+              <span>周期复盘</span>
+            </div>
+          </section>
 
-      <div class="guide-kind-section">
-        <div class="guide-kind-head">
-          <span class="wiki-card-label">CLASSIFICATION</span>
-          <h3>知识库里的「概念问题」和「题目问题」</h3>
-          <p>保存到知识库时，系统会优先看你对当前题目的第一次 AI 追问；连续追问会沿用第一次追问的分类，避免同一轮对话一会儿变概念、一会儿变题目。</p>
-        </div>
-        <div class="guide-kind-grid">
-          <article class="guide-kind-card">
-            <strong>概念问题</strong>
-            <p>适合保存成可长期复习的知识点解释，例如「什么是虚拟存储器」「TCP 和 UDP 的区别」「KMP next 数组怎么理解」。</p>
+          <section class="guide-doc-section" id="guide-quickstart" hidden>
+            <h3>快速开始</h3>
+            <ol>
+              <li><strong>登录账号：</strong>登录后会同步错题、收藏、已答记录和上次刷题位置。没有账号时也可以本地试用。</li>
+              <li><strong>选范围：</strong>在「刷题」页选择科目和章节，例如「操作系统 / 内存管理」。</li>
+              <li><strong>选模式：</strong>顺序刷适合打基础，随机刷适合检测，错题和收藏适合复盘。</li>
+              <li><strong>作答并复盘：</strong>提交后查看正确答案、你的答案和解析。看不懂时打开右侧 AI 面板追问。</li>
+              <li><strong>保存笔记：</strong>确认讲解有价值后，点击「保存到知识库」，以后在「个人知识库」里复习。</li>
+            </ol>
+          </section>
+
+          <section class="guide-doc-section" id="guide-quiz" hidden>
+            <h3>刷题</h3>
+            <p>左侧导航决定当前题单范围。切换书目、章节或模式后，系统会重新生成题单。</p>
+            <dl class="guide-doc-list">
+              <div><dt>顺序</dt><dd>适合第一遍按章节打基础。</dd></div>
+              <div><dt>随机</dt><dd>适合检查是否真正掌握，而不是记住题目顺序。</dd></div>
+              <div><dt>错题</dt><dd>集中复盘薄弱点。</dd></div>
+              <div><dt>收藏</dt><dd>复习典型题、高价值题和易混题。</dd></div>
+              <div><dt>未做题</dt><dd>补齐章节进度。</dd></div>
+            </dl>
             <ul>
-              <li>常见触发：什么是、概念、区别/对比、原理、怎么理解、总结、关系、定义。</li>
-              <li>笔记形态：问题、答案、关键结论、相关来源。</li>
-              <li>在知识库中用「概念问题」筛选查看。</li>
+              <li><strong>即时判分：</strong>开启后单选点击即判；多选题选错会立即提示，选全正确答案后判对。</li>
+              <li><strong>题库搜索：</strong>顶部「搜索题库」或 Ctrl + K 可按关键词、来源、年份快速定位题目。</li>
+              <li><strong>题库预览：</strong>用色块查看章节题目状态，点色块可跳转到对应题目。</li>
             </ul>
-          </article>
-          <article class="guide-kind-card">
-            <strong>题目问题</strong>
-            <p>适合保存当前题目的复盘，例如「这题为什么选 B」「C 为什么错」「我错在哪」「逐项排除这道题」。</p>
-            <ul>
-              <li>常见触发：这题、本题、题干、选项、A/B/C/D、为什么不选、错在哪、正确答案。</li>
-              <li>笔记形态：题干、选项、我的作答、答案、AI 讲解、错因。</li>
-              <li>在知识库中用「题目问题」筛选查看。</li>
-            </ul>
-          </article>
-        </div>
-      </div>
+          </section>
 
-      <div class="guide-section">
-        <h3>常用操作</h3>
-        <ul>
-          <li><strong>搜索题库：</strong>顶部搜索框或 Ctrl + K，可按来源和年份筛选题目。</li>
-          <li><strong>批量串讲：</strong>在 AI 面板底部点击「批量讲错题 · AI 串讲」，适合章节复盘。</li>
-          <li><strong>编辑知识库：</strong>进入「个人知识库」，点开笔记后使用右侧「编辑 / 删除」。删除会移动到 <code>.trash</code>，不会永久删除。</li>
-          <li><strong>账号隔离：</strong>不同账号的知识库互相不可见；旧共享知识库会作为首次打开时的初始内容复制到个人仓库。</li>
-        </ul>
+          <section class="guide-doc-section" id="guide-ai" hidden>
+            <h3>AI 讲题</h3>
+            <p>右侧 AI 面板会自动带上当前题目、选项、答案和解析。可以点预设问题，也可以自由追问；Enter 发送，Shift + Enter 换行。</p>
+            <dl class="guide-doc-list">
+              <div><dt>问思路</dt><dd>请按 3 步讲这题怎么做，先判断考点，再逐项排除。</dd></div>
+              <div><dt>问选项</dt><dd>B 为什么错？为什么不选 D？这个选项偷换了什么概念？</dd></div>
+              <div><dt>问概念</dt><dd>什么是管程？TLB 和 Cache 的区别是什么？</dd></div>
+              <div><dt>问复盘</dt><dd>帮我生成错题卡，总结易错点，整理成 Markdown 表。</dd></div>
+            </dl>
+            <p class="guide-doc-callout">AI 回答可能出错，尤其是公式、边界条件和教材口径。重要结论建议回到题目解析或教材确认一遍。</p>
+          </section>
+
+          <section class="guide-doc-section" id="guide-wiki-save" hidden>
+            <h3>保存到知识库</h3>
+            <p>点击「保存到知识库」会把当前题目、作答、AI 讲解和关键结论写成 Markdown。系统会根据当前题目的第一次 AI 追问判断分类。</p>
+            <div class="guide-doc-two-col">
+              <section>
+                <h4>概念问题</h4>
+                <p>适合长期复习的知识点解释，例如「什么是虚拟存储器」「TCP 和 UDP 的区别」。</p>
+                <ul>
+                  <li>常见触发：什么是、概念、区别、原理、怎么理解、总结。</li>
+                  <li>笔记形态：问题、答案、关键结论、相关来源。</li>
+                </ul>
+              </section>
+              <section>
+                <h4>题目问题</h4>
+                <p>适合当前题目的复盘，例如「这题为什么选 B」「C 为什么错」「我错在哪」。</p>
+                <ul>
+                  <li>常见触发：这题、本题、题干、选项、A/B/C/D、正确答案。</li>
+                  <li>笔记形态：题干、选项、我的作答、答案、AI 讲解、错因。</li>
+                </ul>
+              </section>
+            </div>
+            <p class="guide-doc-callout">如果想保存为概念问题，第一次追问尽量问「什么是 / 区别 / 原理」。如果想保存为题目问题，第一次追问尽量指向当前题和选项。</p>
+          </section>
+
+          <section class="guide-doc-section" id="guide-wiki" hidden>
+            <h3>个人知识库</h3>
+            <p>每个账号都有独立知识库。进入「个人知识库」后，可以按科目浏览、关键词搜索、预览全文、编辑笔记、软删除，也可以继续基于笔记追问 AI。</p>
+            <dl class="guide-doc-list">
+              <div><dt>浏览</dt><dd>左侧按科目展开目录，右侧预览 Markdown 全文。</dd></div>
+              <div><dt>搜索</dt><dd>可搜索概念、题目标题、路径和正文内容。</dd></div>
+              <div><dt>编辑</dt><dd>打开笔记后点「编辑」，直接修改 Markdown。</dd></div>
+              <div><dt>删除</dt><dd>移动到个人知识库 <code>.trash</code>，不是永久删除。</dd></div>
+              <div><dt>继续追问</dt><dd>基于当前笔记生成口诀、易错点、自测题或表格，并可追加保存。</dd></div>
+            </dl>
+          </section>
+
+          <section class="guide-doc-section" id="guide-data" hidden>
+            <h3>账号与同步</h3>
+            <ul>
+              <li><strong>账号隔离：</strong>不同账号的进度和个人知识库互相不可见。</li>
+              <li><strong>自动同步：</strong>登录后，错题、收藏、已答统计、刷题会话和偏好设置会同步到服务器。</li>
+              <li><strong>本地缓存：</strong>浏览器也会保留一份本地状态，网络短暂异常时通常仍能恢复。</li>
+              <li><strong>文件形态：</strong>保存到知识库的内容是 Markdown 文件，适合搜索、编辑、备份和迁移。</li>
+            </ul>
+          </section>
+
+          <section class="guide-doc-section" id="guide-faq" hidden>
+            <h3>常见问题</h3>
+            <dl class="guide-doc-list">
+              <div><dt>知识库为空</dt><dd>新账号默认是空知识库。先在刷题页追问 AI 并点击「保存到知识库」，再回到知识库页查看。</dd></div>
+              <div><dt>搜索失败</dt><dd>一般是后端知识库服务或登录状态异常。先刷新页面；如果仍失败，重新登录后再试。</dd></div>
+              <div><dt>AI 没反应</dt><dd>可能是服务器 AI 配置不可用或请求超时。仍可点击「复制上下文」粘贴到外部 AI。</dd></div>
+              <div><dt>分类不符合预期</dt><dd>分类优先看当前题目的第一次追问。调整第一次追问的问法即可。</dd></div>
+              <div><dt>误删笔记</dt><dd>删除会进入 <code>.trash</code>，不是永久删除，可以从文件层恢复。</dd></div>
+            </dl>
+          </section>
+        </article>
       </div>
     </div>
   </section>
@@ -357,10 +412,10 @@
 <script src="assets/js/router.js"></script>
 <script src="assets/js/quiz.js"></script>
 <script src="assets/js/auth.js"></script>
-<script src="assets/js/wiki.js"></script>
-<script src="assets/js/ai.js"></script>
+<script src="assets/js/wiki.js?v=20260709-0640"></script>
+<script src="assets/js/ai.js?v=20260709-0710"></script>
 <script src="assets/js/search.js"></script>
-<script src="assets/js/app-init.js"></script>
+<script src="assets/js/app-init.js?v=20260709-0640"></script>
 
 </body>
 </html>
