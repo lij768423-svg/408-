@@ -356,12 +356,6 @@ function wikiSubjectHint(subject) {
     : "补充笔记";
 }
 
-function wikiChartPercentText(count, total) {
-  if (!total) return "0%";
-  const percent = count / total * 100;
-  return (percent >= 10 ? Math.round(percent) : percent.toFixed(1).replace(/\.0$/, "")) + "%";
-}
-
 function wikiTreeItemHtml(item, index) {
   const selected = WIKI_PREVIEW_PATH && item && item.path === WIKI_PREVIEW_PATH;
   return '<li class="wiki-tree-leaf">' +
@@ -417,64 +411,33 @@ function wikiWelcomeHtml(results, query, message) {
       subject,
       count: entries.length,
       color: subjectPalette[subject] || "#d6d1c8",
-      hint: wikiSubjectHint(subject),
-      firstIndex: entries[0] ? entries[0].index : -1
+      hint: wikiSubjectHint(subject)
     }))
     .sort((a, b) => (WIKI_SUBJECT_ORDER.indexOf(a.subject) - WIKI_SUBJECT_ORDER.indexOf(b.subject)));
-  const circumference = 2 * Math.PI * 112;
-  let dashOffset = 0;
-  const chartSvg = chartItems.length
-    ? '<svg class="wiki-welcome-chart-svg" viewBox="0 0 320 320" role="img" aria-label="当前知识库科目分布">' +
-        '<circle class="wiki-welcome-chart-track" cx="160" cy="160" r="112" fill="none" stroke="rgba(255,255,255,0.62)" stroke-width="44"></circle>' +
-        chartItems.map((item, idx) => {
-          const ratio = totalCount ? item.count / totalCount : 0;
-          const rawLength = ratio * circumference;
-          const gap = chartItems.length === 1 ? 0 : 7;
-          const visibleLength = Math.max(rawLength - gap, 0);
-          const dasharray = visibleLength.toFixed(2) + ' ' + Math.max(circumference - visibleLength, 0).toFixed(2);
-          const dashoffset = (-dashOffset + gap / 2).toFixed(2);
-          dashOffset += rawLength;
-          return '<circle class="wiki-welcome-chart-segment"' +
-            ' cx="160" cy="160" r="112" fill="none" stroke="' + item.color + '" stroke-width="44" stroke-linecap="round"' +
-            ' stroke-dasharray="' + dasharray + '" stroke-dashoffset="' + dashoffset + '"' +
-            ' transform="rotate(-90 160 160)"' +
-            ' role="button" tabindex="0" aria-label="' + escHtml(item.subject + " " + item.count + " 篇") + '"' +
-            ' data-wiki-chart-subject="' + escHtml(item.subject) + '"' +
-            ' data-wiki-chart-count="' + item.count + '"' +
-            ' data-wiki-chart-percent="' + escHtml(wikiChartPercentText(item.count, totalCount)) + '"' +
-            ' data-wiki-chart-description="' + escHtml(item.hint) + '"' +
-            ' data-wiki-chart-index="' + idx + '"' +
-            ' data-wiki-chart-first-index="' + item.firstIndex + '"' +
-          '></circle>';
-        }).join("") +
-      '</svg>'
-    : '<div class="wiki-welcome-chart-empty" aria-hidden="true"></div>';
+  let chartOffset = 0;
+  const chartGradient = totalCount > 0
+    ? chartItems.map(item => {
+        const start = chartOffset / totalCount * 360;
+        chartOffset += item.count;
+        const end = chartOffset / totalCount * 360;
+        return item.color + " " + start.toFixed(2) + "deg " + end.toFixed(2) + "deg";
+      }).join(", ")
+    : "rgba(23, 20, 15, 0.08) 0deg 360deg";
   const chartLegend = chartItems.length
     ? '<div class="wiki-welcome-legend" role="list">' + chartItems.map(item =>
-        '<button class="wiki-welcome-legend-item" type="button" role="listitem"' +
-          ' data-wiki-chart-subject="' + escHtml(item.subject) + '"' +
-          ' data-wiki-chart-count="' + item.count + '"' +
-          ' data-wiki-chart-percent="' + escHtml(wikiChartPercentText(item.count, totalCount)) + '"' +
-          ' data-wiki-chart-description="' + escHtml(item.hint) + '"' +
-          ' data-wiki-chart-first-index="' + item.firstIndex + '">' +
+        '<div class="wiki-welcome-legend-item" role="listitem">' +
           '<span class="wiki-welcome-legend-dot" style="background:' + item.color + '"></span>' +
           '<span class="wiki-welcome-legend-copy"><b>' + escHtml(item.subject) + '</b><small>' + escHtml(item.hint) + '</small></span>' +
           '<strong>' + item.count + '</strong>' +
-        '</button>'
+        '</div>'
       ).join("") + '</div>'
     : "";
   const subjectSummary = grouped.length
     ? '<div class="wiki-welcome-subjects">' + grouped.map(([subject, entries]) =>
-        '<button class="wiki-welcome-subject" type="button"' +
-          ' data-wiki-welcome-subject="' + escHtml(subject) + '"' +
-          ' data-wiki-chart-subject="' + escHtml(subject) + '"' +
-          ' data-wiki-chart-count="' + entries.length + '"' +
-          ' data-wiki-chart-percent="' + escHtml(wikiChartPercentText(entries.length, totalCount)) + '"' +
-          ' data-wiki-chart-description="' + escHtml(wikiSubjectHint(subject)) + '"' +
-          ' data-wiki-chart-first-index="' + (entries[0] ? entries[0].index : -1) + '">' +
+        '<div class="wiki-welcome-subject">' +
           '<span><b>' + escHtml(subject) + '</b><small>' + escHtml(wikiSubjectHint(subject)) + '</small></span>' +
           '<strong>' + entries.length + '</strong>' +
-        '</button>'
+        '</div>'
       ).join("") + "</div>"
     : "";
   const title = hasQuery ? "从结果里挑一篇开始读" : "从这里开始读";
@@ -497,16 +460,10 @@ function wikiWelcomeHtml(results, query, message) {
           '<span>当前视图</span>' +
           '<b>' + escHtml(filterLabel) + ' · ' + totalCount + '</b>' +
         '</div>' +
-        '<div class="wiki-welcome-chart-shell" data-wiki-chart-shell' +
-          ' data-wiki-chart-default-subject="' + escHtml(focusSubject) + '"' +
-          ' data-wiki-chart-default-count="' + focusCount + '"' +
-          ' data-wiki-chart-default-meta="' + escHtml(focusMeta) + '"' +
-          ' data-wiki-chart-default-description="' + escHtml(chartSummary) + '">' +
+        '<div class="wiki-welcome-chart-shell">' +
           '<div class="wiki-welcome-chart-wrap">' +
             '<div class="wiki-welcome-chart-stage">' +
-              '<div class="wiki-welcome-chart">' +
-                chartSvg +
-              '</div>' +
+              '<div class="wiki-welcome-chart" style="background:conic-gradient(' + chartGradient + ')"></div>' +
               '<div class="wiki-welcome-chart-core">' +
                 '<small data-wiki-chart-meta>' + escHtml(focusMeta) + '</small>' +
                 '<strong data-wiki-chart-value>' + focusCount + '</strong>' +
@@ -516,7 +473,6 @@ function wikiWelcomeHtml(results, query, message) {
             '</div>' +
             chartLegend +
           '</div>' +
-          '<div class="wiki-welcome-chart-tip">悬停查看 · 点击进入</div>' +
         '</div>' +
       '</aside>' +
     "</section>" +
@@ -529,93 +485,6 @@ function renderWikiWelcome(results, query, message) {
   if (!preview) return;
   preview.hidden = false;
   preview.innerHTML = wikiWelcomeHtml(results || [], query || "", message || "");
-  attachWikiWelcomeHandlers(preview);
-}
-
-function setWikiWelcomeActive(preview, payload) {
-  if (!preview || !payload) return;
-  const valueEl = preview.querySelector("[data-wiki-chart-value]");
-  const subjectEl = preview.querySelector("[data-wiki-chart-subject-label]");
-  const metaEl = preview.querySelector("[data-wiki-chart-meta]");
-  const descEl = preview.querySelector("[data-wiki-chart-description]");
-  if (valueEl) valueEl.textContent = String(payload.count || 0);
-  if (subjectEl) subjectEl.textContent = payload.subject || "";
-  if (metaEl) metaEl.textContent = payload.meta || "";
-  if (descEl) descEl.textContent = payload.description || "";
-  preview.querySelectorAll("[data-wiki-chart-subject]").forEach(node => {
-    const active = (node.dataset.wikiChartSubject || "") === (payload.subject || "");
-    node.classList.toggle("is-active", active);
-  });
-}
-
-function resetWikiWelcomeActive(preview) {
-  const shell = preview ? preview.querySelector("[data-wiki-chart-shell]") : null;
-  if (!shell) return;
-  setWikiWelcomeActive(preview, {
-    subject: shell.dataset.wikiChartDefaultSubject || "",
-    count: shell.dataset.wikiChartDefaultCount || "0",
-    meta: shell.dataset.wikiChartDefaultMeta || "",
-    description: shell.dataset.wikiChartDefaultDescription || ""
-  });
-}
-
-function activateWikiWelcomeNode(preview, node) {
-  if (!preview || !node) return;
-  const subject = node.dataset.wikiChartSubject || node.dataset.wikiWelcomeSubject || "";
-  if (!subject) return;
-  setWikiWelcomeActive(preview, {
-    subject,
-    count: node.dataset.wikiChartCount || "0",
-    meta: (node.dataset.wikiChartPercent || "0%") + " · 点击进入",
-    description: node.dataset.wikiChartDescription || ""
-  });
-}
-
-function jumpToWikiSubject(subject, firstIndex) {
-  if (!subject) return;
-  if (WIKI_TREE_COLLAPSED[subject]) {
-    WIKI_TREE_COLLAPSED[subject] = false;
-    const box = $("#wiki-results");
-    if (box) {
-      box.innerHTML = groupWikiResultsBySubject(WIKI_LAST_RESULTS).map(([nextSubject, entries]) => wikiSubjectTreeHtml(nextSubject, entries)).join("");
-      attachWikiTreeHandlers();
-      syncWikiTreeSelection();
-    }
-  }
-  const row = $$(".wiki-tree-subject-row").find(el => el.dataset.wikiSubject === subject);
-  if (row) {
-    row.classList.add("is-target");
-    row.scrollIntoView({ block: "nearest", behavior: "smooth" });
-    setTimeout(() => row.classList.remove("is-target"), 1600);
-  }
-  const index = parseInt(firstIndex, 10);
-  if (!Number.isNaN(index) && index >= 0) showWikiPreview(index);
-}
-
-function attachWikiWelcomeHandlers(preview) {
-  if (!preview) return;
-  const shell = preview.querySelector("[data-wiki-chart-shell]");
-  if (shell) {
-    shell.addEventListener("mouseleave", () => resetWikiWelcomeActive(preview));
-    shell.addEventListener("focusout", () => {
-      setTimeout(() => {
-        if (!shell.contains(document.activeElement)) resetWikiWelcomeActive(preview);
-      }, 0);
-    });
-  }
-  preview.querySelectorAll("[data-wiki-chart-subject]").forEach(node => {
-    node.addEventListener("mouseenter", () => activateWikiWelcomeNode(preview, node));
-    node.addEventListener("focus", () => activateWikiWelcomeNode(preview, node));
-    node.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter" && event.key !== " ") return;
-      event.preventDefault();
-      node.click();
-    });
-    node.addEventListener("click", () => {
-      activateWikiWelcomeNode(preview, node);
-      jumpToWikiSubject(node.dataset.wikiChartSubject || "", node.dataset.wikiChartFirstIndex || "-1");
-    });
-  });
 }
 
 function renderWikiState(kind, message) {
