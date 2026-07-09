@@ -396,9 +396,9 @@ function wikiWelcomeHtml(results, query, message) {
         '</button>'
       ).join("") + "</div>"
     : "";
-  const title = hasQuery ? "选择一条搜索结果" : "从左侧目录开始阅读";
+  const title = hasQuery ? "选择一条结果开始阅读" : "从左侧开始阅读";
   const detail = message || (results && results.length
-    ? "目录已按科目整理好。点左侧任意笔记，右侧会打开完整 Markdown 预览。"
+    ? "从左侧目录或搜索结果中选一篇笔记，右侧直接展开 Markdown 预览。"
     : (hasQuery ? "没有匹配的" + filterLabel + "。换个关键词，或者切换全部 / 题目问题再试。" : filterLabel + "暂无可展示的 Markdown 笔记。"));
   return '<div class="wiki-welcome">' +
     '<section class="wiki-welcome-hero">' +
@@ -414,11 +414,6 @@ function wikiWelcomeHtml(results, query, message) {
         '<small>' + escHtml(hasQuery ? "搜索结果" : "可浏览笔记") + '</small>' +
       '</aside>' +
     "</section>" +
-    '<div class="wiki-welcome-actions" aria-label="知识库使用提示">' +
-      '<div class="wiki-welcome-card"><span>01</span><b>浏览目录</b><p>左侧是双栏目录，按科目展开。</p></div>' +
-      '<div class="wiki-welcome-card"><span>02</span><b>全文预览</b><p>选择笔记后在这里阅读，保留标题、表格和 callout。</p></div>' +
-      '<div class="wiki-welcome-card"><span>03</span><b>智能归档</b><p>AI 追问会按首次问题保存为概念或题目问题。</p></div>' +
-    "</div>" +
     (subjectSummary ? '<div class="wiki-welcome-section"><div class="wiki-welcome-section-head"><b>科目索引</b><span>' + escHtml(filterLabel) + '</span></div>' + subjectSummary + '</div>' : "") +
   "</div>";
 }
@@ -985,8 +980,7 @@ function maybeLoadWikiBrowse() {
 function initWikiPage() {
   const input = $("#wiki-search-input");
   const searchBtn = $("#wiki-search-button");
-  const browseBtn = $("#wiki-browse-button");
-  if (!input || !searchBtn || !browseBtn) return;
+  if (!input || !searchBtn) return;
   syncWikiKindTabs();
   input.addEventListener("input", scheduleWikiSearch);
   input.addEventListener("keydown", (e) => {
@@ -999,12 +993,6 @@ function initWikiPage() {
   searchBtn.onclick = () => {
     clearTimeout(WIKI_SEARCH_TIMER);
     runWikiSearch(input.value, 20);
-  };
-  browseBtn.onclick = () => {
-    input.value = "";
-    clearTimeout(WIKI_SEARCH_TIMER);
-    WIKI_BROWSE_LOADED = false;
-    runWikiSearch("", 20);
   };
   $$("[data-wiki-kind]").forEach(btn => {
     btn.onclick = () => {

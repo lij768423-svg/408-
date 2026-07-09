@@ -389,23 +389,26 @@ body::after {
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-  margin: -4px 0 20px;
+  margin: -2px 0 14px;
 }
 .wiki-search-status {
   color: var(--text-2);
   font-size: 12px;
   line-height: 1.5;
 }
+.wiki-search-status:empty {
+  display: none;
+}
 .wiki-search-status[data-tone="error"] {
   color: var(--danger);
 }
 .wiki-results-head {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 14px;
-  margin: 18px 0 10px;
-  padding-top: 16px;
+  margin: 16px 0 10px;
+  padding-top: 14px;
   border-top: 1px dashed var(--border-strong);
 }
 .wiki-results-head strong {
@@ -414,20 +417,20 @@ body::after {
   font-size: 17px;
 }
 #wiki-results-count {
-  min-width: 34px;
-  padding: 5px 9px;
-  border: 1px solid var(--border);
+  min-width: 28px;
+  padding: 3px 7px;
+  border: 1px solid var(--border-soft);
   border-radius: 999px;
   color: var(--muted);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 10px;
   text-align: center;
 }
 .wiki-explorer {
   display: grid;
-  grid-template-columns: clamp(320px, 24vw, 380px) minmax(0, 1fr);
+  grid-template-columns: clamp(280px, 22vw, 340px) minmax(0, 1fr);
   align-items: start;
-  gap: 18px;
+  gap: 24px;
   margin: 0 0 14px;
 }
 .wiki-tree-panel,
@@ -451,31 +454,15 @@ body::after {
 .wiki-sidebar-controls {
   flex: 0 0 auto;
   display: grid;
-  gap: 12px;
-  padding: 14px;
+  gap: 10px;
+  padding: 12px;
   border-bottom: 1px dashed var(--border);
 }
 .wiki-sidebar-title {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
+  margin-bottom: 2px;
 }
-.wiki-sidebar-title .placeholder-kicker {
-  margin-bottom: 3px;
-  letter-spacing: 0.16em;
-}
-.wiki-sidebar-title h2 {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
-.wiki-sidebar-title .placeholder-badge {
-  padding: 4px 8px;
-  font-size: 9px;
-  letter-spacing: 0.08em;
+.wiki-sidebar-title .wiki-card-label {
+  margin-bottom: 0;
 }
 .wiki-sidebar-search {
   gap: 5px;
@@ -501,7 +488,7 @@ body::after {
 }
 .wiki-tree-panel .wiki-search-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 8px;
   margin: 0;
 }
@@ -511,30 +498,17 @@ body::after {
   justify-content: center;
 }
 .wiki-tree-panel .wiki-search-status {
-  grid-column: 1 / -1;
+  grid-column: 1;
   font-size: 11px;
-}
-.wiki-sidebar-note {
-  margin: -2px 0 0;
-  padding-top: 10px;
-  border-top: 1px dashed rgba(128, 113, 94, 0.22);
-  color: var(--muted);
-  font-size: 11px;
-  line-height: 1.55;
-}
-.wiki-sidebar-note code {
-  color: var(--text-2);
-  font-family: var(--font-mono);
-  font-size: 0.95em;
 }
 .wiki-tree-panel .wiki-results-head {
   margin: 0;
-  padding: 14px 14px 10px;
+  padding: 12px 12px 8px;
   border-top: 0;
   border-bottom: 1px dashed var(--border);
 }
 .wiki-tree-panel .wiki-results-head strong {
-  font-size: 15px;
+  font-size: 14px;
 }
 .wiki-tree {
   display: block;
@@ -809,32 +783,32 @@ body::after {
   position: relative;
   display: grid;
   align-content: start;
-  gap: 24px;
+  gap: 18px;
   width: 100%;
   max-width: none;
-  min-height: 430px;
+  min-height: 320px;
 }
 .wiki-welcome-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(190px, 260px);
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 220px);
   align-items: stretch;
-  gap: 22px;
-  padding: 4px 2px 2px;
+  gap: 18px;
+  padding: 2px 2px 0;
 }
 .wiki-welcome h3 {
   max-width: 760px;
-  margin: 8px 0 12px;
+  margin: 6px 0 10px;
   color: var(--text);
   font-family: var(--font-display);
-  font-size: clamp(36px, 3.8vw, 54px);
+  font-size: clamp(32px, 3.2vw, 46px);
   line-height: 1.02;
   letter-spacing: -0.05em;
 }
 .wiki-welcome p {
-  max-width: 760px;
+  max-width: 62ch;
   margin: 0;
   color: var(--text-2);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.72;
 }
 .wiki-welcome-quick {
@@ -842,8 +816,8 @@ body::after {
   align-content: center;
   justify-items: start;
   gap: 6px;
-  min-height: 170px;
-  padding: 20px;
+  min-height: 136px;
+  padding: 16px;
   border: 1px solid var(--border);
   border-radius: 18px;
   background: var(--panel);
@@ -863,49 +837,16 @@ body::after {
 .wiki-welcome-quick strong {
   color: var(--primary);
   font-family: var(--font-display);
-  font-size: 54px;
+  font-size: 42px;
   font-weight: 700;
   line-height: 0.95;
   letter-spacing: -0.06em;
 }
-.wiki-welcome-actions {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-}
-.wiki-welcome-card {
-  position: relative;
-  min-height: 150px;
-  padding: 18px 18px 16px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--panel);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.50), 0 12px 30px -28px rgba(23, 20, 15, 0.45);
-}
-.wiki-welcome-card > span {
-  display: inline-flex;
-  margin-bottom: 18px;
-  color: var(--primary);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-}
-.wiki-welcome-card b {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--text);
-  font-size: 17px;
-}
-.wiki-welcome-card p {
-  font-size: 14px;
-  line-height: 1.58;
-}
 .wiki-welcome-section {
   display: grid;
   gap: 12px;
-  margin-top: 2px;
-  padding: 16px;
+  margin-top: 0;
+  padding: 14px;
   border: 1px solid var(--border);
   border-radius: 18px;
   background: var(--panel);
@@ -925,8 +866,8 @@ body::after {
 }
 .wiki-welcome-subjects {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 8px;
 }
 .wiki-welcome-subject {
   display: flex;
@@ -1957,16 +1898,10 @@ body::after {
     width: 100%;
     justify-content: space-between;
   }
-  .wiki-welcome-actions {
-    grid-template-columns: 1fr;
-  }
   .wiki-welcome-hero {
     grid-template-columns: 1fr;
   }
   .wiki-welcome-quick {
-    min-height: 0;
-  }
-  .wiki-welcome-card {
     min-height: 0;
   }
 }
