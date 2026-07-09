@@ -274,6 +274,13 @@ body::after {
 }
 
 .route-view[hidden] { display: none; }
+.route-view {
+  animation: route-fade-in 180ms ease-out;
+}
+@keyframes route-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 /* === LLMWiki placeholder views === */
 .placeholder-view {
@@ -531,6 +538,7 @@ body::after {
   cursor: pointer;
   font: inherit;
   text-align: left;
+  transition: background-color 160ms ease, transform 160ms ease, color 160ms ease;
 }
 .wiki-tree-subject-row {
   display: grid;
@@ -546,6 +554,7 @@ body::after {
 .wiki-tree-subject-row:hover,
 .wiki-tree-item:hover {
   background: rgba(255, 255, 255, 0.22);
+  transform: translateX(1px);
 }
 .wiki-tree-subject-row.is-target {
   background: rgba(171, 90, 58, 0.12);
@@ -1952,6 +1961,30 @@ body::after {
   border-color: rgba(111, 118, 80, 0.30);
   background: var(--guide-sage-soft);
 }
+.guide-doc-section,
+.guide-doc-nav button,
+.guide-doc-two-col section,
+.guide-doc-flow span,
+.guide-doc-list div,
+.guide-doc-callout,
+.placeholder-panel,
+.placeholder-head,
+.panel {
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background-color 160ms ease, opacity 160ms ease;
+}
+.guide-doc-nav button:hover,
+.guide-doc-nav button:focus-visible {
+  transform: translateX(1px);
+}
+.guide-doc-two-col section:hover,
+.guide-doc-flow span:hover,
+.guide-doc-callout:hover,
+.guide-doc-section:hover,
+.placeholder-panel:hover,
+.placeholder-head:hover,
+.panel:hover {
+  transform: translateY(-1px);
+}
 
 @media (min-width: 1100px) {
   .wiki-result-grid {
@@ -2881,6 +2914,7 @@ body::after {
   min-height: 50px;
   color: var(--text);
   /* 给选项纸面感:一道浅 ink tint 兜底,跟 panel 区分开但仍贴脸 */
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
 }
 .option::before {
   content: "";
@@ -3146,6 +3180,10 @@ body::after {
   border-color: transparent;
   color: var(--ink);
 }
+.btn {
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
 .btn-fav {
   color: var(--warning);
   border-color: var(--warning-light);
