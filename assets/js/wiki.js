@@ -425,6 +425,7 @@ function wikiWelcomeHtml(results, query, message) {
   let dashOffset = 0;
   const chartSvg = chartItems.length
     ? '<svg class="wiki-welcome-chart-svg" viewBox="0 0 320 320" role="img" aria-label="当前知识库科目分布">' +
+        '<circle class="wiki-welcome-chart-track" cx="160" cy="160" r="112" fill="none" stroke="rgba(255,255,255,0.62)" stroke-width="44"></circle>' +
         chartItems.map((item, idx) => {
           const ratio = totalCount ? item.count / totalCount : 0;
           const rawLength = ratio * circumference;
