@@ -19,7 +19,7 @@
 ## 功能概览
 
 - 四门 408 科目题库：操作系统、数据结构、计算机组成原理、计算机网络。
-- 题库规模：`data.json` 当前包含 `1777` 道题，运行时不需要联网下载题库。
+- 题库规模：`data.json` 当前包含 `2386` 道题，运行时不需要联网下载题库。
 - 多种刷题模式：顺序、随机、错题、收藏、未做、全部随机。
 - 本地学习记录：错题、收藏、已答统计、偏好设置默认保存在浏览器 `localStorage`。
 - 可选账号同步：接入后端后可把进度绑定到账号。
@@ -460,9 +460,11 @@ OpenAI/DeepSeek 兼容接口示例：
 ```text
 408-quiz/
 ├── index.html          # 单页入口，包含 #/quiz、#/wiki、#/guide 三个视图
-├── data.json           # 题库数据，当前 questions=1777
+├── data.json           # 题库数据，当前 questions=2386
 ├── favicon.svg
-├── package.json        # 开发辅助；当前 npm test 仍是占位脚本
+├── package.json        # 开发辅助；提供基础语法和题库 JSON 检查
+├── scripts/
+│   └── check-data.js   # 题库一致性检查：重复 ID、题量统计、答案和图片引用
 ├── assets/
 │   ├── app.css         # 全局样式、响应式布局、知识库/AI 面板视觉
 │   ├── app.js          # 旧版兼容脚本，保留
@@ -493,8 +495,15 @@ OpenAI/DeepSeek 兼容接口示例：
 基础检查：
 
 ```bash
+npm test
+```
+
+等价于执行：
+
+```bash
 node --check assets/js/*.js
 python3 -m json.tool data.json >/dev/null
+node scripts/check-data.js
 ```
 
 本地预览：
@@ -504,18 +513,11 @@ python3 -m http.server 8767
 curl -I http://127.0.0.1:8767/
 ```
 
-注意：当前 `npm run test` 仍是占位脚本，会输出：
+提交前建议至少执行：
 
-```text
-Error: no test specified
-```
-
-因此提交前建议至少执行：
-
-1. `node --check assets/js/*.js`
-2. `python3 -m json.tool data.json >/dev/null`
-3. 本地打开 `#/quiz`、`#/wiki`、`#/guide` 做一次 UI 验收
-4. 若改动 AI 或知识库逻辑，额外验证对应配置和保存流程
+1. `npm test`
+2. 本地打开 `#/quiz`、`#/wiki`、`#/guide` 做一次 UI 验收
+3. 若改动 AI 或知识库逻辑，额外验证对应配置和保存流程
 
 ---
 

@@ -844,11 +844,9 @@ body::after {
   gap: 6px;
   min-height: 170px;
   padding: 20px;
-  border: 1px solid rgba(171, 90, 58, 0.16);
+  border: 1px solid var(--border);
   border-radius: 18px;
-  background:
-    radial-gradient(circle at 86% 18%, rgba(171, 90, 58, 0.18), transparent 34%),
-    linear-gradient(135deg, rgba(255, 248, 235, 0.88), rgba(246, 223, 194, 0.38));
+  background: var(--panel);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.50);
 }
 .wiki-welcome-quick span,
@@ -880,11 +878,9 @@ body::after {
   min-height: 150px;
   padding: 18px 18px 16px;
   overflow: hidden;
-  border: 1px solid rgba(171, 90, 58, 0.18);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  background:
-    radial-gradient(circle at 88% 12%, rgba(171, 90, 58, 0.20), transparent 34%),
-    linear-gradient(135deg, rgba(255, 248, 235, 0.92), rgba(246, 223, 194, 0.42));
+  background: var(--panel);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.50), 0 12px 30px -28px rgba(23, 20, 15, 0.45);
 }
 .wiki-welcome-card > span {
@@ -910,11 +906,9 @@ body::after {
   gap: 12px;
   margin-top: 2px;
   padding: 16px;
-  border: 1px solid rgba(171, 90, 58, 0.14);
+  border: 1px solid var(--border);
   border-radius: 18px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.10)),
-    rgba(245, 231, 205, 0.30);
+  background: var(--panel);
 }
 .wiki-welcome-section-head {
   display: flex;
@@ -941,10 +935,9 @@ body::after {
   gap: 12px;
   min-height: 70px;
   padding: 14px 15px;
-  border: 1px solid rgba(171, 90, 58, 0.14);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.44), rgba(255, 243, 224, 0.34));
+  background: var(--panel);
   color: var(--text);
   cursor: default;
   font: inherit;
@@ -1647,14 +1640,14 @@ body::after {
   margin-top: 8px;
 }
 .guide-doc-layout {
-  --guide-accent: #a94f3b;
-  --guide-accent-deep: #74362c;
-  --guide-accent-soft: #f4ded2;
-  --guide-sage: #6f7650;
-  --guide-sage-soft: #edf0df;
-  --guide-surface: #fff9ee;
-  --guide-surface-strong: #fff3de;
-  --guide-line: rgba(169, 79, 59, 0.24);
+  --guide-accent: var(--primary-hover);
+  --guide-accent-deep: var(--error-ink);
+  --guide-accent-soft: var(--primary-tint);
+  --guide-sage: var(--success);
+  --guide-sage-soft: var(--success-light);
+  --guide-surface: var(--panel);
+  --guide-surface-strong: var(--panel);
+  --guide-line: var(--border);
   display: grid;
   grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
   gap: 28px;
@@ -1749,7 +1742,7 @@ body::after {
   border-top: 5px solid var(--guide-accent);
   border-radius: 20px;
   background: var(--guide-surface);
-  box-shadow: 0 16px 38px rgba(92, 68, 43, 0.08);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 .guide-doc-section[hidden] {
   display: none;
@@ -1768,8 +1761,7 @@ body::after {
   }
 }
 .guide-doc-intro {
-  background: var(--guide-surface-strong);
-  border-color: rgba(169, 79, 59, 0.32);
+  background: var(--guide-surface);
 }
 .guide-doc-kicker {
   display: inline-flex;
