@@ -790,7 +790,7 @@ body::after {
 }
 .wiki-welcome-hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(180px, 220px);
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
   align-items: stretch;
   gap: 18px;
   padding: 2px 2px 0;
@@ -813,15 +813,20 @@ body::after {
 }
 .wiki-welcome-quick {
   display: grid;
-  align-content: center;
-  justify-items: start;
-  gap: 6px;
-  min-height: 136px;
-  padding: 16px;
+  align-content: start;
+  gap: 14px;
+  min-height: 220px;
+  padding: 18px;
   border: 1px solid var(--border);
   border-radius: 18px;
   background: var(--panel);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.50);
+}
+.wiki-welcome-quick-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
 }
 .wiki-welcome-quick span,
 .wiki-welcome-quick small {
@@ -834,13 +839,71 @@ body::after {
   color: var(--text);
   font-size: 15px;
 }
-.wiki-welcome-quick strong {
+.wiki-welcome-chart-wrap {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+}
+.wiki-welcome-chart {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+.wiki-welcome-chart-core {
+  position: absolute;
+  inset: 16px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 4px;
+  border-radius: 50%;
+  background: var(--panel);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58);
+}
+.wiki-welcome-chart-core strong {
   color: var(--primary);
   font-family: var(--font-display);
-  font-size: 42px;
+  font-size: 34px;
   font-weight: 700;
   line-height: 0.95;
-  letter-spacing: -0.06em;
+  letter-spacing: -0.05em;
+}
+.wiki-welcome-chart-core small {
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+.wiki-welcome-legend {
+  display: grid;
+  gap: 8px;
+}
+.wiki-welcome-legend-item {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+.wiki-welcome-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+.wiki-welcome-legend-item b {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.wiki-welcome-legend-item small {
+  color: var(--text-2);
+  font-size: 11px;
+  letter-spacing: 0.04em;
 }
 .wiki-welcome-section {
   display: grid;
@@ -1903,6 +1966,10 @@ body::after {
   }
   .wiki-welcome-quick {
     min-height: 0;
+  }
+  .wiki-welcome-chart-wrap {
+    grid-template-columns: 1fr;
+    justify-items: start;
   }
 }
 

@@ -388,6 +388,36 @@ function wikiWelcomeHtml(results, query, message) {
   const hasQuery = !!(query || "").trim();
   const filterLabel = wikiKindFilterLabel(WIKI_SELECTED_KIND);
   const grouped = groupWikiResultsBySubject(results || []);
+  const subjectPalette = {
+    "数据结构": "#d8b59f",
+    "操作系统": "#cfd6b7",
+    "计算机组成原理": "#d8d1dc",
+    "计算机网络": "#ecd9ab",
+    "数学": "#dccfc8",
+    "其他": "#d6d1c8"
+  };
+  const chartItems = grouped
+    .map(([subject, entries]) => ({ subject, count: entries.length, color: subjectPalette[subject] || "#d6d1c8" }))
+    .sort((a, b) => (WIKI_SUBJECT_ORDER.indexOf(a.subject) - WIKI_SUBJECT_ORDER.indexOf(b.subject)));
+  const totalCount = results ? results.length : 0;
+  let chartOffset = 0;
+  const chartGradient = totalCount > 0
+    ? chartItems.map(item => {
+        const start = chartOffset / totalCount * 360;
+        chartOffset += item.count;
+        const end = chartOffset / totalCount * 360;
+        return item.color + " " + start.toFixed(2) + "deg " + end.toFixed(2) + "deg";
+      }).join(", ")
+    : "rgba(23, 20, 15, 0.08) 0deg 360deg";
+  const chartLegend = chartItems.length
+    ? '<div class="wiki-welcome-legend">' + chartItems.map(item =>
+        '<div class="wiki-welcome-legend-item">' +
+          '<span class="wiki-welcome-legend-dot" style="background:' + item.color + '"></span>' +
+          '<b>' + escHtml(item.subject) + '</b>' +
+          '<small>' + item.count + '</small>' +
+        '</div>'
+      ).join("") + '</div>'
+    : "";
   const subjectSummary = grouped.length
     ? '<div class="wiki-welcome-subjects">' + grouped.map(([subject, entries]) =>
         '<button class="wiki-welcome-subject" type="button" data-wiki-welcome-subject="' + escHtml(subject) + '">' +
@@ -408,10 +438,19 @@ function wikiWelcomeHtml(results, query, message) {
         "<p>" + escHtml(detail) + "</p>" +
       '</div>' +
       '<aside class="wiki-welcome-quick" aria-label="知识库概览">' +
-        '<span>当前视图</span>' +
-        '<b>' + escHtml(filterLabel) + '</b>' +
-        '<strong>' + (results ? results.length : 0) + '</strong>' +
-        '<small>' + escHtml(hasQuery ? "搜索结果" : "可浏览笔记") + '</small>' +
+        '<div class="wiki-welcome-quick-head">' +
+          '<span>当前视图</span>' +
+          '<b>' + escHtml(filterLabel) + '</b>' +
+        '</div>' +
+        '<div class="wiki-welcome-chart-wrap">' +
+          '<div class="wiki-welcome-chart" style="background:conic-gradient(' + chartGradient + ')">' +
+            '<div class="wiki-welcome-chart-core">' +
+              '<strong>' + totalCount + '</strong>' +
+              '<small>' + escHtml(hasQuery ? "搜索结果" : "可浏览笔记") + '</small>' +
+            '</div>' +
+          '</div>' +
+          chartLegend +
+        '</div>' +
       '</aside>' +
     "</section>" +
     (subjectSummary ? '<div class="wiki-welcome-section"><div class="wiki-welcome-section-head"><b>科目索引</b><span>' + escHtml(filterLabel) + '</span></div>' + subjectSummary + '</div>' : "") +
