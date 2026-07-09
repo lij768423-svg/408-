@@ -461,14 +461,14 @@ function renderWikiResults(data, query) {
   if (results.length === 0) {
     box.innerHTML = '<div class="wiki-empty">' + escHtml(hasQuery ? "没有匹配的" + filterLabel + "。" : filterLabel + "暂无可展示的 Markdown 笔记。") + "</div>";
     renderWikiWelcome(results, query || "");
-    setWikiStatus((hasQuery ? "搜索" : "浏览") + "完成：0 条结果。");
+    setWikiStatus("");
     return;
   }
   const grouped = groupWikiResultsBySubject(results);
   box.innerHTML = grouped.map(([subject, entries]) => wikiSubjectTreeHtml(subject, entries)).join("");
   attachWikiTreeHandlers();
   renderWikiWelcome(results, query || "");
-  setWikiStatus(filterLabel + (hasQuery ? "搜索" : "浏览") + "完成：" + results.length + " 条结果。");
+  setWikiStatus("");
 }
 
 function attachWikiTreeHandlers() {
