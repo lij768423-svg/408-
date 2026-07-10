@@ -14,10 +14,15 @@ function renderAuthUser() {
   const favCount = Object.keys(STATE.favorite || {}).length;
   const correctCount = Math.max(0, answeredCount - wrongCount);
   const syncText = ($("#sync-status") && $("#sync-status").textContent) || "LOCAL";
+  const homeIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 12 4l9 7.5M5.5 10v9h13v-9M9.5 19v-5h5v5"/></svg>';
+  const previewIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>';
+  const userIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20c.7-4 3-6 6.5-6s5.8 2 6.5 6"/></svg>';
   box.innerHTML =
-    '<button class="header-action-btn" type="button" id="home-landing-open">首页</button>' +
-    '<button class="header-action-btn" type="button" id="preview-open">题库预览</button>' +
-    '<button class="header-action-btn" type="button" id="user-menu-toggle" aria-haspopup="menu" aria-expanded="false">账号 <strong>' + escHtml(AUTH_USER.username) + '</strong></button>' +
+    '<div class="header-account-tools">' +
+      '<button class="header-action-btn" type="button" id="home-landing-open">' + homeIcon + '<span>首页</span></button>' +
+      '<button class="header-action-btn" type="button" id="preview-open">' + previewIcon + '<span>题库预览</span></button>' +
+      '<button class="header-action-btn is-account" type="button" id="user-menu-toggle" aria-haspopup="menu" aria-expanded="false">' + userIcon + '<span>账号</span><strong>' + escHtml(AUTH_USER.username) + '</strong><i aria-hidden="true">⌄</i></button>' +
+    '</div>' +
     '<div class="user-menu" id="user-menu" hidden>' +
       '<div class="user-menu-title">' + escHtml(AUTH_USER.username) + '</div>' +
       '<div class="user-menu-meta">当前账号 · 独立进度 · 自动同步</div>' +
@@ -29,6 +34,7 @@ function renderAuthUser() {
       '<div class="user-menu-actions">' +
         '<button class="backup-btn" type="button" id="user-export-progress">导出记录</button>' +
         '<button class="backup-btn" type="button" id="user-import-progress">导入记录</button>' +
+        '<button class="backup-btn" type="button" id="change-password-btn">更改密码</button>' +
         '<button class="backup-btn" type="button" id="logout-btn">退出登录</button>' +
       '</div>' +
       '<div class="user-menu-meta" style="margin:10px 0 0;">题库 ' + totalQs + ' 题 · 错题 ' + wrongCount + ' · 同步 <span id="user-sync-status">' + escHtml(syncText) + '</span></div>' +
@@ -45,10 +51,71 @@ function renderAuthUser() {
   };
   menu.onclick = (e) => e.stopPropagation();
   $("#logout-btn").onclick = logout;
+  $("#change-password-btn").onclick = openPasswordModal;
   $("#user-export-progress").onclick = exportProgress;
   $("#user-import-progress").onclick = () => {
     const input = $("#import-file");
     if (input) input.click();
+  };
+}
+
+function openPasswordModal() {
+  closeUserMenu();
+  const modal = $("#password-modal");
+  const form = $("#password-form");
+  const message = $("#password-message");
+  if (!modal || !form) return;
+  form.reset();
+  if (message) message.textContent = "";
+  modal.hidden = false;
+  setTimeout(() => $("#password-current")?.focus(), 0);
+}
+
+function closePasswordModal() {
+  const modal = $("#password-modal");
+  if (modal) modal.hidden = true;
+}
+
+async function submitPasswordChange(event) {
+  event.preventDefault();
+  const currentPassword = $("#password-current").value;
+  const newPassword = $("#password-new").value;
+  const confirmPassword = $("#password-confirm").value;
+  const message = $("#password-message");
+  const submit = $("#password-submit");
+  if (newPassword !== confirmPassword) {
+    message.textContent = "两次输入的新密码不一致";
+    return;
+  }
+  if (currentPassword === newPassword) {
+    message.textContent = "新密码不能与当前密码相同";
+    return;
+  }
+  submit.disabled = true;
+  message.textContent = "正在修改...";
+  try {
+    await apiJson("/api/auth/password", {
+      method: "POST",
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    closePasswordModal();
+    toast("密码已修改，其他设备已退出登录");
+  } catch (error) {
+    message.textContent = error.message || "密码修改失败";
+  } finally {
+    submit.disabled = false;
+  }
+}
+
+function bindPasswordControls() {
+  const modal = $("#password-modal");
+  const form = $("#password-form");
+  if (!modal || !form) return;
+  form.onsubmit = submitPasswordChange;
+  $("#password-close").onclick = closePasswordModal;
+  $("#password-cancel").onclick = closePasswordModal;
+  modal.onclick = (event) => {
+    if (event.target === modal) closePasswordModal();
   };
 }
 
@@ -59,7 +126,7 @@ function openHomeLanding() {
   const frame = card.querySelector(".auth-frame");
   if (frame) {
     const base = (frame.getAttribute("src") || "assets/auth/login-intro.html").split("?")[0];
-    frame.setAttribute("src", base + "?v=20260710-0225&from=home&t=" + Date.now());
+    frame.setAttribute("src", base + "?v=20260710-1740&from=home&t=" + Date.now());
   }
   card.style.display = "grid";
 }
@@ -249,6 +316,7 @@ async function logout() {
 }
 
 async function initAuth() {
+  bindPasswordControls();
   const hasInlineAuth = bindAuthControls();
   if (hasInlineAuth) setAuthMode("login");
   let authApiAvailable = true;

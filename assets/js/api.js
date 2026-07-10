@@ -14,7 +14,7 @@ async function apiJson(url, options = {}) {
 
 function emptyProgress() {
   return {
-    state: { wrong: {}, favorite: {}, stats: { answered: 0, correct: 0 }, attempted: {} },
+    state: emptyLearningState(),
     session: null,
     preferences: {}
   };
@@ -24,12 +24,7 @@ function normalizeProgress(progress) {
   const base = emptyProgress();
   if (!progress || typeof progress !== "object") return base;
   return {
-    state: {
-      wrong: progress.state?.wrong || {},
-      favorite: progress.state?.favorite || {},
-      stats: progress.state?.stats || { answered: 0, correct: 0 },
-      attempted: progress.state?.attempted || {},
-    },
+    state: normalizeLearningState(progress.state),
     session: progress.session || null,
     preferences: progress.preferences || {},
   };
@@ -113,4 +108,3 @@ function getProgressPayload() {
     savedAt: new Date().toISOString()
   };
 }
-

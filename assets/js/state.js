@@ -5,9 +5,10 @@ let ALL_QUESTIONS = [];  // 全部题目
 let CURRENT = {
   book: null,           // 当前选中的书(null = 全部书)
   chapter: null,        // 当前选中的章节(num), null = 全部
-  mode: "sequential",   // sequential | random | wrong | favorite
+  mode: "sequential",   // sequential | random | wrong | favorite | unattempted | review
   instantGrade: false,  // true = 点击选项立即判分
   limit: 50,            // 全部模式下一组题数
+  reviewLimit: 20,      // 今日复习默认题数
   questions: [],        // 当前题单
   idx: 0,               // 当前题号
   answers: {},          // qid -> { selected: [A,B], correct: bool, time: ts }
@@ -94,7 +95,7 @@ function restoreSession() {
       ? null
       : (books.includes(session.book) ? session.book : books[0]);
     CURRENT.chapter = Number.isFinite(session.chapter) ? session.chapter : null;
-    CURRENT.mode = ["sequential", "random", "wrong", "favorite", "unattempted"].includes(session.mode)
+    CURRENT.mode = ["sequential", "random", "wrong", "favorite", "unattempted", "review"].includes(session.mode)
       ? session.mode
       : (CURRENT.book == null ? "random" : "sequential");
     CURRENT.instantGrade = !!session.instantGrade;
@@ -169,13 +170,15 @@ function resetProgress() {
   STATE.wrong = {};
   STATE.attempted = {};
   STATE.stats = { answered: 0, correct: 0 };
+  STATE.reviews = {};
+  STATE.dailyActivity = {};
   persist();
   // 本轮题面与已选项也一起回到第 1 题
   CURRENT.idx = 0;
   CURRENT.answers = {};
   resetAiPanel();
   // 如果当前在"错题 / 未做"模式,题单语义会变(错题被清,未做变成全部),→ 切到"顺序"模式避免空屏/误判
-  if (CURRENT.mode === "wrong" || CURRENT.mode === "unattempted") setMode("sequential");
+  if (["wrong", "unattempted", "review"].includes(CURRENT.mode)) setMode("sequential");
   else render();
   saveSession();
   toast(`已刷新题库 · 错题 ${wrongN} / 已答 ${answeredN} 已清空`);
@@ -189,7 +192,7 @@ function markAttempted(qid) {
 function getBackupPayload() {
   return {
     app: "408-quiz",
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
     state: STATE,
     session: getSessionSnapshot(),
@@ -219,6 +222,10 @@ function exportProgress() {
 
 function importProgressFile(file) {
   if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    toast("导入失败:文件不能超过 5 MB");
+    return;
+  }
   const reader = new FileReader();
   reader.onload = () => {
     try {
@@ -227,13 +234,19 @@ function importProgressFile(file) {
         toast("这不是 408 刷题记录文件");
         return;
       }
+      const knownIds = new Set(ALL_QUESTIONS.map(question => String(question.id)));
+      const importedIds = new Set([
+        ...Object.keys(payload.state.wrong || {}),
+        ...Object.keys(payload.state.favorite || {}),
+        ...Object.keys(payload.state.attempted || {}),
+        ...Object.keys(payload.state.reviews || {}),
+      ]);
+      if (Array.from(importedIds).some(questionId => !knownIds.has(String(questionId)))) {
+        toast("导入失败:记录包含当前题库不存在的题目");
+        return;
+      }
       if (!confirm("导入后会覆盖当前错题、收藏、统计和本轮进度。确定继续吗?")) return;
-      STATE = {
-        wrong: payload.state.wrong || {},
-        favorite: payload.state.favorite || {},
-        stats: payload.state.stats || { answered: 0, correct: 0 },
-        attempted: payload.state.attempted || {}
-      };
+      STATE = normalizeLearningState(payload.state);
       saveState(STATE);
       if (payload.session) localStorage.setItem(SESSION_KEY, JSON.stringify(payload.session));
       if (payload.preferences) {

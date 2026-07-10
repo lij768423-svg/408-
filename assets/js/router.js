@@ -4,7 +4,7 @@
 // It only toggles top-level view visibility and nav state; quiz/auth/data
 // lifecycle stays owned by the existing classic scripts.
 (function () {
-  const ROUTES = ["quiz", "wiki", "guide"];
+  const ROUTES = ["quiz", "dashboard", "wiki", "guide"];
 
   function currentRoute() {
     const match = /^#\/([^/?#]+)/.exec(window.location.hash || "");
@@ -27,6 +27,7 @@
       if (active) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     });
+    if (route === "dashboard" && typeof renderDashboard === "function") renderDashboard();
   }
 
   window.applyRoute = applyRoute;

@@ -26,6 +26,22 @@ function getFirstWikiUserQuestion(q) {
   return getWikiUserQuestionEntry(q).first;
 }
 
+function isWikiSmallTalk(text) {
+  const value = String(text || "")
+    .trim()
+    .replace(/[，。！？!?、,.\s]+/g, "")
+    .toLowerCase();
+  if (!value) return true;
+  return /^(你好|您好|哈喽|嗨|hello|hi|在吗|谢谢|感谢|好的|好|ok|okay|收到|明白了|懂了|继续)$/.test(value);
+}
+
+function getEffectiveWikiUserQuestion(q) {
+  const entry = getWikiUserQuestionEntry(q);
+  if (entry.latest && !isWikiSmallTalk(entry.latest)) return entry.latest;
+  if (entry.first && !isWikiSmallTalk(entry.first)) return entry.first;
+  return entry.latest || entry.first;
+}
+
 function hasStrongExamReference(text) {
   const s = String(text || "").trim();
   if (!s) return false;
@@ -90,7 +106,7 @@ function wikiTakeaway(text, fallback) {
   return (clean || fallback || "").slice(0, 120);
 }
 
-function buildWikiSavePayload(q, state) {
+function buildWikiSavePayload(q, state, forcedKind = "") {
   const selected = state.selected && state.selected.length ? state.selected.join("、") : "未作答";
   const result = state.submitted
     ? (state.shown ? "查看答案" : (state.correct ? "正确" : "错误"))
@@ -99,8 +115,11 @@ function buildWikiSavePayload(q, state) {
   const sourceTitle = examWikiTitle(q);
   const firstUserQuestion = getFirstWikiUserQuestion(q);
   const latestUserQuestion = getLatestWikiUserQuestion(q);
+  const effectiveUserQuestion = getEffectiveWikiUserQuestion(q);
   const aiText = (CURRENT.aiOutput || "").trim();
-  const questionKind = classifyWikiQuestionKind(firstUserQuestion, aiText, state);
+  const questionKind = forcedKind === "concept" || forcedKind === "exam"
+    ? forcedKind
+    : classifyWikiQuestionKind(effectiveUserQuestion, aiText, state);
   const options = ["A", "B", "C", "D"]
     .filter(L => q.options && q.options[L])
     .map(L => `${L}. ${plainText(q.options[L] || "")}`)
@@ -117,10 +136,31 @@ function buildWikiSavePayload(q, state) {
     `已选:${selected}`,
     `答案:${(q.answer || []).join("、") || "未知"}`
   ].filter(Boolean);
-  const base = {
-    question_kind: questionKind,
+  if (questionKind === "concept") {
+    if (!effectiveUserQuestion || isWikiSmallTalk(effectiveUserQuestion)) {
+      throw new Error("请先在 AI 输入框提出一个具体概念问题");
+    }
+    const title = conceptWikiTitle(effectiveUserQuestion, aiText, q);
+    return {
+      question_kind: "concept",
+      title,
+      subject: q.book,
+      source: "408-quiz-dev",
+      topic_tags: ["概念问题"],
+      user_prompt: effectiveUserQuestion,
+      first_user_question: effectiveUserQuestion,
+      latest_user_question: effectiveUserQuestion,
+      question_markdown: effectiveUserQuestion,
+      assistant_explanation: aiText || "待补充",
+      mistakes: [],
+      takeaways: [wikiTakeaway(aiText, "概念问题需复习")].filter(Boolean),
+      status: "概念笔记"
+    };
+  }
+  return {
+    question_kind: "exam",
     first_user_question: firstUserQuestion || undefined,
-    user_prompt: firstUserQuestion || latestUserQuestion || undefined,
+    user_prompt: effectiveUserQuestion || undefined,
     latest_user_question: latestUserQuestion || firstUserQuestion || undefined,
     source_question_id: sourceQuestionId,
     source_question_title: sourceTitle,
@@ -132,22 +172,6 @@ function buildWikiSavePayload(q, state) {
     attempt_id: `${sourceQuestionId || "q"}-${Date.now()}`,
     source: "408-quiz-dev",
     subject: q.book,
-  };
-  if (questionKind === "concept") {
-    const title = conceptWikiTitle(firstUserQuestion || latestUserQuestion, aiText, q);
-    return {
-      ...base,
-      title,
-      topic_tags: [q.section || q.chapter_title || "", "概念问题"].filter(Boolean),
-      question_markdown: firstUserQuestion || latestUserQuestion || firstMarkdownTitle(aiText) || plainText(q.section || q.question || "概念问题"),
-      assistant_explanation: aiText || "待补充",
-      mistakes: [],
-      takeaways: [wikiTakeaway(aiText, "概念问题需复习")].filter(Boolean),
-      status: result
-    };
-  }
-  return {
-    ...base,
     question_id: sourceQuestionId,
     title: sourceTitle,
     topic_tags: [q.section || q.chapter_title || "", result, "题目问题"].filter(Boolean),
@@ -171,8 +195,8 @@ function safeHeaderToken(value, prefix = "quiz-408-dev") {
   return `${prefix}-${asciiHint || "q"}-${(hash >>> 0).toString(16)}`;
 }
 
-async function saveQuestionToWiki(q, state) {
-  const payload = buildWikiSavePayload(q, state);
+async function saveQuestionToWiki(q, state, kind = "exam") {
+  const payload = buildWikiSavePayload(q, state, kind);
   const rawKey = [
     "quiz-408-dev",
     payload.question_kind,

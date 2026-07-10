@@ -56,6 +56,20 @@
 
 清理会话 Cookie。响应可以是空 JSON 对象。
 
+### `POST /api/auth/password`
+
+已登录用户修改密码：
+
+```json
+{ "currentPassword": "old-password", "newPassword": "new-password" }
+```
+
+后端应验证当前密码、新密码至少 6 位且不能与旧密码相同。修改成功后保留当前会话，并撤销该账号的其他会话：
+
+```json
+{ "ok": true }
+```
+
 ## 学习进度
 
 ### `GET /api/progress`
@@ -67,7 +81,9 @@
       "wrong": {},
       "favorite": {},
       "stats": { "answered": 0, "correct": 0 },
-      "attempted": {}
+      "attempted": {},
+      "reviews": {},
+      "dailyActivity": {}
     },
     "session": null,
     "preferences": {}
@@ -90,6 +106,8 @@
 ```
 
 后端应按当前用户覆盖或合并保存，并限制请求体大小。
+
+`reviews` 保存逐题复习状态，包括答题次数、连续答对次数、最近作答时间、下次到期时间、复习间隔和有限历史记录；`dailyActivity` 保存按日期聚合的答题量与正确量。它们与 `wrong`、`favorite`、`attempted` 一样属于普通 JSON 进度字段，后端不需要执行排期算法，但必须原样持久化并在下一次 `GET /api/progress` 中返回。旧进度缺少这两个字段时，前端会自动补齐并迁移现有错题。
 
 ## AI
 

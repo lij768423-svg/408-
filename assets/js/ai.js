@@ -148,6 +148,35 @@ function endAiStream() {
 
 // ============== AI API：服务器统一配置 ==============
 let AI_STATUS = { enabled: true, model: "server" };
+let AI_RAIL_SIZE_OBSERVER = null;
+let AI_RAIL_RESIZE_BOUND = false;
+
+function syncAiRailHeight() {
+  const rail = $("#ai-rail");
+  const sidebar = document.querySelector(".sidebar");
+  if (!rail || !sidebar) return;
+  if (window.matchMedia("(max-width: 1024px)").matches) {
+    rail.style.removeProperty("--ai-rail-height");
+    return;
+  }
+  const height = Math.round(sidebar.getBoundingClientRect().height);
+  if (height > 0) rail.style.setProperty("--ai-rail-height", `${height}px`);
+}
+
+function bindAiRailHeightSync() {
+  const sidebar = document.querySelector(".sidebar");
+  if (!sidebar) return;
+  if (typeof ResizeObserver === "function") {
+    if (AI_RAIL_SIZE_OBSERVER) AI_RAIL_SIZE_OBSERVER.disconnect();
+    AI_RAIL_SIZE_OBSERVER = new ResizeObserver(() => syncAiRailHeight());
+    AI_RAIL_SIZE_OBSERVER.observe(sidebar);
+  }
+  if (!AI_RAIL_RESIZE_BOUND) {
+    window.addEventListener("resize", syncAiRailHeight);
+    AI_RAIL_RESIZE_BOUND = true;
+  }
+  requestAnimationFrame(syncAiRailHeight);
+}
 
 function aiModeLabel() {
   return AI_STATUS && AI_STATUS.model ? "API · " + AI_STATUS.model : "Server AI";
@@ -332,8 +361,11 @@ function renderAiPanel(q, state) {
               </svg>
               <span>复制上下文</span>
             </button>
-            <button class="ai-copy-inline" id="ai-save-wiki" type="button" title="保存当前题目、作答和 AI 讲解到个人知识库">
-              <span>保存到知识库</span>
+            <button class="ai-copy-inline ai-save-concept" id="ai-save-concept" type="button" title="只保存当前概念追问和 AI 回答，不记录题目信息">
+              <span>保存概念</span>
+            </button>
+            <button class="ai-copy-inline" id="ai-save-exam" type="button" title="保存当前题目、作答和 AI 讲解">
+              <span>保存题目</span>
             </button>
           </div>
         </div>
@@ -349,23 +381,29 @@ function renderAiPanel(q, state) {
           <input id="ai-question" type="text" placeholder="追问：按回车发送，Shift+Enter 换行">
           <button class="btn btn-primary" type="button" id="ai-ask">询问 AI</button>
         </div>
-        <!-- Feature 7: 题目关联 -->
-        <div class="related-section" id="related-wrap" hidden></div>
-        <button class="batch-trigger ai-batch-trigger" type="button" id="batch-open">批量讲错题 · AI 串讲</button>
         <div class="ai-quick" id="ai-quick">
-          <div class="ai-quick-row">
-            <span class="ai-quick-item">本组 <strong>${CURRENT.idx + 1} / ${CURRENT.questions.length}</strong></span>
-            <div class="ai-quick-bar"><span style="width: ${CURRENT.questions.length > 0 ? Math.round((CURRENT.idx + 1) / CURRENT.questions.length * 100) : 0}%"></span></div>
+          <div class="ai-quick-progress">
+            <div class="ai-quick-progress-copy">
+              <span>本组进度</span>
+              <strong>${CURRENT.idx + 1}<small>/ ${CURRENT.questions.length}</small></strong>
+            </div>
+            <div class="ai-quick-bar" aria-hidden="true"><span style="width: ${CURRENT.questions.length > 0 ? Math.round((CURRENT.idx + 1) / CURRENT.questions.length * 100) : 0}%"></span></div>
           </div>
-          <div class="ai-quick-row">
-            <span class="ai-quick-item ai-quick-acc">正确率 <strong>${(STATE.stats.answered > 0 ? Math.round(STATE.stats.correct / STATE.stats.answered * 100) : 0)}%</strong></span>
-            <span class="ai-quick-sep">·</span>
-            <span class="ai-quick-item ai-quick-wrong">本章节错题 <strong>${CURRENT.book ? ALL_QUESTIONS.filter(qq => qq.book === CURRENT.book && (CURRENT.chapter == null || qq.chapter === CURRENT.chapter) && isWrong(qq.id)).length : Object.keys(STATE.wrong).length}</strong></span>
+          <div class="ai-quick-metrics">
+            <div class="ai-quick-metric ai-quick-acc">
+              <span>正确率</span>
+              <strong>${(STATE.stats.answered > 0 ? Math.round(STATE.stats.correct / STATE.stats.answered * 100) : 0)}%</strong>
+            </div>
+            <div class="ai-quick-metric ai-quick-wrong">
+              <span>章节错题</span>
+              <strong>${CURRENT.book ? ALL_QUESTIONS.filter(qq => qq.book === CURRENT.book && (CURRENT.chapter == null || qq.chapter === CURRENT.chapter) && isWrong(qq.id)).length : Object.keys(STATE.wrong).length}</strong>
+            </div>
           </div>
         </div>
       </div>
     </div>
   `;
+  bindAiRailHeightSync();
   bindAiPanel(q, state);
   bindAiOutputScrollState();
   // 折叠把手/抽屉把手 点击恢复 — 用 onclick 避免 renderQuiz 反复调用时 listener 累积
@@ -449,33 +487,34 @@ function bindAiPanel(q, state) {
   }
 
   $("#ai-copy").onclick = () => copyText(getQuestionContext(q, state), "上下文已复制");
-  const saveWikiBtn = $("#ai-save-wiki");
-  if (saveWikiBtn) {
-    saveWikiBtn.onclick = async () => {
-      const oldText = saveWikiBtn.textContent;
-      saveWikiBtn.disabled = true;
-      saveWikiBtn.textContent = "保存中…";
+  function bindWikiSaveButton(selector, kind, successLabel) {
+    const button = $(selector);
+    if (!button) return;
+    button.onclick = async () => {
+      const oldText = button.textContent;
+      button.disabled = true;
+      button.textContent = "保存中…";
       try {
-        const data = await saveQuestionToWiki(q, state);
-        saveWikiBtn.textContent = data.cached ? "已保存" : "已写入";
-        toast(data.cached ? "已保存过，无需重复写入" : "已保存到知识库");
+        const data = await saveQuestionToWiki(q, state, kind);
+        button.textContent = data.cached ? "已保存" : "已写入";
+        toast(data.cached ? "已保存过，无需重复写入" : successLabel);
         if (data.question_path) {
           CURRENT.aiOutput = (CURRENT.aiOutput || "") + `\n\n---\n已保存到知识库：\`${data.question_path}\``;
           endAiStream();
         }
       } catch (e) {
         toast("保存失败：" + e.message);
-        saveWikiBtn.textContent = "保存失败";
+        button.textContent = "保存失败";
       } finally {
         setTimeout(() => {
-          saveWikiBtn.disabled = false;
-          saveWikiBtn.textContent = oldText;
+          button.disabled = false;
+          button.textContent = oldText;
         }, 1600);
       }
     };
   }
-  const batchOpen = $("#batch-open");
-  if (batchOpen) batchOpen.onclick = () => openBatchModal();
+  bindWikiSaveButton("#ai-save-concept", "concept", "概念笔记已保存");
+  bindWikiSaveButton("#ai-save-exam", "exam", "题目笔记已保存");
   const askInput = $("#ai-question");
   $$(".ai-empty-prompt").forEach(btn => {
     btn.onclick = async () => {
@@ -509,8 +548,6 @@ function bindAiPanel(q, state) {
     askInput.value = "";
     await runAsk(ask);
   };
-  // Feature 7: 渲染关联题目
-  renderRelated(q);
 }
 
 function submit() {
@@ -525,15 +562,7 @@ function submit() {
   cur.submitted = true;
   cur.correct = correct;
   CURRENT.answers[q.id] = cur;
-  markAttempted(q.id);
-  STATE.stats.answered += 1;
-  if (correct) {
-    STATE.stats.correct += 1;
-    removeWrong(q.id);  // 答对,从错题本移除
-  } else {
-    addWrong(q.id);
-  }
-  persist();
+  recordAnswerResult(q, correct);
   // 如果是最后一题,自动推进到 batch 完成屏
   if (CURRENT.idx === CURRENT.questions.length - 1) {
     CURRENT.idx = CURRENT.questions.length;
@@ -790,71 +819,6 @@ function renderSourceTag(q) {
 
 // ============== Feature 1: 薄弱知识点 Top 10 ==============
 // 按 (book, chapter) 聚合:已做正确率,至少 3 次答题才上榜
-function getChapterStats() {
-  const stats = {};
-  for (const q of ALL_QUESTIONS) {
-    const key = q.book + "::" + q.chapter;
-    if (!stats[key]) {
-      stats[key] = {
-        book: q.book,
-        chapter: q.chapter,
-        chapter_title: q.chapter_title,
-        attempted: 0,
-        correct: 0,
-      };
-    }
-    const ans = CURRENT.answers && CURRENT.answers[q.id];
-    if (ans && ans.submitted) {
-      stats[key].attempted += 1;
-      if (ans.correct) stats[key].correct += 1;
-    }
-  }
-  return Object.values(stats);
-}
-function renderWeakPanel() {
-  const box = $("#weak-list");
-  if (!box) return;
-  const stats = getChapterStats().filter(s => s.attempted >= 3);
-  if (stats.length === 0) {
-    box.innerHTML = `<div class="weak-empty">再答几题后，<br>这里会出现薄弱章节</div>`;
-    return;
-  }
-  // 按正确率升序,同正确率按已做数降序
-  stats.sort((a, b) => {
-    const accA = a.correct / a.attempted;
-    const accB = b.correct / b.attempted;
-    if (accA !== accB) return accA - accB;
-    return b.attempted - a.attempted;
-  });
-  const top = stats.slice(0, 10);
-  box.innerHTML = top.map((s, i) => {
-    const acc = Math.round(s.correct / s.attempted * 100);
-    const isGood = acc >= 80;
-    return `<div class="weak-item ${isGood ? "is-good" : ""}" data-book="${escHtml(s.book)}" data-chapter="${s.chapter}">
-      <span class="weak-rank">${i + 1}</span>
-      <div class="weak-info">
-        <div class="weak-title">${escHtml(s.book)} · ${escHtml(s.chapter_title)}</div>
-        <div class="weak-meta">
-          <span class="weak-acc">${acc}%</span>
-          <span>${s.correct}/${s.attempted}</span>
-        </div>
-      </div>
-      <div class="weak-bar"><span class="weak-bar-fill" style="width:${acc}%"></span></div>
-    </div>`;
-  }).join("");
-  // 点击跳转到对应书目+章节的"错题"模式
-  $$(".weak-item").forEach(el => {
-    el.onclick = () => {
-      const book = el.dataset.book;
-      const chapter = parseInt(el.dataset.chapter, 10);
-      CURRENT.book = book;
-      CURRENT.chapter = chapter;
-      setMode("wrong");
-      // setMode 内会重建题单 + 重渲染
-      toast(`已切换到 ${book} · 第 ${chapter} 章 错题`);
-    };
-  });
-}
 
 // ============== Feature 6: 全文搜索 ==============
 // 简易倒排索引(1777 题一次性构建,内存极小)

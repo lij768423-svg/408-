@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run test:unit && npm run test:static",
-    "test:unit": "node --check assets/js/*.js scripts/*.js && python3 -m json.tool data.json >/dev/null && node scripts/check-data.js",
-    "test:static": "node scripts/check-static.js"
+    "test:unit": "node --check assets/js/*.js scripts/*.js tests/e2e/*.js && python3 -m json.tool data.json >/dev/null && node scripts/check-data.js && node scripts/check-learning.js",
+    "test:static": "node scripts/check-static.js",
+    "test:e2e": "node tests/e2e/static.spec.js && node tests/e2e/backend.spec.js"
   },
   "keywords": [],
   "author": "",

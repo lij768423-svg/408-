@@ -27,8 +27,9 @@ function buildQuestionList() {
   else if (CURRENT.mode === "wrong") qs = qs.filter(q => isWrong(q.id));
   else if (CURRENT.mode === "favorite") qs = qs.filter(q => isFav(q.id));
   else if (CURRENT.mode === "unattempted") qs = qs.filter(q => !STATE.attempted[q.id]);
+  else if (CURRENT.mode === "review") qs = dueReviewQuestions(qs).slice(0, CURRENT.reviewLimit);
   // 全部模式下,默认限制题数
-  if (CURRENT.book == null && CURRENT.mode !== "wrong" && CURRENT.mode !== "favorite") {
+  if (CURRENT.book == null && !["wrong", "favorite", "review"].includes(CURRENT.mode)) {
     qs = qs.slice(0, CURRENT.limit);
   }
   return qs;
@@ -91,7 +92,7 @@ function render() {
   renderChapterSel();
   renderModeTabs();
   renderQuiz();
-  renderWeakPanel();  // Feature 1
+  if (document.body.dataset.route === "dashboard" && typeof renderDashboard === "function") renderDashboard();
 }
 
 function closeChapterMenu() {
@@ -242,9 +243,15 @@ function renderModeTabs() {
   const unattemptedCount = CURRENT.book
     ? ALL_QUESTIONS.filter(q => q.book === CURRENT.book && (CURRENT.chapter == null || q.chapter === CURRENT.chapter) && !STATE.attempted[q.id]).length
     : 0;
+  const scopedQuestions = ALL_QUESTIONS.filter(q =>
+    (CURRENT.book == null || q.book === CURRENT.book) &&
+    (CURRENT.chapter == null || q.chapter === CURRENT.chapter)
+  );
+  const reviewCount = dueReviewQuestions(scopedQuestions).length;
   const modes = [];
   if (CURRENT.book != null) modes.push({ id: "sequential", label: "顺序" });
   modes.push({ id: "random", label: "随机" });
+  modes.push({ id: "review", label: "今日复习", badge: reviewCount });
   if (CURRENT.book != null) {
     modes.push({ id: "wrong", label: "错题", badge: wrongCount });
     modes.push({ id: "favorite", label: "收藏", badge: favCount });
@@ -339,6 +346,7 @@ function renderQuiz() {
     if (CURRENT.mode === "wrong") emptyMsg = "当前没有错题";
     else if (CURRENT.mode === "favorite") emptyMsg = "还没有收藏的题";
     else if (CURRENT.mode === "unattempted") emptyMsg = "本章节已全部做过，可切到顺序 / 随机继续。";
+    else if (CURRENT.mode === "review") emptyMsg = "今天没有到期题目，保持当前节奏即可。";
     area.innerHTML = `<div class="empty">${emptyMsg}</div>`;
     const rail = $("#ai-rail"); if (rail) rail.innerHTML = "";
     syncSession();
@@ -521,15 +529,7 @@ function autoGrade(q, sel) {
   const correct = arraysEqual([...sel].sort(), [...q.answer].sort());
   const state = { selected: sel, submitted: true, correct, shown: false };
   CURRENT.answers[q.id] = state;
-  markAttempted(q.id);
-  STATE.stats.answered += 1;
-  if (correct) {
-    STATE.stats.correct += 1;
-    removeWrong(q.id);
-  } else {
-    addWrong(q.id);
-  }
-  persist();
+  recordAnswerResult(q, correct);
   // 如果是最后一题,自动推进到 batch 完成屏
   if (CURRENT.idx === CURRENT.questions.length - 1) {
     CURRENT.idx = CURRENT.questions.length;

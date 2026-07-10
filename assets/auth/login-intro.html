@@ -73,7 +73,7 @@
 
     .top-strip {
       display: grid;
-      grid-template-columns: 1fr auto 1fr;
+      grid-template-columns: 1fr auto;
       gap: 1rem;
       align-items: center;
       max-width: var(--max);
@@ -182,6 +182,12 @@
       font-weight: 750;
     }
 
+    .nav-action.is-user {
+      border-color: color-mix(in srgb, var(--accent-2) 60%, var(--ink));
+      color: var(--accent-2);
+      background: var(--surface);
+    }
+
     .dot {
       display: inline-block;
       width: 0.38em;
@@ -249,9 +255,26 @@
       margin: 0;
       font-size: clamp(52px, 9vw, 134px);
       font-weight: 600;
-      line-height: 0.88;
+      line-height: 1;
       letter-spacing: 0;
+    }
+
+    .display-main,
+    .display-accent {
+      display: block;
+    }
+
+    .display-main {
+      max-width: 7em;
+      line-height: 0.94;
       text-wrap: balance;
+    }
+
+    .display-accent {
+      margin-top: 0.08em;
+      font-size: 0.92em;
+      line-height: 1.08;
+      white-space: nowrap;
     }
 
     .display em,
@@ -270,13 +293,60 @@
       text-wrap: pretty;
     }
 
+    .github-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      min-height: 56px;
+      padding: 0 18px;
+      color: var(--paper);
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 6px 6px 0 var(--accent);
+      transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    .github-button:hover,
+    .github-button:focus-visible {
+      transform: translate(-2px, -2px);
+      box-shadow: 8px 8px 0 var(--accent);
+      background: color-mix(in srgb, var(--ink), var(--accent) 9%);
+    }
+
+    .github-button svg {
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+      flex: 0 0 auto;
+    }
+
+    .github-button .external-arrow {
+      margin-left: 6px;
+      font-size: 18px;
+      line-height: 1;
+    }
+
     .hero {
       display: grid;
       grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.75fr);
       gap: clamp(32px, 5vw, 76px);
       align-items: start;
       min-height: calc(100svh - 116px);
-      padding-top: clamp(46px, 7vw, 92px);
+      padding-top: clamp(24px, 4.5vw, 60px);
+    }
+
+    .auth-column {
+      position: sticky;
+      top: 92px;
+      display: grid;
+      gap: 18px;
+      align-self: start;
     }
 
     .hero-meta {
@@ -319,8 +389,7 @@
     }
 
     .auth-card {
-      position: sticky;
-      top: 92px;
+      position: relative;
       padding: clamp(22px, 3vw, 34px);
       border: 1px solid var(--ink);
       background: var(--surface);
@@ -351,22 +420,6 @@
       line-height: 0.96;
       letter-spacing: 0;
     }
-
-    .user-pill {
-      display: none;
-      max-width: 190px;
-      padding: 8px 10px;
-      overflow: hidden;
-      color: var(--accent-2);
-      border: 1px solid color-mix(in oklch, var(--accent-2), var(--paper) 44%);
-      border-radius: 999px;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .user-pill.is-on { display: inline-flex; }
 
     .segmented {
       display: grid;
@@ -462,6 +515,68 @@
       transform: none;
     }
 
+    .signed-in-panel {
+      display: none;
+      margin-top: 22px;
+      padding: 22px 0 0;
+      border-top: 1px dotted var(--line);
+    }
+
+    .auth-card.is-signed-in .segmented,
+    .auth-card.is-signed-in #auth-form { display: none; }
+    .auth-card.is-signed-in .signed-in-panel { display: grid; gap: 18px; }
+
+    .signed-in-label {
+      margin: 0;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .signed-in-user {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 0 0 18px;
+      border-bottom: 1px dotted var(--line);
+    }
+
+    .signed-in-user strong {
+      display: block;
+      margin-top: 8px;
+      font-size: clamp(30px, 4vw, 42px);
+      line-height: 1;
+    }
+
+    .signed-in-state {
+      padding: 7px 11px;
+      border: 1px dotted var(--line);
+      border-radius: 999px;
+      color: var(--ok);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .signed-in-enter {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 58px;
+      padding: 0 20px;
+      border: 1px solid var(--ink);
+      color: var(--paper);
+      background: var(--ink);
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .signed-in-enter:hover { background: color-mix(in srgb, var(--ink), var(--accent) 10%); }
+
     .auth-foot {
       display: flex;
       flex-wrap: wrap;
@@ -489,6 +604,17 @@
       grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
       gap: clamp(28px, 5vw, 70px);
       align-items: start;
+    }
+
+    .section-heading-wide {
+      max-width: 980px;
+    }
+
+    .section-heading-wide .headline {
+      max-width: 980px;
+      font-size: clamp(42px, 5vw, 72px);
+      line-height: 0.98;
+      text-wrap: balance;
     }
 
     .headline {
@@ -650,7 +776,7 @@
 
     .mode-list {
       display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
       margin-top: 34px;
     }
@@ -864,7 +990,7 @@
       .workspace-slab,
       .cta { grid-template-columns: 1fr; }
 
-      .auth-card {
+      .auth-column {
         position: relative;
         top: auto;
       }
@@ -873,7 +999,7 @@
       .workflow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
       .mode-list,
-      .plates { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .plates { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
     @media (max-width: 880px) {
@@ -892,7 +1018,9 @@
     }
 
     @media (max-width: 560px) {
-      .display { font-size: clamp(46px, 17vw, 72px); }
+      .display { font-size: clamp(44px, 16vw, 70px); }
+      .display-main { max-width: 6em; }
+      .display-accent { white-space: normal; }
       .section { padding: 56px 0; }
 
       .cap-grid,
@@ -928,7 +1056,6 @@
   <div class="top-strip" aria-label="版本信息">
     <span>Volume 408 / AI Quiz</span>
     <span>题库 · 错题 · AI 讲题 · 知识库</span>
-    <span id="stars">GitHub 星标 —</span>
   </div>
 
   <nav class="nav" id="nav" aria-label="主导航">
@@ -942,30 +1069,39 @@
         <a href="#ai">AI 讲题</a>
         <a href="#wiki">知识库</a>
       </div>
-      <a class="nav-action" href="#login">登录继续</a>
+      <a class="nav-action" id="nav-account-action" href="#login">登录继续</a>
     </div>
   </nav>
 
   <main id="top">
-    <section class="section hero" data-roman="I" aria-labelledby="hero-title">
+    <section class="section hero" aria-labelledby="hero-title">
       <div data-reveal>
         <p class="kicker">Private study space / account sync</p>
-        <h1 class="display" id="hero-title">登录后继续你的 <em>刷题进度</em><span class="dot"></span></h1>
+        <h1 class="display" id="hero-title">
+          <span class="display-main">登录后继续你的</span>
+          <em class="display-accent">刷题进度<span class="dot"></span></em>
+        </h1>
         <p class="lead">错题、收藏、AI 会话和个人知识库归到同一个账号里。先刷四门 408 题库，再把看不懂的题沉淀成长期复盘材料。</p>
         <div class="hero-meta" aria-label="题库数据">
           <div class="ring"><div><strong>2386</strong><span>当前题量</span></div></div>
           <div class="ring"><div><strong>4</strong><span>408 科目</span></div></div>
-          <div class="ring"><div><strong>5</strong><span>核心刷题模式</span></div></div>
+          <div class="ring"><div><strong>4</strong><span>核心刷题模式</span></div></div>
         </div>
       </div>
 
-      <aside class="auth-card" id="login" data-reveal style="--delay: 120ms" aria-labelledby="auth-title">
+      <div class="auth-column">
+        <a class="github-button" href="https://github.com/lij768423-svg/408-" target="_blank" rel="noreferrer" aria-label="在 GitHub 查看 408 AI 刷题库项目" data-reveal style="--delay: 80ms">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .7a11.6 11.6 0 0 0-3.67 22.6c.58.1.79-.25.79-.56v-2.03c-3.23.7-3.91-1.38-3.91-1.38-.53-1.35-1.29-1.71-1.29-1.71-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.77 2.72 1.26 3.38.96.1-.75.41-1.26.74-1.55-2.58-.29-5.29-1.29-5.29-5.74 0-1.27.45-2.3 1.2-3.12-.12-.29-.52-1.47.11-3.07 0 0 .98-.31 3.19 1.19a11.1 11.1 0 0 1 5.81 0c2.21-1.5 3.18-1.19 3.18-1.19.64 1.6.24 2.78.12 3.07.75.82 1.2 1.85 1.2 3.12 0 4.46-2.72 5.44-5.31 5.73.42.36.79 1.07.79 2.16v3.2c0 .31.21.67.8.56A11.6 11.6 0 0 0 12 .7Z"/></svg>
+          <span>查看 GitHub 项目</span>
+          <span class="external-arrow" aria-hidden="true">↗</span>
+        </a>
+
+        <aside class="auth-card" id="login" data-reveal style="--delay: 120ms" aria-labelledby="auth-title">
         <div class="auth-head">
           <div>
             <p class="kicker">Account / Sync</p>
             <h2 id="auth-title">进入独立学习空间<span class="dot"></span></h2>
           </div>
-          <span class="user-pill" id="user-pill" title="当前登录用户"></span>
         </div>
 
         <div class="segmented" role="group" aria-label="登录或注册">
@@ -990,23 +1126,32 @@
           <button class="submit" id="submit-button" type="submit">登录并继续</button>
         </form>
 
+        <div class="signed-in-panel" id="signed-in-panel">
+          <div class="signed-in-user">
+            <div>
+              <p class="signed-in-label">Signed in / 学习账号</p>
+              <strong id="signed-in-name">学习者</strong>
+            </div>
+            <span class="signed-in-state">已登录</span>
+          </div>
+          <button class="signed-in-enter" id="signed-in-enter" type="button">进入刷题空间</button>
+        </div>
+
         <div class="auth-foot" aria-label="同步内容">
           <span class="chip">错题同步</span>
           <span class="chip">收藏同步</span>
           <span class="chip">AI 会话</span>
           <span class="chip">个人知识库</span>
         </div>
-      </aside>
+        </aside>
+      </div>
     </section>
 
-    <section class="section" id="features" data-roman="II">
-      <div class="grid-two">
+    <section class="section" id="features" data-roman="I">
+      <div class="section-heading-wide">
         <div data-reveal>
           <p class="kicker">Question bank</p>
           <h2 class="headline">四门 408，被放进一个可复盘的刷题台<span class="dot"></span></h2>
-        </div>
-        <div data-reveal style="--delay: 100ms">
-          <p class="body-copy">README 里的核心能力被压缩成登录页的第一层价值：题库本地可用，登录后再把错题、收藏、统计和偏好同步到账号，适合长期备考而不是一次性刷题。</p>
         </div>
       </div>
 
@@ -1025,18 +1170,16 @@
       </div>
     </section>
 
-    <section class="section" data-roman="III">
+    <section class="section" data-roman="II">
       <div data-reveal>
         <p class="kicker">Modes / Review rhythm</p>
         <h2 class="headline">刷题模式不是装饰，是复盘路径<span class="dot"></span></h2>
-        <p class="body-copy">页面登录后应把账号态和学习态接起来：顺序打基础，随机检查掌握程度，错题集中复盘，收藏回看高价值题，未做题补齐章节进度。</p>
       </div>
       <div class="mode-list">
         <article class="mode-card" data-reveal><span class="num">顺</span><h3>顺序</h3><p>第一遍按章节建立上下文。</p></article>
         <article class="mode-card" data-reveal style="--delay: 60ms"><span class="num">随</span><h3>随机</h3><p>检查是否真正掌握，而不是记住顺序。</p></article>
-        <article class="mode-card" data-reveal style="--delay: 120ms"><span class="num">错</span><h3>错题</h3><p>针对薄弱点做第二轮判断。</p></article>
-        <article class="mode-card" data-reveal style="--delay: 180ms"><span class="num">藏</span><h3>收藏</h3><p>保留典型题、全局题和易混题。</p></article>
-        <article class="mode-card" data-reveal style="--delay: 240ms"><span class="num">补</span><h3>未做</h3><p>补齐章节进度，减少盲区。</p></article>
+        <article class="mode-card" data-reveal style="--delay: 120ms"><span class="num">错</span><h3>错题</h3><p>集中处理当前仍未做对的题目。</p></article>
+        <article class="mode-card" data-reveal style="--delay: 180ms"><span class="num">藏</span><h3>收藏</h3><p>保留典型题和易混题。</p></article>
       </div>
       <div class="plates" aria-label="模式拼贴占位素材">
         <div class="plate"><img src="plates-v2-web/plate-05-sequence.webp" alt="顺序刷题的纸质拼贴插画" loading="lazy" decoding="async"></div>
@@ -1046,14 +1189,11 @@
       </div>
     </section>
 
-    <section class="section" id="ai" data-roman="IV">
-      <div class="grid-two">
+    <section class="section" id="ai" data-roman="III">
+      <div class="section-heading-wide">
         <div data-reveal>
           <p class="kicker">AI explain</p>
           <h2 class="headline">看不懂时，把当前题目上下文交给 AI<span class="dot"></span></h2>
-        </div>
-        <div data-reveal style="--delay: 100ms">
-          <p class="body-copy">AI 面板会整理题源、章节、题型、当前选择、正确答案、题干、选项和解析。学生可以复制上下文到外部 AI，也可以在页面内直接追问。</p>
         </div>
       </div>
       <div class="workflow">
@@ -1066,30 +1206,28 @@
         <div class="plate"><img src="plates-v2-web/plate-09-ai-panel.webp" alt="AI 讲题的纸质拼贴插画" loading="lazy" decoding="async"></div>
         <div class="plate"><img src="plates-v2-web/plate-10-context.webp" alt="题目上下文的纸质拼贴插画" loading="lazy" decoding="async"></div>
         <div class="plate"><img src="plates-v2-web/plate-11-cause.webp" alt="分析错因的纸质拼贴插画" loading="lazy" decoding="async"></div>
-        <div class="plate"><img src="plates-v2-web/plate-12-batch.webp" alt="批量串讲的纸质拼贴插画" loading="lazy" decoding="async"></div>
+        <div class="plate"><img src="plates-v2-web/plate-08-saved.webp" alt="保存到知识库的纸质拼贴插画" loading="lazy" decoding="async"></div>
       </div>
     </section>
 
-    <section class="section" id="wiki" data-roman="V">
+    <section class="section" id="wiki" data-roman="IV">
       <div class="workspace-slab" data-reveal>
         <div>
           <p class="kicker">Knowledge base</p>
           <h2 class="headline">一次追问，变成下一轮复盘入口<span class="dot"></span></h2>
-          <p class="body-copy">首次追问会决定保存为“概念问题”或“题目问题”。后续追问保留独立状态，进入个人知识库后可以浏览、搜索、预览、编辑和软删除。</p>
         </div>
         <div class="wiki-board" aria-label="知识库保存规则">
-          <div class="note"><code>概念问题</code><div><strong>什么是管程？</strong><span>保存到 wiki/question/科目/概念.md，适合知识点解释。</span></div></div>
-          <div class="note"><code>题目问题</code><div><strong>这题为什么不选 C？</strong><span>保存到 wiki/question/科目/题目标题.md，围绕具体题目复盘。</span></div></div>
-          <div class="note"><code>继续追问</code><div><strong>生成口诀、易错点、自测题</strong><span>基于当前笔记继续加工，并追加保存到个人知识库。</span></div></div>
+          <div class="note"><code>概念问题</code><div><strong>什么是管程？</strong><span>保存知识点解释，方便之后搜索。</span></div></div>
+          <div class="note"><code>题目问题</code><div><strong>这题为什么不选 C？</strong><span>关联当前题目，保留完整复盘上下文。</span></div></div>
+          <div class="note"><code>继续追问</code><div><strong>生成口诀、易错点、自测题</strong><span>在已有笔记上继续整理。</span></div></div>
         </div>
       </div>
     </section>
 
-    <section class="section" data-roman="VI">
+    <section class="section" data-roman="V">
       <div data-reveal>
         <p class="kicker">Account sync</p>
-        <h2 class="headline">登录页真正要承诺的，是同步、隔离和可恢复<span class="dot"></span></h2>
-        <p class="body-copy">浏览器仍保留本地缓存；登录后，错题、收藏、已答统计、刷题会话和偏好设置才同步到服务器。每个账号的个人知识库互相隔离。</p>
+        <h2 class="headline">同步进度，隔离数据，保留本地记录<span class="dot"></span></h2>
       </div>
       <div class="sync-grid">
         <article class="sync-card" data-reveal><span class="status ok">SYNC</span><h3>自动同步</h3><p>错题、收藏和已答记录跟随账号，换设备后继续复盘。</p></article>
@@ -1098,28 +1236,13 @@
       </div>
     </section>
 
-    <section class="section" data-roman="VII">
-      <div class="cta-panel" data-reveal>
-        <div class="cta">
-          <div>
-            <p class="kicker">Next entrance</p>
-            <h2 class="headline">准备好就从登录开始<span class="dot"></span></h2>
-            <p class="body-copy">登录后直接进入刷题主界面，继续上次的进度和复盘。</p>
-          </div>
-          <div class="cta-actions">
-            <a class="button" href="#login">回到登录</a>
-            <a class="button secondary" href="https://github.com/lij768423-svg/408-" target="_blank" rel="noreferrer">查看 README 来源</a>
-          </div>
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer>
     <div class="footer-grid">
       <div><h3>产品</h3><a href="#features">题库能力</a><a href="#ai">AI 讲题</a><a href="#wiki">个人知识库</a></div>
       <div><h3>学习状态</h3><span>错题</span><span>收藏</span><span>已答统计</span></div>
-      <div><h3>来源</h3><a href="https://github.com/lij768423-svg/408-" target="_blank" rel="noreferrer">GitHub README</a><span>ISC License</span></div>
+      <div><h3>项目</h3><a href="https://github.com/lij768423-svg/408-" target="_blank" rel="noreferrer">GitHub</a><span>ISC License</span></div>
     </div>
     <p class="mega">继续 <em>复盘</em><span class="dot"></span></p>
   </footer>
@@ -1147,8 +1270,10 @@
     const form = document.getElementById("auth-form");
     const message = document.getElementById("auth-message");
     const submitButton = document.getElementById("submit-button");
-    const userPill = document.getElementById("user-pill");
-    const stars = document.getElementById("stars");
+    const authCard = document.getElementById("login");
+    const navAccountAction = document.getElementById("nav-account-action");
+    const signedInName = document.getElementById("signed-in-name");
+    const signedInEnter = document.getElementById("signed-in-enter");
 
     function setMessage(text, tone = "neutral") {
       message.textContent = text;
@@ -1173,13 +1298,17 @@
     function setUser(user) {
       state.user = user || null;
       if (state.user) {
-        userPill.textContent = state.user.username || state.user.id || "已登录";
-        userPill.classList.add("is-on");
-        setMessage(`已登录：${userPill.textContent}。提交按钮会进入主界面。`, "success");
-        submitButton.textContent = "进入主界面";
+        const username = state.user.username || state.user.id || "已登录";
+        authCard.classList.add("is-signed-in");
+        signedInName.textContent = username;
+        navAccountAction.textContent = username;
+        navAccountAction.classList.add("is-user");
+        navAccountAction.href = "#/quiz";
       } else {
-        userPill.textContent = "";
-        userPill.classList.remove("is-on");
+        authCard.classList.remove("is-signed-in");
+        navAccountAction.textContent = "登录继续";
+        navAccountAction.classList.remove("is-user");
+        navAccountAction.href = "#login";
       }
     }
 
@@ -1304,24 +1433,18 @@
       }, { passive: true });
     }
 
-    async function initStars() {
-      try {
-        const res = await fetch("https://api.github.com/repos/lij768423-svg/408-", { headers: { "Accept": "application/vnd.github+json" } });
-        if (!res.ok) return;
-        const data = await res.json();
-        stars.textContent = `GitHub 星标 ${data.stargazers_count ?? "—"}`;
-      } catch (error) {
-        stars.textContent = "GitHub 星标 —";
-      }
-    }
-
     loginTab.addEventListener("click", () => setMode("login"));
     registerTab.addEventListener("click", () => setMode("register"));
     form.addEventListener("submit", submitAuth);
+    signedInEnter.addEventListener("click", enterMain);
+    navAccountAction.addEventListener("click", (event) => {
+      if (!state.user) return;
+      event.preventDefault();
+      enterMain();
+    });
 
     initReveal();
     initNav();
-    initStars();
     checkSession();
   </script>
 </body>

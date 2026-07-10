@@ -7,12 +7,12 @@
 <link rel="icon" href="favicon.svg?v=20260709-0745" type="image/svg+xml">
 <link rel="shortcut icon" href="favicon.svg?v=20260709-0745" type="image/svg+xml">
 <link rel="preload" href="data.json" as="fetch" type="application/json">
-<link rel="preload" href="assets/app.css?v=20260709-1728" as="style">
+<link rel="preload" href="assets/app.css?v=20260711-0010" as="style">
 <link rel="preload" href="assets/js/state.js" as="script">
 <link rel="preload" href="assets/js/api.js" as="script">
 <link rel="preload" href="assets/js/utils.js" as="script">
-<link rel="preload" href="assets/js/quiz.js?v=20260709-1550" as="script">
-<link rel="preload" href="assets/js/app-init.js?v=20260709-0640" as="script">
+<link rel="preload" href="assets/js/quiz.js?v=20260710-1300" as="script">
+<link rel="preload" href="assets/js/app-init.js?v=20260710-1810" as="script">
 <!-- KaTeX(公式渲染;无网时自动回退为原文,不影响刷题) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=20260709-1728">
+<link rel="stylesheet" href="assets/app.css?v=20260711-0010">
 </head>
 <body>
 <div class="app">
@@ -41,6 +41,7 @@
 
   <nav class="app-nav" aria-label="页面导航">
     <a class="app-nav-tab" href="#/quiz" data-route-link="quiz">刷题</a>
+    <a class="app-nav-tab" href="#/dashboard" data-route-link="dashboard">学习仪表盘</a>
     <a class="app-nav-tab" href="#/wiki" data-route-link="wiki">个人知识库</a>
     <a class="app-nav-tab" href="#/guide" data-route-link="guide">使用说明</a>
     <button class="app-nav-search" type="button" id="search-open" aria-label="打开题库搜索">
@@ -73,12 +74,6 @@
           <div class="mode-tabs" id="mode-tabs"></div>
           <div class="controls-row" id="mode-extras"></div>
         </div>
-        <div class="side-group sidebar-utility" id="weak-panel-wrap">
-          <details class="weak-panel">
-            <summary class="weak-head"><span class="weak-head-label">薄弱知识点</span></summary>
-            <div class="weak-list" id="weak-list"></div>
-          </details>
-        </div>
       </div>
     </aside>
 
@@ -102,6 +97,32 @@
       <aside class="ai-rail" id="ai-rail" aria-label="AI 讲题"></aside>
     </div>
   </div>
+  </section>
+
+  <section class="route-view dashboard-view" id="view-dashboard" data-route-view="dashboard" aria-labelledby="dashboard-title" hidden>
+    <div class="panel dashboard-shell">
+      <div class="dashboard-head">
+        <div>
+          <p class="dashboard-kicker">STUDY REVIEW / 14-DAY SIGNAL</p>
+          <div class="dashboard-title-row">
+            <h2 id="dashboard-title">学习仪表盘</h2>
+            <button class="dashboard-help-button" type="button" id="dashboard-help-button" aria-label="查看复习题收录规则" aria-expanded="false" aria-controls="dashboard-help-popover">?</button>
+            <div class="dashboard-help-popover" id="dashboard-help-popover" hidden>
+              <strong>复习题收录规则</strong>
+              <ul>
+                <li>答错的题会立即加入今日复习。</li>
+                <li>旧错题首次升级时自动加入今日复习。</li>
+                <li>做对后按 1、3、7、14、30、60 天逐步延长间隔。</li>
+                <li>连续做对 2 次后移出普通错题列表，但仍保留长期复习计划。</li>
+                <li>之后再次答错，会重置连续正确并立即重新到期。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-accent" type="button" id="dashboard-start-review">开始今日复习</button>
+      </div>
+      <div id="dashboard-content" class="dashboard-content"><div class="loading">正在整理学习记录...</div></div>
+    </div>
   </section>
 
   <section class="route-view placeholder-view" id="view-wiki" data-route-view="wiki" aria-labelledby="wiki-title" hidden>
@@ -166,10 +187,10 @@
     <div class="panel placeholder-panel guide-panel">
       <div class="placeholder-head guide-head">
         <div>
-          <p class="placeholder-kicker">PROJECT GUIDE / 408 + LLMWiki</p>
+          <p class="placeholder-kicker">USER GUIDE / 408 PRACTICE</p>
           <h2 id="guide-title">使用说明</h2>
         </div>
-        <span class="placeholder-badge">入门指南</span>
+        <span class="placeholder-badge">从刷题到复习</span>
       </div>
 
       <div class="guide-doc-layout">
@@ -179,125 +200,144 @@
             <strong>Guide</strong>
           </div>
           <nav class="guide-doc-nav">
-            <button type="button" class="is-active" data-guide-target="guide-overview" aria-controls="guide-overview" aria-pressed="true">概览</button>
-            <button type="button" data-guide-target="guide-quickstart" aria-controls="guide-quickstart" aria-pressed="false">快速开始</button>
-            <button type="button" data-guide-target="guide-quiz" aria-controls="guide-quiz" aria-pressed="false">刷题</button>
-            <button type="button" data-guide-target="guide-ai" aria-controls="guide-ai" aria-pressed="false">AI 讲题</button>
-            <button type="button" data-guide-target="guide-wiki-save" aria-controls="guide-wiki-save" aria-pressed="false">保存到知识库</button>
+            <button type="button" class="is-active" data-guide-target="guide-overview" aria-controls="guide-overview" aria-pressed="true">先看这里</button>
+            <button type="button" data-guide-target="guide-quickstart" aria-controls="guide-quickstart" aria-pressed="false">第一次使用</button>
+            <button type="button" data-guide-target="guide-quiz" aria-controls="guide-quiz" aria-pressed="false">刷题与搜索</button>
+            <button type="button" data-guide-target="guide-review" aria-controls="guide-review" aria-pressed="false">仪表盘与复习</button>
+            <button type="button" data-guide-target="guide-ai" aria-controls="guide-ai" aria-pressed="false">AI 与保存</button>
             <button type="button" data-guide-target="guide-wiki" aria-controls="guide-wiki" aria-pressed="false">个人知识库</button>
-            <button type="button" data-guide-target="guide-data" aria-controls="guide-data" aria-pressed="false">账号与同步</button>
+            <button type="button" data-guide-target="guide-data" aria-controls="guide-data" aria-pressed="false">账号与数据</button>
             <button type="button" data-guide-target="guide-faq" aria-controls="guide-faq" aria-pressed="false">常见问题</button>
           </nav>
-          <p class="guide-doc-note">先刷题，再追问，再沉淀。</p>
+          <p class="guide-doc-note">推荐流程：选章节做题 → 看仪表盘 → 完成今日复习 → 遇到卡点再问 AI。</p>
         </aside>
 
         <article class="guide-doc-content">
           <section class="guide-doc-section guide-doc-intro is-active" id="guide-overview">
-            <p class="guide-doc-kicker">开始使用</p>
-            <h3>概览</h3>
-            <p class="guide-doc-lead">刷题定位卡点，AI 讲透，再沉淀成 Markdown 笔记。</p>
-            <div class="guide-doc-flow" aria-label="学习链路">
-              <span>刷题定位</span>
-              <span>AI 讲透</span>
-              <span>知识库沉淀</span>
-              <span>周期复盘</span>
+            <p class="guide-doc-kicker">新用户入口</p>
+            <h3>这套系统能做什么</h3>
+            <p class="guide-doc-lead">做题后，系统会自动更新正确率、错题和复习计划；学习仪表盘把这些记录转成今天该复习什么。AI 和个人知识库用于处理难点，不影响基础刷题。</p>
+            <div class="guide-doc-flow" aria-label="学习流程">
+              <span>选择题目范围</span>
+              <span>作答并看解析</span>
+              <span>按计划复习</span>
+              <span>沉淀难点</span>
             </div>
+            <dl class="guide-doc-list">
+              <div><dt>刷题</dt><dd>按科目、章节和模式生成题单，提交后记录作答结果。</dd></div>
+              <div><dt>学习仪表盘</dt><dd>查看完成度、正确率、错题、到期题目和优先复习章节。</dd></div>
+              <div><dt>个人知识库</dt><dd>保存并管理概念笔记或题目复盘；需要登录和完整后端。</dd></div>
+            </dl>
           </section>
 
           <section class="guide-doc-section" id="guide-quickstart" hidden>
-            <h3>快速开始</h3>
+            <h3>第一次使用</h3>
             <ol>
-              <li><strong>登录：</strong>同步错题、收藏、已答记录和上次位置；不登录也可本地试用。</li>
-              <li><strong>选范围：</strong>在「刷题」页选科目和章节。</li>
-              <li><strong>选模式：</strong>顺序打基础，随机检测，错题 / 收藏做复盘。</li>
-              <li><strong>作答：</strong>提交后看答案和解析；卡住时打开右侧 AI 追问。</li>
-              <li><strong>沉淀：</strong>有价值的讲解再保存到知识库。</li>
+              <li>进入“刷题”，在左侧选择科目和章节。</li>
+              <li>第一次学习建议选“顺序”；复盘时可选“随机”“错题”“收藏”或“未做”。</li>
+              <li>选择答案后点击“提交”。多选题可连续选择多个选项。</li>
+              <li>查看正确答案、你的答案和题库解析，再进入下一题。</li>
+              <li>完成一组后打开“学习仪表盘”，按优先章节或“开始今日复习”继续。</li>
             </ol>
+            <p class="guide-doc-callout">建议第一轮：选一章 → 顺序做 10 题 → 查看仪表盘 → 完成已到期复习。</p>
           </section>
 
           <section class="guide-doc-section" id="guide-quiz" hidden>
-            <h3>刷题</h3>
-            <p>左侧决定题单范围；切换后会重生成题单。</p>
+            <h3>刷题与搜索</h3>
+            <p>左侧选择科目、章节和模式后会生成新的题单。切换范围时会回到该题单第一题。</p>
             <dl class="guide-doc-list">
-              <div><dt>顺序</dt><dd>第一遍按章节打基础。</dd></div>
-              <div><dt>随机</dt><dd>检查是否真正掌握。</dd></div>
-              <div><dt>错题</dt><dd>集中复盘薄弱点。</dd></div>
-              <div><dt>收藏</dt><dd>复习典型题和易混题。</dd></div>
-              <div><dt>未做题</dt><dd>补齐章节进度。</dd></div>
+              <div><dt>顺序 / 随机</dt><dd>顺序适合初学；随机用于检查是否真正掌握。</dd></div>
+              <div><dt>今日复习</dt><dd>只做当前范围内已经到期的复习题，默认最多 20 题。</dd></div>
+              <div><dt>错题 / 收藏</dt><dd>错题显示当前仍未做对的题；收藏用于保留典型题和易混题。</dd></div>
+              <div><dt>未做 / 全部</dt><dd>未做用于补进度；全部会跨科目随机生成题单。</dd></div>
+              <div><dt>即时判分</dt><dd>单选选择后立即判断；多选选错时立即判错，选齐正确选项时判对。</dd></div>
+              <div><dt>全文搜索</dt><dd>点击顶部“搜索题库”或按 <code>Ctrl/Cmd + K</code>，可搜索题干、选项和解析，并按来源和年份筛选。</dd></div>
+            </dl>
+            <p class="guide-doc-callout">搜索结果点击后会直接跳到对应题目；按 <code>Esc</code> 可关闭搜索窗口。</p>
+          </section>
+
+          <section class="guide-doc-section" id="guide-review" hidden>
+            <h3>仪表盘与间隔复习</h3>
+            <dl class="guide-doc-list">
+              <div><dt>今日待复习</dt><dd>已经到期、建议今天完成的题目数量。</dd></div>
+              <div><dt>优先章节</dt><dd>综合完成度、正确率、错题和到期题目推荐最多 3 个章节，点击即可开始。</dd></div>
+              <div><dt>章节明细</dt><dd>按科目查看完成度、正确率、错题、待复习数和最近 7 天变化。</dd></div>
+              <div><dt>近期学习</dt><dd>展示最近 14 天答题量和正确情况，用于判断学习节奏。</dd></div>
             </dl>
             <ul>
-              <li><strong>即时判分：</strong>开启后单选点击即判；多选错选会立即提示。</li>
-              <li><strong>题库搜索：</strong>顶部「搜索题库」或 Ctrl + K 可按关键词、来源、年份定位题目。</li>
-              <li><strong>题库预览：</strong>用色块查看章节状态，点色块跳转题目。</li>
+              <li>答错后，题目当天进入复习计划。</li>
+              <li>做对后，间隔依次延长为 1、3、7、14、30、60 天。</li>
+              <li>连续做对 2 次后移出普通错题列表，但仍保留长期复习计划。</li>
+              <li>之后再次答错，会清空连续正确并立即重新到期。</li>
             </ul>
+            <p class="guide-doc-callout">“今天已清空”表示当前没有到期题目，不是数据丢失。仪表盘标题旁的“?”可随时查看收录规则。</p>
           </section>
 
           <section class="guide-doc-section" id="guide-ai" hidden>
-            <h3>AI 讲题</h3>
-            <p>右侧 AI 会带上当前题目、答案和解析。可点预设，也可直接追问；Enter 发送，Shift + Enter 换行。</p>
+            <h3>AI 讲题与保存</h3>
+            <p>右侧 AI 会带上当前题目、选项、用户选择、正确答案和题库解析。输入具体问题后按 Enter 或点击“询问 AI”；生成中再次点击可以停止。</p>
             <dl class="guide-doc-list">
-              <div><dt>问思路</dt><dd>按 3 步拆这题怎么做。</dd></div>
-              <div><dt>问选项</dt><dd>B 为什么错？为什么不选 D？</dd></div>
-              <div><dt>问概念</dt><dd>什么是管程？TLB 和 Cache 的区别是什么？</dd></div>
-              <div><dt>问复盘</dt><dd>生成错题卡、易错点或 Markdown 表。</dd></div>
+              <div><dt>预设问题</dt><dd>可直接选择“讲解思路”“逐项排除”“错因分析”或“生成错题卡”。</dd></div>
+              <div><dt>自由追问</dt><dd>例如“为什么不选 B”“题干的限定词在哪里”“什么是管程”。</dd></div>
+              <div><dt>复制上下文</dt><dd>复制当前题目的 Markdown 上下文。服务器 AI 不可用时，可粘贴到外部 AI。</dd></div>
+              <div><dt>保存概念</dt><dd>保存最近一次具体概念问题和 AI 回答，不发送题干、选项、答案或作答字段。</dd></div>
+              <div><dt>保存题目</dt><dd>保存当前题干、选项、正确答案、题库解析、作答状态和 AI 讲解。</dd></div>
             </dl>
-            <p class="guide-doc-callout">AI 可能出错；公式、边界条件和教材口径建议回原解析再确认一遍。</p>
-          </section>
-
-          <section class="guide-doc-section" id="guide-wiki-save" hidden>
-            <h3>保存到知识库</h3>
-            <p>点击「保存到知识库」后，会把题目、作答和 AI 讲解写成 Markdown；分类优先看第一次追问。</p>
-            <div class="guide-doc-two-col">
-              <section>
-                <h4>概念问题</h4>
-                <p>适合长期复习的知识点解释。</p>
-                <ul>
-                  <li>常见触发：什么是、概念、区别、原理、怎么理解、总结。</li>
-                  <li>笔记形态：问题、答案、关键结论、相关来源。</li>
-                </ul>
-              </section>
-              <section>
-                <h4>题目问题</h4>
-                <p>适合当前题目的复盘。</p>
-                <ul>
-                  <li>常见触发：这题、本题、题干、选项、A/B/C/D、正确答案。</li>
-                  <li>笔记形态：题干、选项、我的作答、答案、AI 讲解、错因。</li>
-                </ul>
-              </section>
-            </div>
-            <p class="guide-doc-callout">想存成概念问题，就先问「什么是 / 区别 / 原理」；想存成题目问题，就先指向当前题和选项。</p>
+            <p class="guide-doc-callout">“保存概念”和“保存题目”都需要登录。AI 可能出错，最终结论以题库解析、教材和考纲口径为准。</p>
           </section>
 
           <section class="guide-doc-section" id="guide-wiki" hidden>
             <h3>个人知识库</h3>
-            <p>每个账号都有独立知识库，可搜索、预览、编辑、软删除，也可继续基于笔记追问 AI。</p>
+            <p>知识库按账号隔离，保存内容为 Markdown。默认显示概念问题，也可切换到全部问题或题目问题。</p>
             <dl class="guide-doc-list">
-              <div><dt>浏览</dt><dd>左侧按科目展开目录，右侧预览 Markdown 全文。</dd></div>
-              <div><dt>搜索</dt><dd>可搜索概念、题目标题、路径和正文内容。</dd></div>
-              <div><dt>编辑</dt><dd>打开笔记后点「编辑」，直接修改 Markdown。</dd></div>
-              <div><dt>删除</dt><dd>移动到个人知识库 <code>.trash</code>，不是永久删除。</dd></div>
-              <div><dt>继续追问</dt><dd>基于当前笔记生成口诀、易错点、自测题或表格，并可追加保存。</dd></div>
+              <div><dt>浏览与分类</dt><dd>左侧按科目显示目录；顶部可切换“全部问题 / 概念问题 / 题目问题”。</dd></div>
+              <div><dt>搜索</dt><dd>输入关键词后按 Enter 或点击“搜索”，匹配标题、路径、标签和正文。</dd></div>
+              <div><dt>预览与编辑</dt><dd>点击笔记查看 Markdown 全文；点击“编辑”可直接修改并保存。</dd></div>
+              <div><dt>继续追问</dt><dd>可基于当前笔记提问，或使用口诀、易错点、自测题和表格等预设。</dd></div>
+              <div><dt>写回笔记</dt><dd>AI 回答不会自动修改文件；确认后再保存追加到当前笔记。</dd></div>
+              <div><dt>删除</dt><dd>文件会移动到个人知识库的 <code>.trash</code>，不是立即永久删除。</dd></div>
             </dl>
           </section>
 
           <section class="guide-doc-section" id="guide-data" hidden>
-            <h3>账号与同步</h3>
-            <ul>
-              <li><strong>账号隔离：</strong>不同账号的进度和个人知识库互相不可见。</li>
-              <li><strong>自动同步：</strong>登录后，错题、收藏、已答统计、会话和偏好会同步到服务器。</li>
-              <li><strong>本地缓存：</strong>浏览器也会保留一份本地状态，短暂断网通常仍能恢复。</li>
-              <li><strong>文件形态：</strong>保存到知识库的内容是 Markdown 文件，适合搜索、编辑、备份和迁移。</li>
-            </ul>
+            <h3>账号与学习数据</h3>
+            <div class="guide-doc-two-col">
+              <section>
+                <h4>LOCAL 模式</h4>
+                <ul>
+                  <li>无需账号，可使用刷题、搜索、仪表盘和间隔复习。</li>
+                  <li>数据只保存在当前浏览器，不能跨设备同步。</li>
+                  <li>不能使用服务器 AI 和个人知识库。</li>
+                </ul>
+              </section>
+              <section>
+                <h4>登录模式</h4>
+                <ul>
+                  <li>自动同步作答、错题、收藏、复习计划、活动和部分偏好。</li>
+                  <li>状态显示 <code>SYNCING</code>、<code>SAVED</code> 或 <code>SYNC FAIL</code>。</li>
+                  <li>支持页面内 AI、个人知识库和修改密码。</li>
+                </ul>
+              </section>
+            </div>
+            <dl class="guide-doc-list">
+              <div><dt>导出记录</dt><dd>下载 JSON 备份，适合迁移浏览器或长期存档。</dd></div>
+              <div><dt>导入记录</dt><dd>选择之前导出的 JSON 恢复学习数据；登录状态下会继续同步。</dd></div>
+              <div><dt>题库预览</dt><dd>查看全题库状态，不会修改记录；点击题号才会跳到对应题目。</dd></div>
+              <div><dt>更改密码</dt><dd>输入当前密码和两次新密码；成功后当前设备保留登录，其他会话退出。</dd></div>
+              <div><dt>退出登录</dt><dd>停止服务器同步；当前浏览器中的本地缓存仍会保留。</dd></div>
+            </dl>
           </section>
 
           <section class="guide-doc-section" id="guide-faq" hidden>
             <h3>常见问题</h3>
             <dl class="guide-doc-list">
-              <div><dt>知识库为空</dt><dd>新账号默认是空的；先在刷题页追问 AI 并保存，再回来看。</dd></div>
-              <div><dt>搜索失败</dt><dd>多半是知识库服务或登录状态异常；先刷新，不行再重新登录。</dd></div>
-              <div><dt>AI 没反应</dt><dd>可能是服务器配置不可用或请求超时；仍可复制上下文到外部 AI。</dd></div>
-              <div><dt>分类不对</dt><dd>分类优先看第一次追问；调整第一次问法即可。</dd></div>
-              <div><dt>误删笔记</dt><dd>删除会进 <code>.trash</code>，不是永久删除。</dd></div>
+              <div><dt>页面显示 LOCAL</dt><dd>当前未连接完整后端或尚未登录。基础刷题正常，数据保存在浏览器。</dd></div>
+              <div><dt>AI 没反应</dt><dd>确认已登录且 AI 状态可用；失败时使用“复制上下文”粘贴到外部 AI。</dd></div>
+              <div><dt>保存概念失败</dt><dd>先提出一个具体概念问题并得到回答，再点击“保存概念”。寒暄或空问题不会保存。</dd></div>
+              <div><dt>知识库为空</dt><dd>新账号默认没有笔记。先在 AI 面板明确保存概念或题目，再进入知识库。</dd></div>
+              <div><dt>搜索提示 server error</dt><dd>知识库上游暂时不可用或超时，刷新后重试；基础刷题不受影响。</dd></div>
+              <div><dt>同步失败</dt><dd>本地记录仍会保留。检查网络后继续操作，恢复连接时会再次同步。</dd></div>
+              <div><dt>换浏览器没有进度</dt><dd>LOCAL 数据不会自动迁移，请在旧浏览器导出记录，再在新浏览器导入。</dd></div>
             </dl>
           </section>
         </article>
@@ -333,7 +373,30 @@
 </div>
 
 <div class="auth-card" id="auth-card">
-  <iframe class="auth-frame" src="assets/auth/login-intro.html?v=20260710-0225" title="408 登录介绍页"></iframe>
+  <iframe class="auth-frame" src="assets/auth/login-intro.html?v=20260710-1740" title="408 登录介绍页"></iframe>
+</div>
+
+<div class="password-modal" id="password-modal" hidden role="dialog" aria-modal="true" aria-labelledby="password-title">
+  <form class="password-box" id="password-form">
+    <div class="password-head">
+      <div>
+        <span class="dashboard-kicker">ACCOUNT SECURITY</span>
+        <h2 id="password-title">更改密码</h2>
+        <p>修改后其他设备会退出登录，当前设备可继续使用。</p>
+      </div>
+      <button class="preview-close" type="button" id="password-close" aria-label="关闭更改密码">×</button>
+    </div>
+    <div class="password-fields">
+      <label>当前密码<input type="password" id="password-current" autocomplete="current-password" required minlength="6"></label>
+      <label>新密码<input type="password" id="password-new" autocomplete="new-password" required minlength="6"></label>
+      <label>确认新密码<input type="password" id="password-confirm" autocomplete="new-password" required minlength="6"></label>
+      <p class="password-message" id="password-message" aria-live="polite"></p>
+    </div>
+    <div class="password-actions">
+      <button class="backup-btn" type="button" id="password-cancel">取消</button>
+      <button class="btn btn-primary btn-accent" type="submit" id="password-submit">确认修改</button>
+    </div>
+  </form>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -370,38 +433,19 @@
   </div>
 </div>
 
-<!-- Feature 3: 批量讲错题弹窗 -->
-<div class="batch-modal" id="batch-modal" hidden role="dialog" aria-modal="true" aria-labelledby="batch-title">
-  <div class="batch-box">
-    <div class="batch-head">
-      <div class="batch-title" id="batch-title">选择错题让 AI 串讲</div>
-      <button class="batch-close" type="button" id="batch-close" aria-label="关闭">×</button>
-    </div>
-    <div class="batch-toolbar">
-      <span>错题数 <strong id="batch-total">0</strong></span>
-      <button type="button" id="batch-select-all">全选</button>
-      <button type="button" id="batch-select-none">全不选</button>
-      <button type="button" id="batch-sort">按章节排序</button>
-    </div>
-    <div class="batch-list" id="batch-list"></div>
-    <div class="batch-foot">
-      <div class="batch-count">已选 <strong id="batch-selected">0</strong> 题</div>
-      <button type="button" id="batch-ask">让 AI 串讲 →</button>
-    </div>
-  </div>
-</div>
-
 <!-- Classic script load order: see assets/js/README.md. -->
 <script src="assets/js/state.js"></script>
+<script src="assets/js/learning.js?v=20260710-1200"></script>
 <script src="assets/js/api.js"></script>
 <script src="assets/js/utils.js"></script>
 <script src="assets/js/router.js"></script>
-<script src="assets/js/quiz.js?v=20260709-1550"></script>
-<script src="assets/js/auth.js?v=20260710-0305"></script>
-<script src="assets/js/wiki.js?v=20260709-1402"></script>
-<script src="assets/js/ai.js?v=20260709-0710"></script>
-<script src="assets/js/search.js?v=20260709-1550"></script>
-<script src="assets/js/app-init.js?v=20260709-0640"></script>
+<script src="assets/js/quiz.js?v=20260710-1300"></script>
+<script src="assets/js/auth.js?v=20260710-1420"></script>
+<script src="assets/js/wiki.js?v=20260710-1900"></script>
+<script src="assets/js/ai.js?v=20260710-2240"></script>
+<script src="assets/js/search.js?v=20260710-2115"></script>
+<script src="assets/js/dashboard.js?v=20260710-1320"></script>
+<script src="assets/js/app-init.js?v=20260710-2030"></script>
 
 </body>
 </html>

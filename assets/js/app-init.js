@@ -141,75 +141,8 @@ function bindNewFeatureControls() {
       else openSearch();
     } else if (e.key === "Escape") {
       if ($("#search-modal") && !$("#search-modal").hidden) closeSearch();
-      if ($("#batch-modal") && !$("#batch-modal").hidden) closeBatchModal();
     }
   });
-  // Feature 3: 批量讲错题入口位于 AI 面板内，随 renderAiPanel 重渲染后在 bindAiPanel 中绑定。
-  const batchClose = $("#batch-close");
-  if (batchClose) batchClose.onclick = () => closeBatchModal();
-  const batchModal = $("#batch-modal");
-  if (batchModal) {
-    batchModal.onclick = (e) => {
-      if (e.target === batchModal) closeBatchModal();
-    };
-  }
-  const batchSelectAll = $("#batch-select-all");
-  if (batchSelectAll) batchSelectAll.onclick = () => {
-    $$(".batch-item").forEach(el => BATCH_SELECTED.add(el.dataset.qid));
-    renderBatchList();
-  };
-  const batchSelectNone = $("#batch-select-none");
-  if (batchSelectNone) batchSelectNone.onclick = () => {
-    BATCH_SELECTED.clear();
-    renderBatchList();
-  };
-  const batchSort = $("#batch-sort");
-  if (batchSort) batchSort.onclick = () => {
-    BATCH_SORT_MODE = BATCH_SORT_MODE === "chapter" ? "default" : "chapter";
-    batchSort.textContent = BATCH_SORT_MODE === "chapter" ? "按时间排序" : "按章节排序";
-    renderBatchList();
-  };
-  const batchAsk = $("#batch-ask");
-  if (batchAsk) batchAsk.onclick = async () => {
-    if (BATCH_SELECTED.size === 0) { toast("先选几道错题"); return; }
-    // 收集选中题目的上下文,合并后发给 AI
-    const selectedQs = Array.from(BATCH_SELECTED)
-      .map(qid => ALL_QUESTIONS.find(q => q.id === qid))
-      .filter(Boolean);
-    if (selectedQs.length === 0) { toast("题目不存在"); return; }
-    closeBatchModal();
-    const lines = [
-      `# 408 错题串讲 · 共 ${selectedQs.length} 题`,
-      "",
-      "请帮我串讲这些错题的共同考点和解题思路,先按章节归类,再逐题给出要点。",
-      "",
-      "---",
-    ];
-    selectedQs.forEach((q, i) => {
-      const ctx = getQuestionContext(q, null, "");
-      lines.push(`## 错题 ${i + 1} / ${selectedQs.length}`);
-      lines.push(ctx);
-      lines.push("---");
-    });
-    const batchText = lines.join("\n");
-    // 写到剪贴板 + 打开搜索栏输入框提示
-    try {
-      await navigator.clipboard.writeText(batchText);
-      toast(`已复制 ${selectedQs.length} 道错题上下文到剪贴板,可粘贴给任意 AI`);
-    } catch (e) {
-      toast("已生成串讲上下文,可在 AI 栏使用复制");
-    }
-    // 同时切到第一道错题 + 在 AI 栏显示
-    CURRENT.book = selectedQs[0].book;
-    CURRENT.chapter = selectedQs[0].chapter;
-    setMode("wrong");
-    const idx = CURRENT.questions.findIndex(qq => qq.id === selectedQs[0].id);
-    if (idx >= 0) CURRENT.idx = idx;
-    render();
-    CURRENT.aiOutput = batchText;
-    const out = $("#ai-output");
-    if (out) out.innerHTML = renderMarkdown(batchText);
-  };
 }
 
 window.addEventListener("message", (event) => {
