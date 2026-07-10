@@ -8,6 +8,7 @@
 
 | 页面 | 地址 |
 |---|---|
+| 首页 | `https://quiz.hermesjj.com/` |
 | 刷题 | `https://quiz.hermesjj.com/#/quiz` |
 | 个人知识库 | `https://quiz.hermesjj.com/#/wiki` |
 | 使用说明 | `https://quiz.hermesjj.com/#/guide` |
@@ -29,7 +30,7 @@
 - Markdown/公式/代码渲染：题面、解析和 AI 输出支持 Markdown、KaTeX 和代码块。
 - 导入导出：学习记录可用 JSON 迁移。
 
-![主刷题界面：题库导航、题卡、学习进度和右侧 AI 讲题面板](docs/screenshots/main.png)
+![登录首页：408 AI 刷题库的账号入口、题库能力介绍和视觉拼贴](docs/screenshots/main.png)
 
 ---
 

@@ -15,6 +15,7 @@ function renderAuthUser() {
   const correctCount = Math.max(0, answeredCount - wrongCount);
   const syncText = ($("#sync-status") && $("#sync-status").textContent) || "LOCAL";
   box.innerHTML =
+    '<button class="header-action-btn" type="button" id="home-landing-open">首页</button>' +
     '<button class="header-action-btn" type="button" id="preview-open">题库预览</button>' +
     '<button class="header-action-btn" type="button" id="user-menu-toggle" aria-haspopup="menu" aria-expanded="false">账号 <strong>' + escHtml(AUTH_USER.username) + '</strong></button>' +
     '<div class="user-menu" id="user-menu" hidden>' +
@@ -32,6 +33,7 @@ function renderAuthUser() {
       '</div>' +
       '<div class="user-menu-meta" style="margin:10px 0 0;">题库 ' + totalQs + ' 题 · 错题 ' + wrongCount + ' · 同步 <span id="user-sync-status">' + escHtml(syncText) + '</span></div>' +
     '</div>';
+  $("#home-landing-open").onclick = openHomeLanding;
   $("#preview-open").onclick = openQuestionPreview;
   const toggle = $("#user-menu-toggle");
   const menu = $("#user-menu");
@@ -48,6 +50,18 @@ function renderAuthUser() {
     const input = $("#import-file");
     if (input) input.click();
   };
+}
+
+function openHomeLanding() {
+  closeUserMenu();
+  const card = $("#auth-card");
+  if (!card) return;
+  const frame = card.querySelector(".auth-frame");
+  if (frame) {
+    const base = (frame.getAttribute("src") || "assets/auth/login-intro.html").split("?")[0];
+    frame.setAttribute("src", base + "?v=20260710-0225&from=home&t=" + Date.now());
+  }
+  card.style.display = "grid";
 }
 
 function closeUserMenu() {
