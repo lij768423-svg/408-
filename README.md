@@ -30,8 +30,6 @@
 | 个人知识库 | 搜索、分类、预览、编辑、继续追问和软删除 Markdown 笔记 |
 | 数据 | 浏览器本地保存；完整后端支持账号同步；学习记录可导入、导出 JSON |
 
-![登录首页：账号入口和功能介绍](docs/screenshots/main.png)
-
 ## 5 分钟启动
 
 需要 Python 3 或 Node.js，任选一种方式启动 HTTP 静态服务器。
@@ -82,7 +80,13 @@ npx serve . -l 8767
 
 ![答题反馈：提交后查看答案与解析](docs/screenshots/feedback.png)
 
-## 数据与复习规则
+## 学习仪表盘与复习
+
+首页介绍核心学习能力；进入学习仪表盘后，可以查看今日复习、学习进度、近期节奏和优先复习章节。
+
+![首页介绍：账号入口、学习进度和核心能力](docs/screenshots/main.png)
+
+![学习仪表盘：今日复习、学习节奏和优先章节](docs/screenshots/dashboard.png)
 
 浏览器状态保存在 `localStorage`，主要包括：
 
