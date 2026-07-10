@@ -123,7 +123,6 @@ document.addEventListener("keydown", (e) => {
 
 function renderHeader() {
   const totalQs = ALL_QUESTIONS.length;
-  const favCount = Object.keys(STATE.favorite).length;
   // 从权威源派生:已答(去重过的题目 ID 数)、错题、正确率 = (已答 - 当前错题) / 已答
   // 避免 STATE.stats.answered 累加计数器因重复作答而漂移
   const answeredCount = Object.keys(STATE.attempted).length;
@@ -141,7 +140,6 @@ function renderHeader() {
     <span>已答 <strong>${answeredCount}</strong></span>
     <span>正确率 <strong>${correctRate}%</strong></span>
     <span>错题 <strong>${wrongCount}</strong></span>
-    <span>收藏 <strong>${favCount}</strong></span>
   `;
 }
 
@@ -156,21 +154,8 @@ function renderBookTabs() {
   </button>`;
   const bookEntries = books.map(b => {
     const count = ALL_QUESTIONS.filter(q => q.book === b).length;
-    // 当前激活书的子筛选(错题 / 收藏)题数
-    const mini = (CURRENT.book === b)
-      ? ALL_QUESTIONS.filter(q => q.book === b && (CURRENT.chapter == null || q.chapter === CURRENT.chapter))
-          .reduce((acc, q) => {
-            if (isWrong(q.id)) acc.w++;
-            if (isFav(q.id)) acc.f++;
-            return acc;
-          }, { w: 0, f: 0 })
-      : { w: 0, f: 0 };
-    const miniHtml = (CURRENT.book === b && (mini.w + mini.f) > 0)
-      ? `<span class="be-mini">${mini.w ? `错 ${mini.w}` : ""}${mini.f ? ` · 收藏 ${mini.f}` : ""}</span>`
-      : "";
     return `<button class="book-entry ${b === CURRENT.book ? "active" : ""}" data-book="${escHtml(b)}" type="button">
       <span class="be-name">${escHtml(b)}</span>
-      ${miniHtml}
       <span class="be-count">${count}</span>
     </button>`;
   }).join("");

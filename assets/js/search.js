@@ -363,7 +363,7 @@ function renderBatchList() {
     return `<div class="batch-item ${selected ? "selected" : ""}" data-qid="${escHtml(q.id)}">
       <div class="batch-check">${selected ? "✓" : ""}</div>
       <div class="batch-item-body">
-        <div class="batch-item-meta">${renderSourceTag(q)}${escHtml(q.book)} · 第${q.chapter}章 · ${escHtml(q.section || "")} · ${escHtml(q.chapter_title)}</div>
+        <div class="batch-item-meta">${renderSourceTag(q)}${escHtml(q.book)} · 第${q.chapter}章 · ${escHtml(q.section || q.chapter_title || "")}</div>
         <div class="batch-item-stem">${escHtml(short)}</div>
       </div>
     </div>`;

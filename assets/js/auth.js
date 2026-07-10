@@ -80,8 +80,7 @@ function openQuestionPreview() {
   if (!ALL_QUESTIONS.length) { toast("题库还没加载完"); return; }
   const answeredCount = Object.keys(STATE.attempted || {}).length;
   const wrongCount = Object.keys(STATE.wrong || {}).length;
-  const favCount = Object.keys(STATE.favorite || {}).length;
-  if (sub) sub.textContent = "共 " + ALL_QUESTIONS.length + " 题 · 已答 " + answeredCount + " · 错题 " + wrongCount + " · 收藏 " + favCount + "。点色块跳转到对应题目。";
+  if (sub) sub.textContent = "共 " + ALL_QUESTIONS.length + " 题 · 已答 " + answeredCount + " · 错题 " + wrongCount + "。";
 
   const keepByFilter = (q) => {
     const cls = questionStatusClass(q);
@@ -162,20 +161,44 @@ function jumpToQuestion(qid) {
 }
 
 function setAuthMode(mode) {
-  AUTH_MODE = mode;
-  $("#auth-login-tab").classList.toggle("active", mode === "login");
-  $("#auth-register-tab").classList.toggle("active", mode === "register");
-  $("#auth-submit").textContent = mode === "login" ? "登录" : "注册并进入";
-  $("#auth-password").setAttribute("autocomplete", mode === "login" ? "current-password" : "new-password");
+  const loginTab = $("#auth-login-tab");
+  const registerTab = $("#auth-register-tab");
+  const submitButton = $("#auth-submit");
+  const password = $("#auth-password");
   const inviteField = $("#auth-invite-field");
-  if (inviteField) inviteField.hidden = mode !== "register";
-  $("#auth-error").textContent = "";
+  const modeNote = $("#auth-mode-note");
+  const inlineNote = $("#auth-inline-note");
+  const card = $("#auth-card");
+  if (!loginTab || !registerTab || !submitButton || !password || !inviteField) return;
+  AUTH_MODE = mode;
+  loginTab.classList.toggle("active", mode === "login");
+  registerTab.classList.toggle("active", mode === "register");
+  submitButton.textContent = mode === "login" ? "登录并继续" : "注册并进入";
+  password.setAttribute("autocomplete", mode === "login" ? "current-password" : "new-password");
+  inviteField.hidden = mode !== "register";
+  if (modeNote) {
+    modeNote.textContent = mode === "login"
+      ? "错题、收藏、已答记录和当前会话都会跟随账号同步。"
+      : "创建独立账号后，刷题记录和个人知识库会自动归档到你的空间。";
+  }
+  if (inlineNote) {
+    inlineNote.textContent = mode === "login"
+      ? "已有账号直接登录。"
+      : "前 20 个账号可直接注册，之后需要邀请码。";
+  }
+  if (card) card.dataset.authMode = mode;
+  const error = $("#auth-error");
+  if (error) error.textContent = "";
 }
 
 function bindAuthControls() {
-  $("#auth-login-tab").onclick = () => setAuthMode("login");
-  $("#auth-register-tab").onclick = () => setAuthMode("register");
-  $("#auth-form").onsubmit = async (e) => {
+  const loginTab = $("#auth-login-tab");
+  const registerTab = $("#auth-register-tab");
+  const form = $("#auth-form");
+  if (!loginTab || !registerTab || !form) return false;
+  loginTab.onclick = () => setAuthMode("login");
+  registerTab.onclick = () => setAuthMode("register");
+  form.onsubmit = async (e) => {
     e.preventDefault();
     const username = $("#auth-username").value.trim();
     const password = $("#auth-password").value;
@@ -199,6 +222,7 @@ function bindAuthControls() {
       submit.disabled = false;
     }
   };
+  return true;
 }
 
 async function logout() {
@@ -211,8 +235,8 @@ async function logout() {
 }
 
 async function initAuth() {
-  bindAuthControls();
-  setAuthMode("login");
+  const hasInlineAuth = bindAuthControls();
+  if (hasInlineAuth) setAuthMode("login");
   try {
     const data = await apiJson("/api/auth/me");
     AUTH_USER = data.user || null;

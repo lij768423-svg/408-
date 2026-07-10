@@ -7,11 +7,11 @@
 <link rel="icon" href="/favicon.svg?v=20260709-0745" type="image/svg+xml">
 <link rel="shortcut icon" href="/favicon.svg?v=20260709-0745" type="image/svg+xml">
 <link rel="preload" href="data.json" as="fetch" type="application/json">
-<link rel="preload" href="assets/app.css?v=20260709-1450" as="style">
+<link rel="preload" href="assets/app.css?v=20260709-1728" as="style">
 <link rel="preload" href="assets/js/state.js" as="script">
 <link rel="preload" href="assets/js/api.js" as="script">
 <link rel="preload" href="assets/js/utils.js" as="script">
-<link rel="preload" href="assets/js/quiz.js" as="script">
+<link rel="preload" href="assets/js/quiz.js?v=20260709-1550" as="script">
 <link rel="preload" href="assets/js/app-init.js?v=20260709-0640" as="script">
 <!-- KaTeX(公式渲染;无网时自动回退为原文,不影响刷题) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=20260709-1450">
+<link rel="stylesheet" href="assets/app.css?v=20260709-1728">
 </head>
 <body>
 <div class="app">
@@ -333,27 +333,7 @@
 </div>
 
 <div class="auth-card" id="auth-card">
-  <div class="auth-box">
-    <h2>登录刷题进度</h2>
-    <p>每个账号独立保存错题、收藏、已答记录和当前会话。前 20 个账号可直接注册，之后需要邀请码。</p>
-    <div class="auth-tabs">
-      <button class="auth-tab active" type="button" id="auth-login-tab">登录</button>
-      <button class="auth-tab" type="button" id="auth-register-tab">注册</button>
-    </div>
-    <form id="auth-form">
-      <label class="auth-field">用户名
-        <input id="auth-username" autocomplete="username" placeholder="3-32 位，字母/数字/_/-">
-      </label>
-      <label class="auth-field">密码
-        <input id="auth-password" type="password" autocomplete="current-password" placeholder="至少 6 位">
-      </label>
-      <label class="auth-field" id="auth-invite-field" hidden>邀请码
-        <input id="auth-invite" autocomplete="off" placeholder="前 20 个账号可留空，之后向管理员获取">
-      </label>
-      <div class="auth-error" id="auth-error"></div>
-      <button class="btn btn-primary btn-accent" type="submit" id="auth-submit">登录</button>
-    </form>
-  </div>
+  <iframe class="auth-frame" src="assets/auth/login-intro.html?v=20260710-0225" title="408 登录介绍页"></iframe>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -416,11 +396,11 @@
 <script src="assets/js/api.js"></script>
 <script src="assets/js/utils.js"></script>
 <script src="assets/js/router.js"></script>
-<script src="assets/js/quiz.js"></script>
-<script src="assets/js/auth.js"></script>
+<script src="assets/js/quiz.js?v=20260709-1550"></script>
+<script src="assets/js/auth.js?v=20260709-1728"></script>
 <script src="assets/js/wiki.js?v=20260709-1402"></script>
 <script src="assets/js/ai.js?v=20260709-0710"></script>
-<script src="assets/js/search.js"></script>
+<script src="assets/js/search.js?v=20260709-1550"></script>
 <script src="assets/js/app-init.js?v=20260709-0640"></script>
 
 </body>

@@ -1,0 +1,1324 @@
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>408 ai 刷题库｜登录介绍</title>
+  <meta name="description" content="408 ai 刷题库登录入口：同步错题、收藏、AI 会话和个人知识库。">
+  <style>
+    :root {
+      --bg: oklch(96% 0.018 86);
+      --paper: oklch(99% 0.012 88);
+      --surface: oklch(100% 0.006 88);
+      --ink: oklch(18% 0.025 68);
+      --muted: oklch(48% 0.018 70);
+      --line: oklch(78% 0.018 82);
+      --soft-line: oklch(88% 0.012 84);
+      --accent: oklch(61% 0.16 32);
+      --accent-2: oklch(50% 0.12 178);
+      --ok: oklch(55% 0.14 150);
+      --warn: oklch(64% 0.16 75);
+      --danger: oklch(55% 0.18 25);
+      --shadow: 0 24px 70px oklch(25% 0.03 70 / 0.12);
+      --font-display: "Playfair Display", "Iowan Old Style", "Times New Roman", serif;
+      --font-body: "Inter Tight", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+      --font-mono: "SFMono-Regular", "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+      --max: 1280px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg);
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font-body);
+      background:
+        radial-gradient(circle at 20% 12%, oklch(100% 0.02 90 / 0.72), transparent 30rem),
+        radial-gradient(circle at 88% 8%, oklch(92% 0.036 50 / 0.56), transparent 24rem),
+        linear-gradient(90deg, oklch(35% 0.018 75 / 0.04) 1px, transparent 1px),
+        linear-gradient(0deg, oklch(35% 0.018 75 / 0.04) 1px, transparent 1px),
+        var(--bg);
+      background-size: auto, auto, 38px 38px, 38px 38px, auto;
+      line-height: 1.55;
+      text-rendering: geometricPrecision;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      content: "";
+      opacity: 0.28;
+      background-image:
+        repeating-linear-gradient(95deg, oklch(28% 0.02 80 / 0.035) 0 1px, transparent 1px 7px),
+        repeating-linear-gradient(8deg, transparent 0 11px, oklch(100% 0 0 / 0.25) 11px 12px);
+      mix-blend-mode: multiply;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input { font: inherit; }
+
+    .top-strip {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1rem;
+      align-items: center;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 18px clamp(18px, 3vw, 34px) 10px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      border-bottom: 1px dotted var(--line);
+    }
+
+    .top-strip span:nth-child(2) { color: var(--ink); }
+    .top-strip span:last-child { text-align: right; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      transform: translateY(0);
+      transition: transform 220ms ease, background 220ms ease, border-color 220ms ease;
+      border-bottom: 1px dotted transparent;
+      background: color-mix(in oklch, var(--bg) 88%, transparent);
+      backdrop-filter: blur(16px);
+    }
+
+    .nav.is-hidden { transform: translateY(-100%); }
+
+    .nav.is-scrolled {
+      border-bottom-color: var(--line);
+      background: color-mix(in oklch, var(--paper) 92%, transparent);
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 15px clamp(18px, 3vw, 34px);
+    }
+
+    .brand-mark {
+      display: inline-flex;
+      gap: 12px;
+      align-items: center;
+      min-width: 0;
+      font-weight: 750;
+      letter-spacing: 0.02em;
+    }
+
+    .mark {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      color: var(--paper);
+      background: var(--ink);
+      border: 1px solid var(--ink);
+      place-items: center;
+      border-radius: 50%;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      letter-spacing: 0;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: clamp(12px, 2.2vw, 30px);
+      align-items: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .nav-links a {
+      position: relative;
+      padding: 8px 0;
+    }
+
+    .nav-links a::after {
+      position: absolute;
+      right: 0;
+      bottom: 2px;
+      left: 0;
+      height: 1px;
+      content: "";
+      background: var(--accent);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 180ms ease;
+    }
+
+    .nav-links a:hover::after,
+    .nav-links a:focus-visible::after { transform: scaleX(1); }
+
+    .nav-action {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 10px 14px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      color: var(--paper);
+      background: var(--ink);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 0.38em;
+      height: 0.38em;
+      margin-left: 0.07em;
+      vertical-align: baseline;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+
+    main {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 clamp(18px, 3vw, 34px) 58px;
+    }
+
+    .section {
+      position: relative;
+      padding: clamp(54px, 8vw, 100px) 0;
+      border-bottom: 1px dotted var(--line);
+    }
+
+    .section::before {
+      position: absolute;
+      top: clamp(24px, 5vw, 46px);
+      left: 0;
+      color: var(--accent);
+      content: attr(data-roman);
+      font-family: var(--font-display);
+      font-size: clamp(34px, 5vw, 72px);
+      font-style: italic;
+      opacity: 0.28;
+      transform: translateY(-36%);
+    }
+
+    [data-reveal] {
+      opacity: 1;
+      transform: none;
+    }
+
+    html.motion-ok [data-reveal] {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 640ms ease, transform 640ms ease;
+      transition-delay: var(--delay, 0ms);
+    }
+
+    html.motion-ok [data-reveal].is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .kicker {
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .display {
+      max-width: 940px;
+      margin: 0;
+      font-size: clamp(52px, 9vw, 134px);
+      font-weight: 600;
+      line-height: 0.88;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    .display em,
+    .headline em {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    .lead {
+      max-width: 660px;
+      margin: 28px 0 0;
+      color: var(--muted);
+      font-size: clamp(19px, 2vw, 26px);
+      line-height: 1.55;
+      text-wrap: pretty;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.75fr);
+      gap: clamp(32px, 5vw, 76px);
+      align-items: start;
+      min-height: calc(100svh - 116px);
+      padding-top: clamp(46px, 7vw, 92px);
+    }
+
+    .hero-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      max-width: 720px;
+      margin-top: 44px;
+    }
+
+    .ring {
+      position: relative;
+      display: grid;
+      min-height: 156px;
+      padding: 22px;
+      border: 1px dotted var(--line);
+      background: color-mix(in oklch, var(--paper) 78%, transparent);
+      place-items: center;
+      text-align: center;
+      border-radius: 50%;
+    }
+
+    .ring strong {
+      display: block;
+      color: var(--ink);
+      font-family: var(--font-display);
+      font-size: clamp(32px, 5vw, 54px);
+      font-style: italic;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    .ring span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+    }
+
+    .auth-card {
+      position: sticky;
+      top: 92px;
+      padding: clamp(22px, 3vw, 34px);
+      border: 1px solid var(--ink);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .auth-card::before {
+      position: absolute;
+      inset: 10px;
+      z-index: -1;
+      content: "";
+      border: 1px dotted var(--line);
+      transform: rotate(-1.3deg);
+    }
+
+    .auth-head {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+      padding-bottom: 18px;
+      border-bottom: 1px dotted var(--line);
+    }
+
+    .auth-head h2 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 0.96;
+      letter-spacing: 0;
+    }
+
+    .user-pill {
+      display: none;
+      max-width: 190px;
+      padding: 8px 10px;
+      overflow: hidden;
+      color: var(--accent-2);
+      border: 1px solid color-mix(in oklch, var(--accent-2), var(--paper) 44%);
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .user-pill.is-on { display: inline-flex; }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      margin: 22px 0;
+      overflow: hidden;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      background: var(--paper);
+    }
+
+    .segmented button {
+      min-height: 48px;
+      cursor: pointer;
+      border: 0;
+      color: var(--muted);
+      background: transparent;
+      font-weight: 800;
+    }
+
+    .segmented button[aria-pressed="true"] {
+      color: var(--paper);
+      background: var(--ink);
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .field input {
+      width: 100%;
+      min-height: 54px;
+      padding: 0 16px;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 0;
+      background: color-mix(in oklch, var(--paper), white 42%);
+      outline: none;
+      transition: border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+    }
+
+    .field input:focus {
+      border-color: var(--accent);
+      background: white;
+      box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent), transparent 82%);
+    }
+
+    .field.is-hidden { display: none; }
+
+    .form-note,
+    .message {
+      min-height: 24px;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .message[data-tone="error"] { color: var(--danger); }
+    .message[data-tone="success"] { color: var(--ok); }
+
+    .submit {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 58px;
+      margin-top: 18px;
+      cursor: pointer;
+      color: var(--paper);
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      font-weight: 850;
+      transition: transform 160ms ease, background 160ms ease;
+    }
+
+    .submit:hover {
+      transform: translateY(-1px);
+      background: color-mix(in oklch, var(--ink), var(--accent) 10%);
+    }
+
+    .submit[disabled] {
+      cursor: wait;
+      opacity: 0.68;
+      transform: none;
+    }
+
+    .auth-foot {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1px dotted var(--line);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 0 10px;
+      color: var(--muted);
+      border: 1px dotted var(--line);
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      gap: clamp(28px, 5vw, 70px);
+      align-items: start;
+    }
+
+    .headline {
+      margin: 0;
+      font-size: clamp(38px, 6vw, 82px);
+      font-weight: 650;
+      line-height: 0.95;
+      letter-spacing: 0;
+      text-wrap: balance;
+    }
+
+    .body-copy {
+      margin: 24px 0 0;
+      color: var(--muted);
+      font-size: clamp(17px, 1.5vw, 21px);
+      text-wrap: pretty;
+    }
+
+    .cap-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 34px;
+    }
+
+    .cap-card,
+    .mode-card {
+      background: color-mix(in oklch, var(--paper), white 28%);
+      border: 1px dotted var(--line);
+    }
+
+    .cap-card {
+      min-height: 212px;
+      padding: 22px;
+    }
+
+    .num {
+      display: block;
+      color: var(--accent);
+      font-family: var(--font-display);
+      font-size: 34px;
+      font-style: italic;
+      line-height: 1;
+    }
+
+    .cap-card h3,
+    .mode-card h3 {
+      margin: 22px 0 10px;
+      font-size: 22px;
+      line-height: 1.12;
+    }
+
+    .cap-card p,
+    .mode-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .plates {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 36px;
+    }
+
+    .plate {
+      position: relative;
+      display: block;
+      min-height: 188px;
+      overflow: hidden;
+      border: 1px solid var(--ink);
+      background:
+        linear-gradient(135deg, transparent 0 46%, color-mix(in oklch, var(--accent), transparent 72%) 46% 54%, transparent 54%),
+        radial-gradient(circle at var(--x, 28%) var(--y, 24%), color-mix(in oklch, var(--accent-2), white 38%) 0 24%, transparent 25%),
+        color-mix(in oklch, var(--paper), white 18%);
+      isolation: isolate;
+      transform: rotate(var(--tilt, -1deg));
+    }
+
+    .plate img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 188px;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .plate::before,
+    .plate::after {
+      position: absolute;
+      content: "";
+      background: var(--ink);
+      mix-blend-mode: multiply;
+    }
+
+    .plate::before {
+      width: 44%;
+      height: 72%;
+      right: 8%;
+      bottom: -16%;
+      clip-path: polygon(18% 0, 100% 22%, 74% 100%, 0 82%);
+      opacity: 0.13;
+    }
+
+    .plate::after {
+      width: 52px;
+      height: 52px;
+      top: 22px;
+      left: 22px;
+      border-radius: 50%;
+      opacity: 0.75;
+    }
+
+    .plate span {
+      position: absolute;
+      right: 14px;
+      bottom: 12px;
+      z-index: 2;
+      color: var(--ink);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .plate strong {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 2;
+      width: min-content;
+      color: var(--ink);
+      font-family: var(--font-display);
+      font-size: 30px;
+      font-style: italic;
+      font-weight: 500;
+      line-height: 0.9;
+    }
+
+    .plate:has(img)::before,
+    .plate:has(img)::after,
+    .plate:has(img) strong,
+    .plate:has(img) span { display: none; }
+
+    .plate:nth-child(2n) {
+      --tilt: 1.2deg;
+      --x: 66%;
+      --y: 34%;
+    }
+
+    .plate:nth-child(3n) {
+      --tilt: -2deg;
+      --x: 42%;
+      --y: 70%;
+    }
+
+    .mode-list {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 34px;
+    }
+
+    .mode-card {
+      min-height: 178px;
+      padding: 18px;
+    }
+
+    .workflow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 34px;
+      counter-reset: step;
+    }
+
+    .step {
+      position: relative;
+      min-height: 250px;
+      padding: 20px;
+      color: var(--paper);
+      background: var(--ink);
+      border: 1px solid var(--ink);
+      overflow: hidden;
+    }
+
+    .step::before {
+      display: block;
+      margin-bottom: 34px;
+      color: var(--accent);
+      counter-increment: step;
+      content: "0" counter(step);
+      font-family: var(--font-display);
+      font-size: 48px;
+      font-style: italic;
+      line-height: 1;
+    }
+
+    .step h3 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      line-height: 1.05;
+    }
+
+    .step p {
+      margin: 0;
+      color: oklch(84% 0.018 82);
+    }
+
+    .workspace-slab {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: clamp(22px, 4vw, 52px);
+      align-items: center;
+      padding: clamp(28px, 5vw, 58px);
+      color: var(--paper);
+      background: var(--ink);
+      border: 1px solid var(--ink);
+    }
+
+    .workspace-slab .headline { color: var(--paper); }
+
+    .workspace-slab .body-copy,
+    .workspace-slab .kicker { color: oklch(84% 0.018 82); }
+
+    .wiki-board {
+      display: grid;
+      gap: 12px;
+    }
+
+    .note {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 16px;
+      color: var(--ink);
+      background: var(--paper);
+      border: 1px dotted color-mix(in oklch, var(--paper), var(--ink) 42%);
+    }
+
+    .note code {
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .note strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 18px;
+    }
+
+    .sync-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 34px;
+    }
+
+    .sync-card {
+      min-height: 200px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      background: color-mix(in oklch, var(--paper), white 36%);
+    }
+
+    .sync-card h3 {
+      margin: 0 0 14px;
+      font-size: 24px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 8px;
+      margin-bottom: 24px;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+    }
+
+    .status.ok { color: var(--ok); }
+    .status.warn { color: var(--warn); }
+    .status.info { color: var(--accent-2); }
+
+    .cta {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 22px;
+      align-items: end;
+    }
+
+    .cta-panel {
+      padding: clamp(28px, 5vw, 58px);
+      border: 1px solid var(--ink);
+      background: var(--surface);
+    }
+
+    .cta-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 18px;
+      border: 1px solid var(--ink);
+      background: var(--ink);
+      color: var(--paper);
+      font-weight: 800;
+    }
+
+    .button.secondary {
+      color: var(--ink);
+      background: transparent;
+    }
+
+    footer {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 42px clamp(18px, 3vw, 34px) 56px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 22px;
+      padding-top: 22px;
+      border-top: 1px dotted var(--line);
+    }
+
+    .footer-grid h3 {
+      margin: 0 0 12px;
+      font-size: 14px;
+    }
+
+    .footer-grid a,
+    .footer-grid span {
+      display: block;
+      margin: 8px 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .mega {
+      margin: 42px 0 0;
+      font-size: clamp(60px, 13vw, 190px);
+      font-weight: 600;
+      line-height: 0.8;
+      letter-spacing: 0;
+    }
+
+    .mega em {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 500;
+    }
+
+    @media (max-width: 1080px) {
+      .hero,
+      .grid-two,
+      .workspace-slab,
+      .cta { grid-template-columns: 1fr; }
+
+      .auth-card {
+        position: relative;
+        top: auto;
+      }
+
+      .cap-grid,
+      .workflow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+      .mode-list,
+      .plates { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 880px) {
+      .top-strip { grid-template-columns: 1fr; }
+      .top-strip span:last-child { text-align: left; }
+      .nav-links { display: none; }
+
+      .hero-meta,
+      .sync-grid { grid-template-columns: 1fr; }
+
+      .ring {
+        min-height: 112px;
+        border-radius: 0;
+      }
+
+    }
+
+    @media (max-width: 560px) {
+      .display { font-size: clamp(46px, 17vw, 72px); }
+      .section { padding: 56px 0; }
+
+      .cap-grid,
+      .mode-list,
+      .workflow,
+      .plates,
+      .footer-grid { grid-template-columns: 1fr; }
+
+      .plate { min-height: 170px; }
+      .auth-head { display: grid; }
+      .note { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+
+      html.motion-ok [data-reveal],
+      [data-reveal] {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-strip" aria-label="版本信息">
+    <span>Volume 408 / AI Quiz</span>
+    <span>题库 · 错题 · AI 讲题 · 知识库</span>
+    <span id="stars">GitHub 星标 —</span>
+  </div>
+
+  <nav class="nav" id="nav" aria-label="主导航">
+    <div class="nav-inner">
+      <a class="brand-mark" href="#top" aria-label="返回页面顶部">
+        <span class="mark">408</span>
+        <span>408 ai 刷题库</span>
+      </a>
+      <div class="nav-links" aria-label="页面章节">
+        <a href="#features">题库能力</a>
+        <a href="#ai">AI 讲题</a>
+        <a href="#wiki">知识库</a>
+      </div>
+      <a class="nav-action" href="#login">登录继续</a>
+    </div>
+  </nav>
+
+  <main id="top">
+    <section class="section hero" data-roman="I" aria-labelledby="hero-title">
+      <div data-reveal>
+        <p class="kicker">Private study space / account sync</p>
+        <h1 class="display" id="hero-title">登录后继续你的 <em>刷题进度</em><span class="dot"></span></h1>
+        <p class="lead">错题、收藏、AI 会话和个人知识库归到同一个账号里。先刷四门 408 题库，再把看不懂的题沉淀成长期复盘材料。</p>
+        <div class="hero-meta" aria-label="题库数据">
+          <div class="ring"><div><strong>2386</strong><span>当前题量</span></div></div>
+          <div class="ring"><div><strong>4</strong><span>408 科目</span></div></div>
+          <div class="ring"><div><strong>5</strong><span>核心刷题模式</span></div></div>
+        </div>
+      </div>
+
+      <aside class="auth-card" id="login" data-reveal style="--delay: 120ms" aria-labelledby="auth-title">
+        <div class="auth-head">
+          <div>
+            <p class="kicker">Account / Sync</p>
+            <h2 id="auth-title">进入独立学习空间<span class="dot"></span></h2>
+          </div>
+          <span class="user-pill" id="user-pill" title="当前登录用户"></span>
+        </div>
+
+        <div class="segmented" role="group" aria-label="登录或注册">
+          <button type="button" id="login-tab" aria-pressed="true">登录</button>
+          <button type="button" id="register-tab" aria-pressed="false">注册</button>
+        </div>
+
+        <form id="auth-form" novalidate>
+          <div class="field">
+            <label for="username">用户名</label>
+            <input id="username" name="username" autocomplete="username" required placeholder="输入你的账号名">
+          </div>
+          <div class="field">
+            <label for="password">密码</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="输入密码">
+          </div>
+          <div class="field is-hidden" id="invite-field">
+            <label for="inviteCode">邀请码</label>
+            <input id="inviteCode" name="inviteCode" autocomplete="off" placeholder="注册时填写邀请码">
+          </div>
+          <p class="message" id="auth-message" aria-live="polite">登录后会自动同步错题、收藏和学习进度。</p>
+          <button class="submit" id="submit-button" type="submit">登录并继续</button>
+        </form>
+
+        <div class="auth-foot" aria-label="同步内容">
+          <span class="chip">错题同步</span>
+          <span class="chip">收藏同步</span>
+          <span class="chip">AI 会话</span>
+          <span class="chip">个人知识库</span>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="features" data-roman="II">
+      <div class="grid-two">
+        <div data-reveal>
+          <p class="kicker">Question bank</p>
+          <h2 class="headline">四门 408，被放进一个可复盘的刷题台<span class="dot"></span></h2>
+        </div>
+        <div data-reveal style="--delay: 100ms">
+          <p class="body-copy">README 里的核心能力被压缩成登录页的第一层价值：题库本地可用，登录后再把错题、收藏、统计和偏好同步到账号，适合长期备考而不是一次性刷题。</p>
+        </div>
+      </div>
+
+      <div class="cap-grid">
+        <article class="cap-card" data-reveal><span class="num">01</span><h3>操作系统</h3><p>按章节刷基础题，用错题模式集中复盘调度、内存和并发。</p></article>
+        <article class="cap-card" data-reveal style="--delay: 60ms"><span class="num">02</span><h3>数据结构</h3><p>搜索、树、图和排序题可按题源与年份快速定位。</p></article>
+        <article class="cap-card" data-reveal style="--delay: 120ms"><span class="num">03</span><h3>组成原理</h3><p>提交后看正确答案、你的答案和解析，定位概念偷换。</p></article>
+        <article class="cap-card" data-reveal style="--delay: 180ms"><span class="num">04</span><h3>计算机网络</h3><p>收藏典型题和易混题，复习时直接回到高价值集合。</p></article>
+      </div>
+
+      <div class="plates" aria-label="编辑拼贴占位素材">
+        <div class="plate"><img src="plates-v2-web/plate-01-os.webp" alt="操作系统主题的纸质拼贴插画" loading="lazy" decoding="async"></div>
+        <div class="plate"><img src="plates-v2-web/plate-02-ds.webp" alt="数据结构主题的纸质拼贴插画" loading="lazy" decoding="async"></div>
+        <div class="plate"><img src="plates-v2-web/plate-03-co.webp" alt="组成原理主题的纸质拼贴插画" loading="lazy" decoding="async"></div>
+        <div class="plate"><img src="plates-v2-web/plate-04-cn.webp" alt="计算机网络主题的纸质拼贴插画" loading="lazy" decoding="async"></div>
+      </div>
+    </section>
+
+    <section class="section" data-roman="III">
+      <div data-reveal>
+        <p class="kicker">Modes / Review rhythm</p>
+        <h2 class="headline">刷题模式不是装饰，是复盘路径<span class="dot"></span></h2>
+        <p class="body-copy">页面登录后应把账号态和学习态接起来：顺序打基础，随机检查掌握程度，错题集中复盘，收藏回看高价值题，未做题补齐章节进度。</p>
+      </div>
+      <div class="mode-list">
+        <article class="mode-card" data-reveal><span class="num">顺</span><h3>顺序</h3><p>第一遍按章节建立上下文。</p></article>
+        <article class="mode-card" data-reveal style="--delay: 60ms"><span class="num">随</span><h3>随机</h3><p>检查是否真正掌握，而不是记住顺序。</p></article>
+        <article class="mode-card" data-reveal style="--delay: 120ms"><span class="num">错</span><h3>错题</h3><p>针对薄弱点做第二轮判断。</p></article>
+        <article class="mode-card" data-reveal style="--delay: 180ms"><span class="num">藏</span><h3>收藏</h3><p>保留典型题、全局题和易混题。</p></article>
+        <article class="mode-card" data-reveal style="--delay: 240ms"><span class="num">补</span><h3>未做</h3><p>补齐章节进度，减少盲区。</p></article>
+      </div>
+      <div class="plates" aria-label="模式拼贴占位素材">
+        <div class="plate"><img src="plates-v2-web/plate-05-sequence.webp" alt="顺序刷题的纸质拼贴插画" loading="lazy" decoding="async"></div>
+        <div class="plate"><img src="plates-v2-web/plate-06-random.webp" alt="随机刷题的纸质拼贴插画" loading="lazy" decoding="async"></div>
+        <div class="plate"><img src="plates-v2-web/plate-07-wrong.webp" alt="错题复盘的纸质拼贴插画" loading="lazy" decoding="async"></div>
+        <div class="plate"><img src="plates-v2-web/plate-08-saved.webp" alt="收藏题的纸质拼贴插画" loading="lazy" decoding="async"></div>
+      </div>
+    </section>
+
+    <section class="section" id="ai" data-roman="IV">
+      <div class="grid-two">
+        <div data-reveal>
+          <p class="kicker">AI explain</p>
+          <h2 class="headline">看不懂时，把当前题目上下文交给 AI<span class="dot"></span></h2>
+        </div>
+        <div data-reveal style="--delay: 100ms">
+          <p class="body-copy">AI 面板会整理题源、章节、题型、当前选择、正确答案、题干、选项和解析。学生可以复制上下文到外部 AI，也可以在页面内直接追问。</p>
+        </div>
+      </div>
+      <div class="workflow">
+        <article class="step" data-reveal><h3>复制上下文</h3><p>把题目与解析打包给外部 AI，保留完整语境。</p></article>
+        <article class="step" data-reveal style="--delay: 80ms"><h3>逐项追问</h3><p>问“B 为什么错”“为什么不选 D”，围绕选项拆解。</p></article>
+        <article class="step" data-reveal style="--delay: 160ms"><h3>生成错题卡</h3><p>提炼考点、错因和复习提醒，减少重复踩坑。</p></article>
+        <article class="step" data-reveal style="--delay: 240ms"><h3>保存知识库</h3><p>把讲清楚的解释沉淀为可搜索、可编辑的 Markdown。</p></article>
+      </div>
+      <div class="plates" aria-label="AI 拼贴占位素材">
+        <div class="plate"><img src="plates-v2-web/plate-09-ai-panel.webp" alt="AI 讲题的纸质拼贴插画" loading="lazy" decoding="async"></div>
+        <div class="plate"><img src="plates-v2-web/plate-10-context.webp" alt="题目上下文的纸质拼贴插画" loading="lazy" decoding="async"></div>
+        <div class="plate"><img src="plates-v2-web/plate-11-cause.webp" alt="分析错因的纸质拼贴插画" loading="lazy" decoding="async"></div>
+        <div class="plate"><img src="plates-v2-web/plate-12-batch.webp" alt="批量串讲的纸质拼贴插画" loading="lazy" decoding="async"></div>
+      </div>
+    </section>
+
+    <section class="section" id="wiki" data-roman="V">
+      <div class="workspace-slab" data-reveal>
+        <div>
+          <p class="kicker">Knowledge base</p>
+          <h2 class="headline">一次追问，变成下一轮复盘入口<span class="dot"></span></h2>
+          <p class="body-copy">首次追问会决定保存为“概念问题”或“题目问题”。后续追问保留独立状态，进入个人知识库后可以浏览、搜索、预览、编辑和软删除。</p>
+        </div>
+        <div class="wiki-board" aria-label="知识库保存规则">
+          <div class="note"><code>概念问题</code><div><strong>什么是管程？</strong><span>保存到 wiki/question/科目/概念.md，适合知识点解释。</span></div></div>
+          <div class="note"><code>题目问题</code><div><strong>这题为什么不选 C？</strong><span>保存到 wiki/question/科目/题目标题.md，围绕具体题目复盘。</span></div></div>
+          <div class="note"><code>继续追问</code><div><strong>生成口诀、易错点、自测题</strong><span>基于当前笔记继续加工，并追加保存到个人知识库。</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" data-roman="VI">
+      <div data-reveal>
+        <p class="kicker">Account sync</p>
+        <h2 class="headline">登录页真正要承诺的，是同步、隔离和可恢复<span class="dot"></span></h2>
+        <p class="body-copy">浏览器仍保留本地缓存；登录后，错题、收藏、已答统计、刷题会话和偏好设置才同步到服务器。每个账号的个人知识库互相隔离。</p>
+      </div>
+      <div class="sync-grid">
+        <article class="sync-card" data-reveal><span class="status ok">SYNC</span><h3>自动同步</h3><p>错题、收藏和已答记录跟随账号，换设备后继续复盘。</p></article>
+        <article class="sync-card" data-reveal style="--delay: 80ms"><span class="status info">PRIVATE</span><h3>互相隔离</h3><p>新账号默认没有其他用户笔记，个人知识库按账号隔离。</p></article>
+        <article class="sync-card" data-reveal style="--delay: 160ms"><span class="status warn">LOCAL</span><h3>本地可恢复</h3><p>网络短暂异常时，浏览器缓存仍能帮助恢复当前刷题状态。</p></article>
+      </div>
+    </section>
+
+    <section class="section" data-roman="VII">
+      <div class="cta-panel" data-reveal>
+        <div class="cta">
+          <div>
+            <p class="kicker">Next entrance</p>
+            <h2 class="headline">准备好就从登录开始<span class="dot"></span></h2>
+            <p class="body-copy">登录后直接进入刷题主界面，继续上次的进度和复盘。</p>
+          </div>
+          <div class="cta-actions">
+            <a class="button" href="#login">回到登录</a>
+            <a class="button secondary" href="https://github.com/lij768423-svg/408-" target="_blank" rel="noreferrer">查看 README 来源</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-grid">
+      <div><h3>产品</h3><a href="#features">题库能力</a><a href="#ai">AI 讲题</a><a href="#wiki">个人知识库</a></div>
+      <div><h3>学习状态</h3><span>错题</span><span>收藏</span><span>已答统计</span></div>
+      <div><h3>来源</h3><a href="https://github.com/lij768423-svg/408-" target="_blank" rel="noreferrer">GitHub README</a><span>ISC License</span></div>
+    </div>
+    <p class="mega">继续 <em>复盘</em><span class="dot"></span></p>
+  </footer>
+
+  <script>
+    const SUCCESS_TARGET = "#/quiz";
+    const endpoints = {
+      me: "/api/auth/me",
+      login: "/api/auth/login",
+      register: "/api/auth/register",
+      logout: "/api/auth/logout"
+    };
+
+    const state = {
+      mode: "login",
+      loading: false,
+      user: null
+    };
+
+    const nav = document.getElementById("nav");
+    const loginTab = document.getElementById("login-tab");
+    const registerTab = document.getElementById("register-tab");
+    const inviteField = document.getElementById("invite-field");
+    const form = document.getElementById("auth-form");
+    const message = document.getElementById("auth-message");
+    const submitButton = document.getElementById("submit-button");
+    const userPill = document.getElementById("user-pill");
+    const stars = document.getElementById("stars");
+
+    function setMessage(text, tone = "neutral") {
+      message.textContent = text;
+      message.dataset.tone = tone;
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      loginTab.setAttribute("aria-pressed", String(mode === "login"));
+      registerTab.setAttribute("aria-pressed", String(mode === "register"));
+      inviteField.classList.toggle("is-hidden", mode !== "register");
+      submitButton.textContent = mode === "login" ? "登录并继续" : "注册并进入";
+      setMessage(mode === "login" ? "已有账号直接登录。" : "注册态会额外提交邀请码。");
+    }
+
+    function setLoading(isLoading) {
+      state.loading = isLoading;
+      submitButton.disabled = isLoading;
+      submitButton.textContent = isLoading ? "提交中..." : (state.mode === "login" ? "登录并继续" : "注册并进入");
+    }
+
+    function setUser(user) {
+      state.user = user || null;
+      if (state.user) {
+        userPill.textContent = state.user.username || state.user.id || "已登录";
+        userPill.classList.add("is-on");
+        setMessage(`已登录：${userPill.textContent}。提交按钮会进入主界面。`, "success");
+        submitButton.textContent = "进入主界面";
+      } else {
+        userPill.textContent = "";
+        userPill.classList.remove("is-on");
+      }
+    }
+
+    function enterMain() {
+      const target = "/#/quiz";
+      try {
+        window.top.location.href = target;
+        window.setTimeout(() => window.top.location.reload(), 100);
+      } catch (error) {
+        window.location.href = target;
+      }
+    }
+
+    async function apiJson(url, options = {}) {
+      const res = await fetch(url, {
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...(options.headers || {})
+        },
+        ...options
+      });
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
+      if (!res.ok) {
+        throw new Error(data.error || data.message || `${res.status} ${res.statusText}`);
+      }
+      return data;
+    }
+
+    async function checkSession() {
+      try {
+        const data = await apiJson(endpoints.me);
+        setUser(data.user);
+        if (!data.user) setMessage("当前未登录；输入账号即可同步刷题进度。");
+      } catch (error) {
+        setUser(null);
+        setMessage("暂时无法确认登录状态；可以直接登录，或稍后再试。", "error");
+      }
+    }
+
+    async function submitAuth(event) {
+      event.preventDefault();
+      if (state.user) {
+        enterMain();
+        setMessage("已进入刷题主界面入口。", "success");
+        return;
+      }
+
+      const formData = new FormData(form);
+      const username = String(formData.get("username") || "").trim();
+      const password = String(formData.get("password") || "");
+      const inviteCode = String(formData.get("inviteCode") || "").trim();
+
+      if (!username || !password) {
+        setMessage("请填写用户名和密码。", "error");
+        return;
+      }
+
+      if (state.mode === "register" && !inviteCode) {
+        setMessage("注册需要邀请码。", "error");
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const url = state.mode === "login" ? endpoints.login : endpoints.register;
+        const payload = state.mode === "login" ? { username, password } : { username, password, inviteCode };
+        const data = await apiJson(url, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        setUser(data.user);
+        setMessage("认证成功，正在进入主界面。", "success");
+        window.setTimeout(() => {
+          enterMain();
+        }, 420);
+      } catch (error) {
+        setMessage(error.message || "认证失败，请检查账号信息。", "error");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    document.documentElement.classList.add("motion-ok");
+
+    function initReveal() {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const items = document.querySelectorAll("[data-reveal]");
+      if (reduce || !("IntersectionObserver" in window)) {
+        items.forEach((item) => item.classList.add("is-visible"));
+        return;
+      }
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.14, rootMargin: "0px 0px -8% 0px" });
+      items.forEach((item) => {
+        const box = item.getBoundingClientRect();
+        if (box.top < window.innerHeight * 0.96) {
+          item.classList.add("is-visible");
+        } else {
+          observer.observe(item);
+        }
+      });
+    }
+
+    function initNav() {
+      let lastY = window.scrollY;
+      window.addEventListener("scroll", () => {
+        const y = window.scrollY;
+        nav.classList.toggle("is-scrolled", y > 18);
+        nav.classList.toggle("is-hidden", y > 260 && y > lastY);
+        lastY = y;
+      }, { passive: true });
+    }
+
+    async function initStars() {
+      try {
+        const res = await fetch("https://api.github.com/repos/lij768423-svg/408-", { headers: { "Accept": "application/vnd.github+json" } });
+        if (!res.ok) return;
+        const data = await res.json();
+        stars.textContent = `GitHub 星标 ${data.stargazers_count ?? "—"}`;
+      } catch (error) {
+        stars.textContent = "GitHub 星标 —";
+      }
+    }
+
+    loginTab.addEventListener("click", () => setMode("login"));
+    registerTab.addEventListener("click", () => setMode("register"));
+    form.addEventListener("submit", submitAuth);
+
+    initReveal();
+    initNav();
+    initStars();
+    checkSession();
+  </script>
+</body>
+</html>
