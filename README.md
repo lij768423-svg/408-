@@ -1,6 +1,6 @@
 # 408 考研刷题库
 
-![408 考研刷题库：刷题、复习、AI 讲题与个人知识库](docs/screenshots/hero.png)
+![408 考研刷题库：刷题复盘闭环](docs/screenshots/review-flow-cover.png)
 
 一个无需前端构建即可运行的 408 网页题库，覆盖刷题、全文搜索、学习统计、间隔复习、AI 讲题和 Markdown 个人知识库。
 
