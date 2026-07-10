@@ -47,7 +47,7 @@
 请求：
 
 ```json
-{ "username": "alice", "password": "password", "inviteCode": "optional-code" }
+{ "username": "alice", "password": "password" }
 ```
 
 响应格式与登录相同。

@@ -246,17 +246,15 @@ function setAuthMode(mode) {
   const registerTab = $("#auth-register-tab");
   const submitButton = $("#auth-submit");
   const password = $("#auth-password");
-  const inviteField = $("#auth-invite-field");
   const modeNote = $("#auth-mode-note");
   const inlineNote = $("#auth-inline-note");
   const card = $("#auth-card");
-  if (!loginTab || !registerTab || !submitButton || !password || !inviteField) return;
+  if (!loginTab || !registerTab || !submitButton || !password) return;
   AUTH_MODE = mode;
   loginTab.classList.toggle("active", mode === "login");
   registerTab.classList.toggle("active", mode === "register");
   submitButton.textContent = mode === "login" ? "登录并继续" : "注册并进入";
   password.setAttribute("autocomplete", mode === "login" ? "current-password" : "new-password");
-  inviteField.hidden = mode !== "register";
   if (modeNote) {
     modeNote.textContent = mode === "login"
       ? "错题、收藏、已答记录和当前会话都会跟随账号同步。"
@@ -265,7 +263,7 @@ function setAuthMode(mode) {
   if (inlineNote) {
     inlineNote.textContent = mode === "login"
       ? "已有账号直接登录。"
-      : "前 20 个账号可直接注册，之后需要邀请码。";
+      : "注册后即可同步学习记录。";
   }
   if (card) card.dataset.authMode = mode;
   const error = $("#auth-error");
@@ -283,14 +281,13 @@ function bindAuthControls() {
     e.preventDefault();
     const username = $("#auth-username").value.trim();
     const password = $("#auth-password").value;
-    const inviteCode = $("#auth-invite") ? $("#auth-invite").value.trim() : "";
     const submit = $("#auth-submit");
     const error = $("#auth-error");
     error.textContent = "";
     submit.disabled = true;
     try {
       const url = AUTH_MODE === "login" ? "/api/auth/login" : "/api/auth/register";
-      const data = await apiJson(url, { method: "POST", body: JSON.stringify({ username, password, inviteCode }) });
+      const data = await apiJson(url, { method: "POST", body: JSON.stringify({ username, password }) });
       AUTH_USER = data.user;
       $("#auth-card").style.display = "none";
       renderAuthUser();

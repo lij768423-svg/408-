@@ -1118,10 +1118,6 @@
             <label for="password">密码</label>
             <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="输入密码">
           </div>
-          <div class="field is-hidden" id="invite-field">
-            <label for="inviteCode">邀请码</label>
-            <input id="inviteCode" name="inviteCode" autocomplete="off" placeholder="注册时填写邀请码">
-          </div>
           <p class="message" id="auth-message" aria-live="polite">登录后会自动同步错题、收藏和学习进度。</p>
           <button class="submit" id="submit-button" type="submit">登录并继续</button>
         </form>
@@ -1266,7 +1262,6 @@
     const nav = document.getElementById("nav");
     const loginTab = document.getElementById("login-tab");
     const registerTab = document.getElementById("register-tab");
-    const inviteField = document.getElementById("invite-field");
     const form = document.getElementById("auth-form");
     const message = document.getElementById("auth-message");
     const submitButton = document.getElementById("submit-button");
@@ -1284,9 +1279,8 @@
       state.mode = mode;
       loginTab.setAttribute("aria-pressed", String(mode === "login"));
       registerTab.setAttribute("aria-pressed", String(mode === "register"));
-      inviteField.classList.toggle("is-hidden", mode !== "register");
       submitButton.textContent = mode === "login" ? "登录并继续" : "注册并进入";
-      setMessage(mode === "login" ? "已有账号直接登录。" : "注册态会额外提交邀请码。");
+      setMessage(mode === "login" ? "已有账号直接登录。" : "创建账号后即可同步学习记录。");
     }
 
     function setLoading(isLoading) {
@@ -1364,22 +1358,15 @@
       const formData = new FormData(form);
       const username = String(formData.get("username") || "").trim();
       const password = String(formData.get("password") || "");
-      const inviteCode = String(formData.get("inviteCode") || "").trim();
-
       if (!username || !password) {
         setMessage("请填写用户名和密码。", "error");
-        return;
-      }
-
-      if (state.mode === "register" && !inviteCode) {
-        setMessage("注册需要邀请码。", "error");
         return;
       }
 
       setLoading(true);
       try {
         const url = state.mode === "login" ? endpoints.login : endpoints.register;
-        const payload = state.mode === "login" ? { username, password } : { username, password, inviteCode };
+        const payload = { username, password };
         const data = await apiJson(url, {
           method: "POST",
           body: JSON.stringify(payload)
