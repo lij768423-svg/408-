@@ -2728,6 +2728,9 @@ body::after {
 #quiz-area.panel {
   padding: 22px 24px;
 }
+#quiz-area.panel:hover {
+  transform: none;
+}
 .q-meta {
   display: flex; justify-content: space-between; align-items: center;
   font-size: 12px; color: var(--muted);
