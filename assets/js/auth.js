@@ -251,11 +251,21 @@ async function logout() {
 async function initAuth() {
   const hasInlineAuth = bindAuthControls();
   if (hasInlineAuth) setAuthMode("login");
+  let authApiAvailable = true;
   try {
     const data = await apiJson("/api/auth/me");
     AUTH_USER = data.user || null;
   } catch {
+    authApiAvailable = false;
     AUTH_USER = null;
+  }
+  if (!authApiAvailable) {
+    const authCard = $("#auth-card");
+    if (authCard) authCard.style.display = "none";
+    SERVER_PROGRESS_LOADED = false;
+    setSyncStatus("LOCAL");
+    startAppAfterAuth();
+    return;
   }
   if (!AUTH_USER) {
     $("#auth-card").style.display = "grid";

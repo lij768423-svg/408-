@@ -1136,7 +1136,8 @@
     const state = {
       mode: "login",
       loading: false,
-      user: null
+      user: null,
+      localOnly: false
     };
 
     const nav = document.getElementById("nav");
@@ -1183,12 +1184,10 @@
     }
 
     function enterMain() {
-      const target = "/#/quiz";
       try {
-        window.top.location.href = target;
-        window.setTimeout(() => window.top.location.reload(), 100);
+        window.top.postMessage({ type: "408-quiz-enter-main" }, window.location.origin);
       } catch (error) {
-        window.location.href = target;
+        window.location.hash = SUCCESS_TARGET;
       }
     }
 
@@ -1216,13 +1215,18 @@
         if (!data.user) setMessage("当前未登录；输入账号即可同步刷题进度。");
       } catch (error) {
         setUser(null);
-        setMessage("暂时无法确认登录状态；可以直接登录，或稍后再试。", "error");
+        state.localOnly = true;
+        loginTab.disabled = true;
+        registerTab.disabled = true;
+        form.querySelectorAll("input").forEach((input) => { input.disabled = true; });
+        submitButton.textContent = "本地模式进入刷题";
+        setMessage("未检测到账号后端，将使用浏览器本地记录。", "success");
       }
     }
 
     async function submitAuth(event) {
       event.preventDefault();
-      if (state.user) {
+      if (state.user || state.localOnly) {
         enterMain();
         setMessage("已进入刷题主界面入口。", "success");
         return;

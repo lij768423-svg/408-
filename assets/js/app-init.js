@@ -212,4 +212,11 @@ function bindNewFeatureControls() {
   };
 }
 
+window.addEventListener("message", (event) => {
+  if (event.origin !== window.location.origin) return;
+  if (!event.data || event.data.type !== "408-quiz-enter-main") return;
+  location.hash = "#/quiz";
+  location.reload();
+});
+
 initAuth();
