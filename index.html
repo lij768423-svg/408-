@@ -209,14 +209,14 @@
             <button type="button" data-guide-target="guide-data" aria-controls="guide-data" aria-pressed="false">账号与数据</button>
             <button type="button" data-guide-target="guide-faq" aria-controls="guide-faq" aria-pressed="false">常见问题</button>
           </nav>
-          <p class="guide-doc-note">推荐流程：选章节做题 → 看仪表盘 → 完成今日复习 → 遇到卡点再问 AI。</p>
+          <p class="guide-doc-note">推荐流程：首次诊断或选章做题 → 看仪表盘 → 完成今日复习 → 遇到卡点再问 AI。</p>
         </aside>
 
         <article class="guide-doc-content">
           <section class="guide-doc-section guide-doc-intro is-active" id="guide-overview">
             <p class="guide-doc-kicker">新用户入口</p>
             <h3>这套系统能做什么</h3>
-            <p class="guide-doc-lead">做题后，系统会自动更新正确率、错题和复习计划；学习仪表盘把这些记录转成今天该复习什么。AI 和个人知识库用于处理难点，不影响基础刷题。</p>
+            <p class="guide-doc-lead">第一次使用可先完成 20 道随机诊断题。做题后，系统会自动更新正确率、错题和复习计划；学习仪表盘把这些记录转成今天该复习什么。AI 和个人知识库用于处理难点，不影响基础刷题。</p>
             <div class="guide-doc-flow" aria-label="学习流程">
               <span>选择题目范围</span>
               <span>作答并看解析</span>
@@ -224,8 +224,8 @@
               <span>沉淀难点</span>
             </div>
             <dl class="guide-doc-list">
-              <div><dt>刷题</dt><dd>按科目、章节和模式生成题单，提交后记录作答结果。</dd></div>
-              <div><dt>学习仪表盘</dt><dd>查看完成度、正确率、错题、到期题目和优先复习章节。</dd></div>
+              <div><dt>刷题</dt><dd>按科目、章节和模式生成题单，提交后查看结构化答案反馈并记录结果。</dd></div>
+              <div><dt>学习仪表盘</dt><dd>首次使用提供随机诊断；之后查看完成度、正确率、错题、到期题目和优先复习章节。</dd></div>
               <div><dt>个人知识库</dt><dd>保存并管理概念笔记或题目复盘；需要登录和完整后端。</dd></div>
             </dl>
           </section>
@@ -233,13 +233,14 @@
           <section class="guide-doc-section" id="guide-quickstart" hidden>
             <h3>第一次使用</h3>
             <ol>
-              <li>进入“刷题”，在左侧选择科目和章节。</li>
+              <li>不确定从哪里开始时，先进入“学习仪表盘”完成 20 道随机诊断；也可直接进入“刷题”。</li>
+              <li>在刷题页左侧选择科目和章节。</li>
               <li>第一次学习建议选“顺序”；复盘时可选“随机”“错题”“收藏”或“未做”。</li>
               <li>选择答案后点击“提交”。多选题可连续选择多个选项。</li>
-              <li>查看正确答案、你的答案和题库解析，再进入下一题。</li>
-              <li>完成一组后打开“学习仪表盘”，按优先章节或“开始今日复习”继续。</li>
+              <li>查看作答状态、正确答案、你的答案和题库解析；答错时可直接进入 AI 错因分析。</li>
+              <li>使用结果区唯一的主操作“下一题”继续；完成一组后回到“学习仪表盘”。</li>
             </ol>
-            <p class="guide-doc-callout">建议第一轮：选一章 → 顺序做 10 题 → 查看仪表盘 → 完成已到期复习。</p>
+            <p class="guide-doc-callout">建议第一轮：完成随机诊断，或选一章顺序做 10 题 → 查看仪表盘 → 完成已到期复习。</p>
           </section>
 
           <section class="guide-doc-section" id="guide-quiz" hidden>
@@ -251,17 +252,19 @@
               <div><dt>错题 / 收藏</dt><dd>错题显示当前仍未做对的题；收藏用于保留典型题和易混题。</dd></div>
               <div><dt>未做 / 全部</dt><dd>未做用于补进度；全部会跨科目随机生成题单。</dd></div>
               <div><dt>即时判分</dt><dd>单选选择后立即判断；多选选错时立即判错，选齐正确选项时判对。</dd></div>
+              <div><dt>答案反馈</dt><dd>提交后用勾和叉标记正确项与错误选择，并集中显示正确答案、你的答案和题库解析。</dd></div>
               <div><dt>全文搜索</dt><dd>点击顶部“搜索题库”或按 <code>Ctrl/Cmd + K</code>，可搜索题干、选项和解析，并按来源和年份筛选。</dd></div>
             </dl>
-            <p class="guide-doc-callout">搜索结果点击后会直接跳到对应题目；按 <code>Esc</code> 可关闭搜索窗口。</p>
+            <p class="guide-doc-callout">选项可用 Tab 聚焦并按 Enter 或空格选择。搜索中使用 ↑↓ 选择结果、Enter 跳转、Esc 关闭，关闭后焦点会回到原位置。</p>
           </section>
 
           <section class="guide-doc-section" id="guide-review" hidden>
             <h3>仪表盘与间隔复习</h3>
             <dl class="guide-doc-list">
+              <div><dt>首次诊断</dt><dd>没有答题记录时先生成 20 道随机题，建立第一组用于推荐的学习样本。</dd></div>
               <div><dt>今日待复习</dt><dd>已经到期、建议今天完成的题目数量。</dd></div>
               <div><dt>优先章节</dt><dd>综合完成度、正确率、错题和到期题目推荐最多 3 个章节，点击即可开始。</dd></div>
-              <div><dt>章节明细</dt><dd>按科目查看完成度、正确率、错题、待复习数和最近 7 天变化。</dd></div>
+              <div><dt>章节明细</dt><dd>默认展示优先级最高的 8 行，可筛选重点章节、待复习、有错题或全部章节，并按优先级、完成度、正确率或待复习数排序。</dd></div>
               <div><dt>近期学习</dt><dd>展示最近 14 天答题量和正确情况，用于判断学习节奏。</dd></div>
             </dl>
             <ul>
@@ -275,10 +278,12 @@
 
           <section class="guide-doc-section" id="guide-ai" hidden>
             <h3>AI 讲题与保存</h3>
-            <p>右侧 AI 会带上当前题目、选项、用户选择、正确答案和题库解析。输入具体问题后按 Enter 或点击“询问 AI”；生成中再次点击可以停止。</p>
+            <p>右侧 AI 默认收起并记忆偏好。展开后会带上当前题目、选项、用户选择、正确答案和题库解析。输入具体问题后按 Enter 或点击“询问 AI”；生成中再次点击可以停止。</p>
             <dl class="guide-doc-list">
+              <div><dt>状态</dt><dd><code>LOCAL</code> 表示只能复制上下文；服务器可用时可直接在页面内流式追问。</dd></div>
               <div><dt>预设问题</dt><dd>可直接选择“讲解思路”“逐项排除”“错因分析”或“生成错题卡”。</dd></div>
               <div><dt>自由追问</dt><dd>例如“为什么不选 B”“题干的限定词在哪里”“什么是管程”。</dd></div>
+              <div><dt>答错分析</dt><dd>结果区的“去 AI 分析错因”会自动展开面板，并带入你的选择和正确答案。</dd></div>
               <div><dt>复制上下文</dt><dd>复制当前题目的 Markdown 上下文。服务器 AI 不可用时，可粘贴到外部 AI。</dd></div>
               <div><dt>保存概念</dt><dd>保存最近一次具体概念问题和 AI 回答，不发送题干、选项、答案或作答字段。</dd></div>
               <div><dt>保存题目</dt><dd>保存当前题干、选项、正确答案、题库解析、作答状态和 AI 讲解。</dd></div>
@@ -313,7 +318,7 @@
               <section>
                 <h4>登录模式</h4>
                 <ul>
-                  <li>自动同步作答、错题、收藏、复习计划、活动和部分偏好。</li>
+                  <li>自动同步作答、错题、收藏、复习计划、活动和 AI 面板等部分偏好。</li>
                   <li>状态显示 <code>SYNCING</code>、<code>SAVED</code> 或 <code>SYNC FAIL</code>。</li>
                   <li>支持页面内 AI、个人知识库和修改密码。</li>
                 </ul>
