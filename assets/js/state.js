@@ -13,7 +13,7 @@ let CURRENT = {
   idx: 0,               // 当前题号
   answers: {},          // qid -> { selected: [A,B], correct: bool, time: ts }
   aiOpen: false,        // 当前题 AI 助手是否展开(保留兼容,实际由 aiRailCollapsed 控制)
-  aiRailCollapsed: false, // 右侧 AI 栏是否被手动折叠
+  aiRailCollapsed: true,  // 右侧 AI 栏默认折叠，按需展开
   aiCfgOpen: false,     // AI 配置区是否展开
   aiOutput: "",         // AI 助手当前输出
   aiLatestUserQuestions: {}, // qid -> { first, latest, firstTs, latestTs }，切题分开记录；保存到知识库时按首次追问判断类型
@@ -27,6 +27,7 @@ let FLASH_TIMER = null;
 let AUTH_USER = null;
 let AUTH_MODE = "login";
 let AUTH_READY = false;
+let AUTH_API_AVAILABLE = null;
 let SERVER_PROGRESS_LOADED = false;
 let SYNC_TIMER = null;
 let SYNC_IN_FLIGHT = false;
@@ -36,6 +37,7 @@ let PREVIEW_FILTER = "all";
 // ============== localStorage / progress state ==============
 const LS_KEY = "408-quiz-v1";
 const SESSION_KEY = "408-quiz-session-v1";
+const AI_RAIL_KEY = "408-quiz-ai-collapsed";
 let DATA_READY = false;
 let RESTORING_SESSION = false;
 function loadState() {

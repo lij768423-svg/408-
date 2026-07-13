@@ -324,6 +324,7 @@ async function initAuth() {
     authApiAvailable = false;
     AUTH_USER = null;
   }
+  AUTH_API_AVAILABLE = authApiAvailable;
   if (!authApiAvailable) {
     const authCard = $("#auth-card");
     if (authCard) authCard.style.display = "none";

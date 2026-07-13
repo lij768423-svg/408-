@@ -142,6 +142,8 @@ function renderHeader() {
     <span>正确率 <strong>${correctRate}%</strong></span>
     <span>错题 <strong>${wrongCount}</strong></span>
   `;
+  const brandSub = document.querySelector(".brand-sub");
+  if (brandSub) brandSub.textContent = `WANGDAO 2027 / ${AUTH_USER ? "SYNCED PRACTICE" : "LOCAL PRACTICE"}`;
 }
 
 function renderBookTabs() {
@@ -211,6 +213,12 @@ function renderChapterSel() {
     trigger.setAttribute("aria-expanded", open ? "true" : "false");
     menu.hidden = !open;
   };
+  const chapterItems = () => $$("#chapter-menu .chapter-item");
+  const focusChapterItem = (index) => {
+    const items = chapterItems();
+    if (!items.length) return;
+    items[Math.max(0, Math.min(index, items.length - 1))].focus();
+  };
   trigger.onclick = (e) => {
     e.stopPropagation();
     setOpen(menu.hidden);
@@ -220,11 +228,34 @@ function renderChapterSel() {
     el.onclick = () => {
       const v = el.dataset.chapter;
       setChapter(v === "" ? null : parseInt(v, 10));
+      requestAnimationFrame(() => {
+        const nextTrigger = $("#chapter-trigger");
+        if (nextTrigger) nextTrigger.focus();
+      });
+    };
+    el.onkeydown = (e) => {
+      const items = chapterItems();
+      const index = items.indexOf(el);
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        focusChapterItem(index + (e.key === "ArrowDown" ? 1 : -1));
+      } else if (e.key === "Home" || e.key === "End") {
+        e.preventDefault();
+        focusChapterItem(e.key === "Home" ? 0 : items.length - 1);
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        setOpen(false);
+        trigger.focus();
+      }
     };
   });
   trigger.onkeydown = (e) => {
     if (e.key === "Escape") setOpen(false);
-    if (e.key === "Enter" || e.key === " ") {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      setOpen(true);
+      focusChapterItem(e.key === "ArrowDown" ? 0 : chapterItems().length - 1);
+    } else if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       setOpen(menu.hidden);
     }
@@ -402,10 +433,15 @@ function renderQuiz() {
         } else if (state.selected.includes(L)) {
           cls += " selected";
         }
-        return `<div class="${cls}" data-letter="${L}">
+        const resultIcon = state.submitted
+          ? (q.answer.includes(L) ? '<span class="option-result correct" aria-hidden="true">✓</span><span class="sr-only">正确答案</span>'
+            : state.selected.includes(L) ? '<span class="option-result wrong" aria-hidden="true">×</span><span class="sr-only">你的错误选择</span>' : "")
+          : "";
+        return `<button class="${cls}" type="button" data-letter="${L}" aria-pressed="${state.selected.includes(L) ? "true" : "false"}"${state.submitted ? " disabled" : ""}>
           <span class="opt-letter">${L}</span>
           <span class="opt-text">${formatContent(text)}</span>
-        </div>`;
+          ${resultIcon}
+        </button>`;
       }).join("")}
     </div>
     <div class="actions">
@@ -425,14 +461,20 @@ function renderQuiz() {
     </div>
     <div class="feedback ${state.submitted ? "show" : ""} ${state.submitted ? (state.shown ? "info" : (state.correct ? "correct" : "wrong")) : ""}" id="fb">
       ${state.submitted ? `
-        <div class="fb-head"><span class="status-pill ${state.shown ? "" : (state.correct ? "correct" : "wrong")}">${state.shown ? "已查看答案" : (state.correct ? "正确" : "错误")}</span></div>
-        <div class="fb-answer">正确答案: <strong>${q.answer.join("、")}</strong>${state.selected.length ? ` · 你的答案: ${state.selected.join("、")}${state.shown ? " (仅供参考)" : ""}` : ""}</div>
-        <div class="fb-expl">${formatContent(q.explanation)}</div>
+        <div class="fb-head">
+          <span class="status-pill ${state.shown ? "" : (state.correct ? "correct" : "wrong")}">${state.shown ? "已查看答案" : (state.correct ? "正确" : "错误")}</span>
+          ${!state.correct && !state.shown ? '<button class="feedback-ai-action" type="button" id="btn-ai-mistake">去 AI 分析错因</button>' : ""}
+        </div>
+        <div class="fb-answer">
+          <span><small>正确答案</small><strong>${q.answer.join("、")}</strong></span>
+          <span><small>你的答案</small><strong>${state.selected.length ? state.selected.join("、") : "未作答"}${state.shown ? "（仅供参考）" : ""}</strong></span>
+        </div>
+        <div class="fb-expl"><strong class="fb-expl-title">题库解析</strong>${formatContent(q.explanation)}</div>
       ` : ""}
     </div>
     <div class="actions actions-secondary">
       <button class="btn btn-ghost" id="btn-prev">← 上一题</button>
-      <button class="btn btn-ghost action-spacer" id="btn-next2">下一题 →</button>
+      ${!state.submitted ? '<button class="btn btn-ghost action-spacer" id="btn-next2">下一题 →</button>' : ""}
     </div>
   `;
 
@@ -495,9 +537,14 @@ function renderQuiz() {
     if (showBtn) showBtn.onclick = () => showAnswer();
   } else {
     $("#btn-next").onclick = () => goNext();
+    const mistakeButton = $("#btn-ai-mistake");
+    if (mistakeButton) mistakeButton.onclick = () => {
+      openAiRailForQuestion(`请分析我为什么会选 ${state.selected.join("、") || "这个答案"}，并说明正确答案 ${q.answer.join("、")} 的判断依据。`);
+    };
   }
   $("#btn-prev").onclick = () => goPrev();
-  $("#btn-next2").onclick = () => goNext();
+  const nextSecondary = $("#btn-next2");
+  if (nextSecondary) nextSecondary.onclick = () => goNext();
   $("#btn-fav").onclick = () => { toggleFav(q.id); render(); };
   // Feature 5: 真题/自编题标签点击切换
   $$(".q-source-tag").forEach(el => {

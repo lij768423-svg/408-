@@ -80,6 +80,8 @@ async function main() {
     await page.waitForTimeout(700);
     assert.ok(savedProgress && savedProgress.state.reviews);
 
+    if (await page.locator("#ai-reopen").isVisible()) await page.locator("#ai-reopen").click();
+    await page.waitForFunction(() => document.querySelector("#ai-mode-label").textContent.includes("mock-model"));
     await page.locator("#ai-question").fill("解释这道题");
     await page.locator("#ai-ask").click();
     await page.waitForFunction(() => document.querySelector("#ai-output").innerText.includes("模拟讲解"));

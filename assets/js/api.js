@@ -87,6 +87,10 @@ async function loadServerProgress() {
     if (progress.preferences.lastBook) {
       localStorage.setItem("408-quiz-last-book", String(progress.preferences.lastBook));
     }
+    if (progress.preferences.aiRailCollapsed != null) {
+      CURRENT.aiRailCollapsed = !!progress.preferences.aiRailCollapsed;
+      localStorage.setItem(AI_RAIL_KEY, CURRENT.aiRailCollapsed ? "1" : "0");
+    }
   }
   SERVER_PROGRESS_LOADED = true;
   setSyncStatus(data.progress ? "SAVED" : "NEW");

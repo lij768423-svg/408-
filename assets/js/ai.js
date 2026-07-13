@@ -179,7 +179,9 @@ function bindAiRailHeightSync() {
 }
 
 function aiModeLabel() {
-  return AI_STATUS && AI_STATUS.model ? "API · " + AI_STATUS.model : "Server AI";
+  if (!AUTH_USER) return AI_STATUS && AI_STATUS.enabled ? "需登录" : "复制上下文";
+  if (!AI_STATUS || !AI_STATUS.enabled) return "AI 未配置";
+  return AI_STATUS.model ? "已连接 · " + AI_STATUS.model : "AI 已连接";
 }
 
 async function refreshAiStatus() {
@@ -189,6 +191,30 @@ async function refreshAiStatus() {
   } catch (e) {
     AI_STATUS = { enabled: false, model: "unavailable" };
   }
+  const label = $("#ai-mode-label");
+  if (label) label.textContent = aiModeLabel();
+}
+
+function setAiRailCollapsed(collapsed, persistPreference = true) {
+  CURRENT.aiRailCollapsed = !!collapsed;
+  const rail = $("#ai-rail");
+  if (rail && !window.matchMedia("(max-width: 1024px)").matches) {
+    rail.classList.toggle("is-collapsed", CURRENT.aiRailCollapsed);
+    const reopen = $("#ai-reopen");
+    if (reopen) reopen.setAttribute("aria-expanded", CURRENT.aiRailCollapsed ? "false" : "true");
+  }
+  if (!persistPreference) return;
+  localStorage.setItem(AI_RAIL_KEY, CURRENT.aiRailCollapsed ? "1" : "0");
+  scheduleServerSync();
+}
+
+function openAiRailForQuestion(prompt = "") {
+  setAiRailCollapsed(false);
+  const rail = $("#ai-rail");
+  if (rail && window.matchMedia("(max-width: 1024px)").matches) rail.classList.add("is-open");
+  const input = $("#ai-question");
+  if (input && prompt) input.value = prompt;
+  if (input) requestAnimationFrame(() => input.focus());
 }
 
 function buildAiMessages(mode, q, state, extra) {
@@ -335,6 +361,9 @@ function renderAiPanel(q, state) {
     rail.classList.toggle("is-collapsed", !!CURRENT.aiRailCollapsed);
   }
   rail.innerHTML = `
+    <button class="ai-rail-reopen" id="ai-reopen" type="button" aria-label="展开 AI 讲题" aria-expanded="false">
+      <span aria-hidden="true">AI</span><small>讲题</small>
+    </button>
     <div class="ai-shell" id="ai-shell">
       <div class="ai-head">
         <div class="ai-title"><span class="ai-title-main">AI 讲题</span><small id="ai-mode-label">${aiModeLabel()}</small></div>
@@ -406,6 +435,11 @@ function renderAiPanel(q, state) {
   bindAiRailHeightSync();
   bindAiPanel(q, state);
   bindAiOutputScrollState();
+  const reopen = $("#ai-reopen");
+  if (reopen) reopen.onclick = (event) => {
+    event.stopPropagation();
+    setAiRailCollapsed(false);
+  };
   // 折叠把手/抽屉把手 点击恢复 — 用 onclick 避免 renderQuiz 反复调用时 listener 累积
   rail.onclick = (e) => {
     if (window.matchMedia("(max-width: 1024px)").matches) {
@@ -415,8 +449,7 @@ function renderAiPanel(q, state) {
     } else {
       // 桌面:折叠态时点 rail(除关按钮外)恢复
       if (rail.classList.contains("is-collapsed") && !e.target.closest("#ai-close")) {
-        CURRENT.aiRailCollapsed = false;
-        rail.classList.remove("is-collapsed");
+        setAiRailCollapsed(false);
       }
     }
   };
@@ -432,9 +465,7 @@ function bindAiPanel(q, state) {
       const rail = $("#ai-rail");
       if (rail) rail.classList.remove("is-open");
     } else {
-      CURRENT.aiRailCollapsed = !CURRENT.aiRailCollapsed;
-      const rail = $("#ai-rail");
-      if (rail) rail.classList.toggle("is-collapsed", CURRENT.aiRailCollapsed);
+      setAiRailCollapsed(!CURRENT.aiRailCollapsed);
     }
   };
 

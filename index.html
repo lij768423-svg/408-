@@ -7,12 +7,12 @@
 <link rel="icon" href="favicon.svg?v=20260709-0745" type="image/svg+xml">
 <link rel="shortcut icon" href="favicon.svg?v=20260709-0745" type="image/svg+xml">
 <link rel="preload" href="data.json" as="fetch" type="application/json">
-<link rel="preload" href="assets/app.css?v=20260710-0845" as="style">
-<link rel="preload" href="assets/js/state.js" as="script">
-<link rel="preload" href="assets/js/api.js" as="script">
+<link rel="preload" href="assets/app.css?v=20260713-1415" as="style">
+<link rel="preload" href="assets/js/state.js?v=20260713-1415" as="script">
+<link rel="preload" href="assets/js/api.js?v=20260713-1415" as="script">
 <link rel="preload" href="assets/js/utils.js" as="script">
-<link rel="preload" href="assets/js/quiz.js?v=20260710-1300" as="script">
-<link rel="preload" href="assets/js/app-init.js?v=20260710-1810" as="script">
+<link rel="preload" href="assets/js/quiz.js?v=20260713-1415" as="script">
+<link rel="preload" href="assets/js/app-init.js?v=20260713-1415" as="script">
 <!-- KaTeX(公式渲染;无网时自动回退为原文,不影响刷题) -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/app.css?v=20260710-0845">
+<link rel="stylesheet" href="assets/app.css?v=20260713-1415">
 </head>
 <body>
 <div class="app">
@@ -402,14 +402,17 @@
 <div class="toast" id="toast"></div>
 
 <!-- Feature 6: 全文搜索弹窗 -->
-<div class="search-modal" id="search-modal" hidden role="dialog" aria-modal="true" aria-labelledby="search-input">
+<div class="search-modal" id="search-modal" hidden role="dialog" aria-modal="true" aria-labelledby="search-title">
   <div class="search-box">
+    <h2 class="sr-only" id="search-title">搜索题库</h2>
     <div class="search-input-row">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
       </svg>
-      <input class="search-input" type="text" id="search-input" placeholder="搜索题干 / 选项 / 解析……" autocomplete="off">
-      <span class="search-hint" id="search-count">0</span>
+      <label class="sr-only" for="search-input">搜索题干、选项或解析</label>
+      <input class="search-input" type="text" id="search-input" placeholder="搜索题干 / 选项 / 解析……" autocomplete="off" aria-controls="search-results" aria-autocomplete="list">
+      <span class="search-hint" id="search-count" aria-live="polite">0 条结果</span>
+      <button class="search-close" type="button" id="search-close" aria-label="关闭题库搜索">×</button>
     </div>
     <div class="search-filter-row" aria-label="搜索筛选">
       <div class="search-source-filters" role="group" aria-label="来源类型">
@@ -423,29 +426,29 @@
         <option value="all">全部年份</option>
       </select>
     </div>
-    <div class="search-results" id="search-results"></div>
+    <div class="search-results" id="search-results" role="listbox" aria-label="搜索结果" tabindex="-1"></div>
     <div class="search-footer">
       <span><kbd>↑↓</kbd> 选择</span>
       <span><kbd>Enter</kbd> 跳转</span>
       <span><kbd>Esc</kbd> 关闭</span>
-      <span style="margin-left:auto;">共 <span id="search-total">0</span> 题</span>
+      <span class="search-total">题库共 <span id="search-total">0</span> 题</span>
     </div>
   </div>
 </div>
 
 <!-- Classic script load order: see assets/js/README.md. -->
-<script src="assets/js/state.js"></script>
+<script src="assets/js/state.js?v=20260713-1415"></script>
 <script src="assets/js/learning.js?v=20260710-1200"></script>
-<script src="assets/js/api.js"></script>
+<script src="assets/js/api.js?v=20260713-1415"></script>
 <script src="assets/js/utils.js"></script>
 <script src="assets/js/router.js"></script>
-<script src="assets/js/quiz.js?v=20260710-1300"></script>
-<script src="assets/js/auth.js?v=20260710-1420"></script>
+<script src="assets/js/quiz.js?v=20260713-1415"></script>
+<script src="assets/js/auth.js?v=20260713-1415"></script>
 <script src="assets/js/wiki.js?v=20260710-1900"></script>
-<script src="assets/js/ai.js?v=20260710-2240"></script>
-<script src="assets/js/search.js?v=20260710-2115"></script>
-<script src="assets/js/dashboard.js?v=20260710-1320"></script>
-<script src="assets/js/app-init.js?v=20260710-2030"></script>
+<script src="assets/js/ai.js?v=20260713-1415"></script>
+<script src="assets/js/search.js?v=20260713-1415"></script>
+<script src="assets/js/dashboard.js?v=20260713-1415"></script>
+<script src="assets/js/app-init.js?v=20260713-1415"></script>
 
 </body>
 </html>

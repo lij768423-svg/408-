@@ -5,6 +5,7 @@ let SEARCH_ACTIVE = -1;  // 当前高亮的搜索结果
 let SEARCH_RESULTS = [];
 let SEARCH_SOURCE_TYPE = "all";
 let SEARCH_YEAR = "all";
+let SEARCH_RETURN_FOCUS = null;
 function buildSearchIndex() {
   const idx = [];  // [{qid, plain}]
   for (const q of ALL_QUESTIONS) {
@@ -58,6 +59,7 @@ function renderSearchFilters() {
   }
   $$(".search-source-filter").forEach(btn => {
     btn.classList.toggle("is-active", btn.dataset.sourceType === SEARCH_SOURCE_TYPE);
+    btn.setAttribute("aria-pressed", btn.dataset.sourceType === SEARCH_SOURCE_TYPE ? "true" : "false");
   });
 }
 function searchQuestions(query) {
@@ -94,20 +96,63 @@ function highlightMatch(text, query) {
 function openSearch() {
   const modal = $("#search-modal");
   if (!modal) return;
+  SEARCH_RETURN_FOCUS = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   modal.hidden = false;
+  const app = document.querySelector(".app");
+  if (app) app.inert = true;
+  document.body.classList.add("modal-open");
   const input = $("#search-input");
   input.value = "";
+  input.removeAttribute("aria-activedescendant");
+  SEARCH_RESULTS = [];
+  SEARCH_ACTIVE = -1;
   SEARCH_SOURCE_TYPE = "all";
   SEARCH_YEAR = "all";
   renderSearchFilters();
   $("#search-results").innerHTML = `<div class="search-empty">搜索题干 / 选项 / 解析<br>也可按来源和年份筛选</div>`;
-  $("#search-count").textContent = "0";
+  $("#search-count").textContent = "0 条结果";
   $("#search-total").textContent = ALL_QUESTIONS.length;
   setTimeout(() => input.focus(), 30);
 }
-function closeSearch() {
+function closeSearch(restoreFocus = true) {
   const modal = $("#search-modal");
   if (modal) modal.hidden = true;
+  const app = document.querySelector(".app");
+  if (app) app.inert = false;
+  document.body.classList.remove("modal-open");
+  const input = $("#search-input");
+  if (input) input.removeAttribute("aria-activedescendant");
+  if (restoreFocus && SEARCH_RETURN_FOCUS && SEARCH_RETURN_FOCUS.isConnected) {
+    const target = SEARCH_RETURN_FOCUS;
+    requestAnimationFrame(() => target.focus());
+  }
+  SEARCH_RETURN_FOCUS = null;
+}
+function trapSearchFocus(event) {
+  if (event.key !== "Tab") return;
+  const modal = $("#search-modal");
+  if (!modal || modal.hidden) return;
+  const focusable = [...modal.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), [href], [tabindex]:not([tabindex="-1"])')]
+    .filter(el => el.getClientRects().length > 0);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+function syncSearchActiveDescendant() {
+  const input = $("#search-input");
+  if (!input) return;
+  if (SEARCH_ACTIVE >= 0 && SEARCH_ACTIVE < Math.min(SEARCH_RESULTS.length, 100)) {
+    input.setAttribute("aria-activedescendant", `search-result-${SEARCH_ACTIVE}`);
+  } else {
+    input.removeAttribute("aria-activedescendant");
+  }
 }
 function runSearch() {
   const input = $("#search-input");
@@ -115,7 +160,7 @@ function runSearch() {
   const ids = searchQuestions(q);
   SEARCH_RESULTS = ids;
   SEARCH_ACTIVE = ids.length > 0 ? 0 : -1;
-  $("#search-count").textContent = ids.length;
+  $("#search-count").textContent = `${ids.length} 条结果`;
   renderSearchResults();
 }
 function renderSearchResults() {
@@ -125,6 +170,7 @@ function renderSearchResults() {
     const q = ($("#search-input") && $("#search-input").value || "").trim();
     const msg = q || hasActiveSearchFilter() ? "没有匹配的题目<br>试试其他关键词或筛选条件" : "输入关键词搜索题干 / 选项 / 解析<br>也可按来源标签和年份筛选";
     box.innerHTML = `<div class="search-empty">${msg}</div>`;
+    syncSearchActiveDescendant();
     return;
   }
   const q = $("#search-input").value;
@@ -135,7 +181,7 @@ function renderSearchResults() {
     if (!qq) return "";
     const stem = plainText(qq.question);
     const activeCls = i === SEARCH_ACTIVE ? " is-active" : "";
-    return `<div class="search-result${activeCls}" data-qid="${escHtml(qid)}" data-idx="${i}">
+    return `<div class="search-result${activeCls}" id="search-result-${i}" role="option" aria-selected="${i === SEARCH_ACTIVE ? "true" : "false"}" data-qid="${escHtml(qid)}" data-idx="${i}">
       <div class="search-result-meta">
         ${renderSourceTag(qq)}
         <span>${escHtml(qq.book)} · ${escHtml(qq.chapter_title)} · ${escHtml(qq.section || "")}</span>
@@ -143,6 +189,7 @@ function renderSearchResults() {
       <div class="search-result-stem">${highlightMatch(stem, q)}</div>
     </div>`;
   }).join("");
+  syncSearchActiveDescendant();
   $$(".search-result").forEach(el => {
     el.onclick = () => {
       const qid = el.dataset.qid;
@@ -153,7 +200,7 @@ function renderSearchResults() {
 function jumpToSearchResult(qid) {
   const q = ALL_QUESTIONS.find(x => x.id === qid);
   if (!q) { toast("题目不存在"); return; }
-  closeSearch();
+  closeSearch(false);
   // 切换到对应的书目 + 章节 + 顺序模式,然后跳到该题
   CURRENT.book = q.book;
   CURRENT.chapter = q.chapter;

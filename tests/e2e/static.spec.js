@@ -14,6 +14,38 @@ async function main() {
     await page.goto(server.url, { waitUntil: "domcontentloaded" });
     await page.waitForFunction(() => typeof DATA_READY !== "undefined" && DATA_READY === true);
     assert.equal(await page.locator("#sync-status").textContent(), "LOCAL");
+    assert.ok(await page.locator("#ai-rail").evaluate(element => element.classList.contains("is-collapsed")));
+    assert.ok(await page.locator("#ai-reopen").isVisible());
+    await page.locator("#ai-reopen").click();
+    assert.ok(await page.locator("#ai-shell").isVisible());
+
+    await page.evaluate(() => {
+      CURRENT.aiOutput = Array.from({ length: 18 }, (_, index) => (
+        `## 布局检查 ${index + 1}\n\n- 长回答需要完整撑开 AI 内容卡片。\n- 滚动应由外层阅读区域承担。`
+      )).join("\n\n");
+      render();
+    });
+    const aiOutputBox = await page.locator("#ai-output").evaluate(element => ({
+      clientHeight: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+      borderWidth: getComputedStyle(element).borderTopWidth
+    }));
+    assert.ok(aiOutputBox.clientHeight >= aiOutputBox.scrollHeight - 1);
+    assert.equal(aiOutputBox.borderWidth, "0px");
+    const aiOutputArea = await page.locator(".ai-output-area").evaluate(element => ({
+      clientHeight: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+      borderWidth: getComputedStyle(element).borderTopWidth
+    }));
+    assert.equal(aiOutputArea.borderWidth, "1px");
+    assert.ok(aiOutputArea.scrollHeight > aiOutputArea.clientHeight);
+
+    await page.goto(server.url + "#/dashboard", { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => typeof DATA_READY !== "undefined" && DATA_READY === true);
+    await page.waitForSelector("#dashboard-start-diagnostic");
+    assert.match(await page.locator(".dashboard-onboarding").innerText(), /20 道随机诊断题/);
+    await page.goto(server.url + "#/quiz", { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => typeof DATA_READY !== "undefined" && DATA_READY === true);
 
     await page.locator('[data-book="操作系统"]').click();
     assert.match(await page.locator("#chapter-trigger").textContent(), /全部章节/);
@@ -23,12 +55,20 @@ async function main() {
 
     const answer = await page.evaluate(() => CURRENT.questions[CURRENT.idx].answer[0]);
     const wrongAnswer = ["A", "B", "C", "D"].find(letter => letter !== answer);
+    assert.equal(await page.locator(`.option[data-letter="${wrongAnswer}"]`).evaluate(element => element.tagName), "BUTTON");
     await page.locator(`.option[data-letter="${wrongAnswer}"]`).click();
     await page.locator("#btn-submit").click();
     await page.waitForSelector(".feedback.show.wrong");
     const questionId = await page.evaluate(() => CURRENT.questions[CURRENT.idx].id);
     const wrongState = await page.evaluate(id => ({ wrong: !!STATE.wrong[id], due: isReviewDue(id), attempts: STATE.reviews[id].attempts }), questionId);
     assert.deepEqual(wrongState, { wrong: true, due: true, attempts: 1 });
+    assert.equal(await page.locator("#btn-next2").count(), 0);
+    assert.ok(await page.locator(".option-result.correct").isVisible());
+    assert.ok(await page.locator(".option-result.wrong").isVisible());
+    await page.locator("#ai-close").click();
+    await page.locator("#btn-ai-mistake").click();
+    assert.ok(await page.locator("#ai-shell").isVisible());
+    assert.match(await page.locator("#ai-question").inputValue(), /分析我为什么会选/);
 
     await page.locator("#btn-fav").click();
     assert.equal(await page.evaluate(id => !!STATE.favorite[id], questionId), true);
@@ -39,12 +79,18 @@ async function main() {
     await page.locator('[data-mode="review"]').click();
     assert.equal(await page.evaluate(() => CURRENT.mode), "review");
 
+    await page.locator("#search-open").focus();
     await page.keyboard.press("Control+k");
     await page.locator("#search-input").fill("进程");
     await page.waitForTimeout(80);
-    assert.ok(Number(await page.locator("#search-count").textContent()) > 0);
+    assert.ok(parseInt(await page.locator("#search-count").textContent(), 10) > 0);
+    assert.equal(await page.locator("#search-modal").getAttribute("aria-labelledby"), "search-title");
+    await page.locator("#search-year-filter").focus();
+    await page.keyboard.press("Tab");
+    assert.equal(await page.evaluate(() => document.activeElement.id), "search-input");
     await page.keyboard.press("Escape");
     assert.equal(await page.locator("#search-modal").getAttribute("hidden"), "");
+    await page.waitForFunction(() => document.activeElement && document.activeElement.id === "search-open");
 
     const downloadPromise = page.waitForEvent("download");
     await page.locator("#export-progress").click();
@@ -67,6 +113,11 @@ async function main() {
     await page.waitForSelector(".dashboard-summary-grid article");
     assert.match(await page.locator("#dashboard-content").innerText(), /待复习/);
     assert.match(await page.locator("#dashboard-start-review").textContent(), /开始今日复习/);
+    assert.ok((await page.locator("[data-dashboard-row]").count()) <= 8);
+    await page.locator('[data-dashboard-filter="all"]').click();
+    assert.equal(await page.locator("[data-dashboard-row]").count(), 8);
+    await page.locator("#dashboard-toggle-all").click();
+    assert.ok((await page.locator("[data-dashboard-row]").count()) > 8);
     await page.locator("#dashboard-help-button").click();
     assert.ok(await page.locator("#dashboard-help-popover").isVisible());
     assert.match(await page.locator("#dashboard-help-popover").innerText(), /连续做对 2 次/);

@@ -7,6 +7,8 @@ function loadPersistedPreferences() {
     if (instant != null) CURRENT.instantGrade = JSON.parse(instant);
     const lim = localStorage.getItem("408-quiz-limit");
     if (lim != null) CURRENT.limit = parseInt(lim, 10) || 50;
+    const aiCollapsed = localStorage.getItem(AI_RAIL_KEY);
+    if (aiCollapsed != null) CURRENT.aiRailCollapsed = aiCollapsed !== "0";
   } catch (e) {}
 }
 
@@ -28,6 +30,11 @@ function setQuizLoadError(err) {
 function startAppAfterAuth() {
   AUTH_READY = true;
   loadPersistedPreferences();
+  if (AUTH_API_AVAILABLE && typeof refreshAiStatus === "function") {
+    refreshAiStatus();
+  } else if (typeof AI_STATUS !== "undefined") {
+    AI_STATUS = { enabled: false, model: "unavailable" };
+  }
   $("#quiz-area").innerHTML = '<div class="loading" id="quiz-loading">加载题库中...</div>';
   const slowTimer = setTimeout(setQuizLoadingSlowHint, 3200);
   fetch("data.json")
@@ -89,7 +96,7 @@ function bindNewFeatureControls() {
       if (e.key === "ArrowDown") {
         e.preventDefault();
         if (SEARCH_RESULTS.length === 0) return;
-        SEARCH_ACTIVE = Math.min(SEARCH_ACTIVE + 1, SEARCH_RESULTS.length - 1);
+        SEARCH_ACTIVE = Math.min(SEARCH_ACTIVE + 1, Math.min(SEARCH_RESULTS.length, 100) - 1);
         renderSearchResults();
         const active = $(".search-result.is-active");
         if (active) active.scrollIntoView({ block: "nearest" });
@@ -106,6 +113,8 @@ function bindNewFeatureControls() {
           jumpToSearchResult(SEARCH_RESULTS[SEARCH_ACTIVE]);
         }
       } else if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
         closeSearch();
       }
     };
@@ -129,10 +138,13 @@ function bindNewFeatureControls() {
   }
   const searchModal = $("#search-modal");
   if (searchModal) {
+    searchModal.onkeydown = trapSearchFocus;
     searchModal.onclick = (e) => {
       if (e.target === searchModal) closeSearch();
     };
   }
+  const searchClose = $("#search-close");
+  if (searchClose) searchClose.onclick = () => closeSearch();
   // Ctrl+K / Cmd+K 打开搜索
   document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
